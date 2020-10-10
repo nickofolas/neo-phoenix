@@ -1,4 +1,5 @@
 import pathlib
+import asyncio
 
 import discord
 from discord.ext import commands
@@ -26,3 +27,6 @@ class Fubuki(commands.Bot):
                 self.load_extension(_to_load)
 
         super().run(self.cfg['bot']['token'])
+
+    async def close(self):
+        [task.cancel() for task in asyncio.all_tasks(self.loop)]

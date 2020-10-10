@@ -5,9 +5,8 @@ import discord
 from .pages import Pages, EmbedPages
 
 class Paginator:
-    def __init__(self, pages, *, joiner: str = '\n', timeout: int = 60):
+    def __init__(self, pages, *, timeout: int = 60):
         self.pages = pages
-        self.joiner = joiner
         self.timeout = timeout
 
         self.message = None        
@@ -33,12 +32,12 @@ class Paginator:
             use_embed = False,
             joiner = '\n',
             **kwargs):
-        _pages = Pages([*iterable], per_page, use_embed=use_embed, joiner=joiner)
+        _pages = Pages(iterable, per_page, use_embed=use_embed, joiner=joiner)
         return cls(_pages, **kwargs)
 
     @classmethod
     def from_embeds(cls, iterable, **kwargs):
-        _pages = EmbedPages([*iterable])
+        _pages = EmbedPages(iterable)
         return cls(_pages, **kwargs)
 
     async def start(self, _ctx):
@@ -78,7 +77,7 @@ class Paginator:
             item.set_footer(text=f'Page {self.current_page + 1}/{len(self.pages)}')
             return {'embed': item}
         elif isinstance(item, (str, tuple)):
-            return {'content': self.joiner.join(item)}
+            return {'content': item}
 
     async def show_page(self, index):
         if not self._running: return

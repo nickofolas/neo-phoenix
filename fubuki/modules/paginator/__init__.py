@@ -1,4 +1,4 @@
-__all__ = ('Pages',)
+__all__ = ('Pages', 'Paginator')
 
 from .pages import Pages
 from .paginator import Paginator
