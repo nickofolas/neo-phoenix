@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 
 from .modules import *
+from .types import Embed
 
 class Fubuki(commands.Bot):
     def __init__(self, config, **kwargs):
@@ -27,6 +28,10 @@ class Fubuki(commands.Bot):
                 self.load_extension(_to_load)
 
         super().run(self.cfg['bot']['token'])
+
+    async def on_message_edit(self, before, after):
+        if after.content != before.content:
+            await self.process_commands(after)
 
     async def close(self):
         [task.cancel() for task in asyncio.all_tasks(self.loop)]

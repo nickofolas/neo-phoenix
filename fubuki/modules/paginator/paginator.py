@@ -117,7 +117,7 @@ class Paginator:
 
                 if self._remove_reactions:
                     await self.message.remove_reaction(payload.emoji, type('', (), {'id': payload.user_id}))
-
+ 
                 if (coro := self.emoji_map.get(payload.emoji.name)):
                     await coro()
                 else:
