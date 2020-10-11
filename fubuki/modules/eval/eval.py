@@ -21,6 +21,11 @@ def env_from_context(ctx):
         '_': ctx.bot._last_eval_result
         }
 
+def clear_intersection(dict1, dict2):
+    for key in dict1.keys():
+        if dict2.get(key):
+            del dict2[key]
+
 class Eval:
     def __init__(self, code_input, environment, output):
         self.compiled = compile_all(code_input)

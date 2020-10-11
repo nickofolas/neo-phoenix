@@ -1,10 +1,11 @@
 from discord.ext import commands
 
+import fubuki
 from fubuki.modules.paginator import Paginator, Pages
 from fubuki.types.converters import CodeblockConverter
-from fubuki.modules.eval import Eval, format_exception, env_from_context
+from fubuki.modules.eval import Eval, format_exception, env_from_context, clear_intersection
 
-class Devel(commands.Cog):
+class Devel(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
         self._eval_scope = {}
@@ -14,6 +15,7 @@ class Devel(commands.Cog):
 
     @commands.command(name = 'cleanup')
     async def dev_cleanup(self, ctx, amount: int = 5):
+        '''Cleanup the bot's messages from a channel'''
         purged = await ctx.channel.purge(
             limit = amount,
             bulk = False,
@@ -22,9 +24,9 @@ class Devel(commands.Cog):
 
     @commands.command(name = 'eval', aliases = ['e'])
     async def dev_eval(self, ctx, *, code: CodeblockConverter):
-        """SoonTM"""
-        (environment := env_from_context(ctx)).update(
-            **globals(), **self._eval_scope)
+        '''Executes some code, retaining the result'''
+        clear_intersection(globals(), self._eval_scope)
+        (environment := env_from_context(ctx)).update(**globals(), **self._eval_scope)
         results = []
         return_value = None
         try:
@@ -34,6 +36,7 @@ class Devel(commands.Cog):
                 res = repr(res) if not isinstance(res, str) else res
                 results.append(res)
             return_value = '\n'.join(results)
+            await ctx.message.add_reaction('\U00002611')
         except Exception as e:
             return_value = format_exception(e)
         finally:

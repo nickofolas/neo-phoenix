@@ -1,0 +1,1 @@
+from .addon import Addon
