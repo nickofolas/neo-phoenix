@@ -1,4 +1,4 @@
-import discord
+from ...types.embed import Embed
 
 class Pages:
     """
@@ -15,7 +15,7 @@ class Pages:
         Default: False
     - joiner: str
         The string that will be used to join items on a page
-        Default: '\n'
+        Default: ''
 
     Attributes:
     - pages
@@ -26,7 +26,7 @@ class Pages:
             items,
             /, per_page: int = 1,
             *, use_embed: bool = False,
-            joiner: str = '\n',
+            joiner: str = '',
             prefix: str = None,
             suffix: str = None):
         self.items = items
@@ -65,7 +65,7 @@ class Pages:
     def __getitem__(self, index):
         content = self.joiner.join(self.pages[index])
         if self.use_embed:
-            return discord.Embed(description=content)
+            return Embed(description=content)
         return content
 
     def append(self, new):

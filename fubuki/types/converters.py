@@ -9,4 +9,5 @@ class CodeblockConverter(commands.Converter):
         new = None
         if all([arg.startswith('`'), arg.endswith('`')]):
             new = arg.strip('`')
-        return re.sub(codeblock_regex, '', new)
+            return re.sub(codeblock_regex, '', new)
+        return arg

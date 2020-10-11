@@ -11,6 +11,7 @@ class Fubuki(commands.Bot):
     def __init__(self, config, **kwargs):
 
         self.cfg = config
+        self._last_eval_result = None
         kwargs.setdefault('command_prefix', self.get_prefix)
 
         super().__init__(**kwargs)
