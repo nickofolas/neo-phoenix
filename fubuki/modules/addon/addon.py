@@ -16,10 +16,11 @@ class Addon(commands.Cog):
         _current_commands.append(command)
         self.__cog_commands__ = tuple(_current_commands)
 
-        for _old_command in self.walk_commands():
-            self.bot.remove_command(_old_command.name) # No dupe cmd errors
-
-        self._inject(self.bot) # Re-add everything
+        for _command in self.__cog_commands__:
+            self.bot.remove_command(_command.name)
+            _command.cog = self
+            if not _command.parent:
+                self.bot.add_command(_command)
 
         if isinstance(_original_command, commands.Group):
             for subcmd in command.walk_commands():
@@ -30,6 +31,9 @@ class Addon(commands.Cog):
         return self.bot.get_command(command.name)
 
     def add_listener(self, listener, name = None):
+        '''
+        Registers a listener to a loaded Addon
+        '''
         setattr(
             self,
             listener.__name__,
@@ -48,11 +52,11 @@ class Addon(commands.Cog):
         Handles merging 2 addons together.
         Generally for internal use
         '''
-        for _cmd in other.get_commands(): # Add all commands over
+        self.bot.remove_cog(other.qualified_name) # Consume the other addon
+        for _cmd in other.__cog_commands__: # Add all commands over
             self.add_command(_cmd)
         for name, method_name in other.__cog_listeners__: # Add all listeners over
             self.add_listener(getattr(other, method_name), name)
-        self.bot.remove_cog(other.qualified_name) # Consume the other addon
 
     def __or__(self, other):
         '''
