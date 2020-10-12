@@ -5,6 +5,23 @@ import discord
 from .pages import Pages, EmbedPages
 
 class Paginator:
+    '''
+    A class which accomodates the creation of interactive reaction menus.
+    A constructed menu may be started by calling `await menu.start(ctx: commands.Context)`
+
+    Parameters:
+    - pages: Pages
+        The Pages object that is used as the pagination source.
+    - timeout: int
+        Allowed seconds of inactivity before the menu terminates itself.
+        Default: 60
+
+    Classmethods:
+    - from_iterable(iterable, per_page, use_embed, joiner, **kwargs)
+        Creates a Paginator object without the need for a premade Pages.
+    - from_embeds(iterable, **kwargs)
+        Creates a Paginator object from a list of Embeds
+    '''
     def __init__(self, pages, *, timeout: int = 60):
         self.pages = pages
         self.timeout = timeout
