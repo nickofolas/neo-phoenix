@@ -27,7 +27,11 @@ def clear_intersection(dict1, dict2):
             del dict2[key]
 
 class Eval:
-    def __init__(self, code_input, environment, output):
+    def __init__(
+            self,
+            code_input,
+            environment = {},
+            output = {}):
         self.compiled = compile_all(code_input)
         self.environment = environment
         self.output = output
