@@ -1,11 +1,14 @@
 import pathlib
 import asyncio
+import logging
 
 import discord
 from discord.ext import commands
 
 from .modules import *
 from .types import Embed
+
+log = logging.getLogger(__name__)
 
 class Fubuki(commands.Bot):
     def __init__(self, config, **kwargs):
@@ -15,9 +18,6 @@ class Fubuki(commands.Bot):
         kwargs.setdefault('command_prefix', self.get_prefix)
 
         super().__init__(**kwargs)
-
-    async def get_prefix(self, message):
-        return commands.when_mentioned_or(self.cfg['bot']['prefix'])(self, message)
 
     def run(self):
         WD = pathlib.Path(__file__).parent / "addons"
@@ -30,9 +30,15 @@ class Fubuki(commands.Bot):
 
         super().run(self.cfg['bot']['token'])
 
+    async def close(self):
+        [task.cancel() for task in asyncio.all_tasks(self.loop)]
+
+    async def on_ready(self):
+        log.info('{} has received ready event'.format(self.user))
+
     async def on_message_edit(self, before, after):
         if after.content != before.content:
             await self.process_commands(after)
 
-    async def close(self):
-        [task.cancel() for task in asyncio.all_tasks(self.loop)]
+    async def get_prefix(self, message):
+        return commands.when_mentioned_or(self.cfg['bot']['prefix'])(self, message)
