@@ -5,11 +5,11 @@ from discord.ext import commands
 class Addon(commands.Cog):
 
     def add_command(self, command):
-        '''
+        """
         Add a commands.Command or a subclass of it to a loaded Addon
         
         If a commands.Group is encountered, all subcommands will also be recursively added
-        '''
+        """
         _original_command = command
 
         _current_commands = list(self.__cog_commands__)
@@ -31,9 +31,9 @@ class Addon(commands.Cog):
         return self.bot.get_command(command.name)
 
     def add_listener(self, listener, name = None):
-        '''
+        """
         Registers a listener to a loaded Addon
-        '''
+        """
         setattr(
             self,
             listener.__name__,
@@ -48,10 +48,10 @@ class Addon(commands.Cog):
             self.bot.add_listener(getattr(self, method_name), name) # Register it as a listener
 
     def _merge_addon(self, other):
-        '''
+        """
         Handles merging 2 addons together.
         Generally for internal use
-        '''
+        """
         self.bot.remove_cog(other.qualified_name) # Consume the other addon
         for _cmd in other.__cog_commands__: # Add all commands over
             self.add_command(_cmd)
@@ -59,12 +59,12 @@ class Addon(commands.Cog):
             self.add_listener(getattr(other, method_name), name)
 
     def __or__(self, other):
-        '''
+        """
         Uses the `|` operator to merge two addons together.
         When merged, all commands and listeners from the second addon
         will be added to the first addon, consuming the second addon
         in the process.
-        '''
+        """
         self._merge_addon(other)
         return self
         

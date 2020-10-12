@@ -17,7 +17,7 @@ class Fubuki(commands.Bot):
         super().__init__(**kwargs)
 
     async def get_prefix(self, message):
-        return self.cfg['bot']['prefix']
+        return commands.when_mentioned_or(self.cfg['bot']['prefix'])(self, message)
 
     def run(self):
         WD = pathlib.Path(__file__).parent / "addons"

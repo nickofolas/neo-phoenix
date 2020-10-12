@@ -15,7 +15,7 @@ class Devel(fubuki.Addon):
 
     @commands.command(name = 'cleanup')
     async def dev_cleanup(self, ctx, amount: int = 5):
-        '''Cleanup the bot's messages from a channel'''
+        """Cleanup the bot's messages from a channel"""
         purged = await ctx.channel.purge(
             limit = amount,
             bulk = False,
@@ -24,7 +24,7 @@ class Devel(fubuki.Addon):
 
     @commands.command(name = 'eval', aliases = ['e'])
     async def dev_eval(self, ctx, *, code: CodeblockConverter):
-        '''Executes some code, retaining the result'''
+        """Executes some code, retaining the result"""
         clear_intersection(globals(), self._eval_scope)
         (environment := env_from_context(ctx)).update(**globals(), **self._eval_scope)
         results = []
