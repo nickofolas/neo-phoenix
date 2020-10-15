@@ -2,12 +2,12 @@ from types import MethodType
 
 from discord.ext import commands
 
-class Addon(commands.Cog):
 
+class Addon(commands.Cog):
     def add_command(self, command):
         """
         Add a commands.Command or a subclass of it to a loaded Addon
-        
+
         If a commands.Group is encountered, all subcommands will also be recursively added
         """
         _original_command = command
@@ -24,13 +24,13 @@ class Addon(commands.Cog):
 
         if isinstance(_original_command, commands.Group):
             for subcmd in command.walk_commands():
-                if isinstance(subcmd, commands.Group): # Recursively add sub-groups
+                if isinstance(subcmd, commands.Group):  # Recursively add sub-groups
                     self.add_command(subcmd)
-                subcmd.cog = self # Update the subcmds
+                subcmd.cog = self  # Update the subcmds
 
         return self.bot.get_command(command.name)
 
-    def add_listener(self, listener, name = None):
+    def add_listener(self, listener, name=None):
         """
         Registers a listener to a loaded Addon
         """
@@ -39,23 +39,28 @@ class Addon(commands.Cog):
             listener.__name__,
             MethodType(
                 listener.__func__ if isinstance(listener, MethodType) else listener,
-                self)
-            ) # Bind the listener to the object as a method
-        self.__cog_listeners__.append((name or listener.__name__, listener.__name__)) # Add it to the list
+                self,
+            ),
+        )  # Bind the listener to the object as a method
+        self.__cog_listeners__.append(
+            (name or listener.__name__, listener.__name__)
+        )  # Add it to the list
 
         for name, method_name in self.__cog_listeners__:
-            self.bot.remove_listener(getattr(self, method_name)) # Just in case I guess
-            self.bot.add_listener(getattr(self, method_name), name) # Register it as a listener
+            self.bot.remove_listener(getattr(self, method_name))  # Just in case I guess
+            self.bot.add_listener(
+                getattr(self, method_name), name
+            )  # Register it as a listener
 
     def _merge_addon(self, other):
         """
         Handles merging 2 addons together.
         Generally for internal use
         """
-        self.bot.remove_cog(other.qualified_name) # Consume the other addon
-        for _cmd in other.__cog_commands__: # Add all commands over
+        self.bot.remove_cog(other.qualified_name)  # Consume the other addon
+        for _cmd in other.__cog_commands__:  # Add all commands over
             self.add_command(_cmd)
-        for name, method_name in other.__cog_listeners__: # Add all listeners over
+        for name, method_name in other.__cog_listeners__:  # Add all listeners over
             self.add_listener(getattr(other, method_name), name)
 
     def __or__(self, other):
@@ -67,4 +72,3 @@ class Addon(commands.Cog):
         """
         self._merge_addon(other)
         return self
-        

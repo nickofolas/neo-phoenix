@@ -2,11 +2,10 @@ import pathlib
 import asyncio
 import logging
 
-import discord
 from discord.ext import commands
 
-from .modules import *
-from .types import Embed
+from .modules import *  # noqa: F401, F403
+from .types import Embed  # noqa: F401, F403
 
 log = logging.getLogger(__name__)
 

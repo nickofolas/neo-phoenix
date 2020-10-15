@@ -2,11 +2,14 @@ import ast
 
 import import_expression
 
-code_base = 'async def __aexec__(scope):' \
-            '\n  try:' \
-            '\n    pass' \
-            '\n  finally:' \
-            '\n    scope.update(locals())'  
+code_base = (
+    "async def __aexec__(scope):"
+    "\n  try:"
+    "\n    pass"
+    "\n  finally:"
+    "\n    scope.update(locals())"
+)
+
 
 def insert_yield(body):
     if not isinstance(body[-1], ast.Expr):
@@ -17,6 +20,7 @@ def insert_yield(body):
         yield_expr = ast.Expr(yield_st)
         ast.copy_location(yield_expr, body[-1])
         body[-1] = yield_expr
+
 
 def compile_all(code_input):
     code_in = import_expression.parse(code_input)

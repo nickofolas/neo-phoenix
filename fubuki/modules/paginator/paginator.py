@@ -4,6 +4,7 @@ import discord
 
 from .pages import Pages, EmbedPages
 
+
 class Paginator:
     """
     A class which accomodates the creation of interactive reaction menus.
@@ -22,16 +23,17 @@ class Paginator:
     - from_embeds(iterable, **kwargs)
         Creates a Paginator object from a list of Embeds
     """
+
     def __init__(self, pages, *, timeout: int = 60):
         self.pages = pages
         self.timeout = timeout
 
-        self.message = None        
+        self.message = None
         self.ctx = None
         self.current_page = 0
         self._running = False
 
-        self.emoji_map = { # ◀️▶️⏮️⏭️⏹️
+        self.emoji_map = {  # ◀️▶️⏮️⏭️⏹️
             '⏮️': lambda: self.show_page(0),
             '◀️': lambda: self.show_page(self.current_page - 1),
             '⏹️': lambda: self.close(manual=True),
@@ -45,9 +47,9 @@ class Paginator:
     def from_iterable(
             cls,
             iterable,
-            *, per_page = 1,
-            use_embed = False,
-            joiner = '\n',
+            *, per_page=1,
+            use_embed=False,
+            joiner='\n',
             **kwargs):
         _pages = Pages(iterable, per_page, use_embed=use_embed, joiner=joiner)
         return cls(_pages, **kwargs)
@@ -67,8 +69,6 @@ class Paginator:
         self._running = True
         self._loop_task = self.bot.loop.create_task(self._create_loop())
 
-
-
     async def _add_buttons(self):
         _buttons = list(self.emoji_map.items())
         if len(self.pages) == 1:
@@ -87,8 +87,6 @@ class Paginator:
             for reaction in self.emoji_map.keys():
                 await self.message.remove_reaction(reaction, self.ctx.me)
 
-
-
     def _get_msg_kwargs(self, item):
         if isinstance(item, discord.Embed):
             item.set_footer(text=f'Page {self.current_page + 1}/{len(self.pages)}')
@@ -97,22 +95,21 @@ class Paginator:
             return {'content': item}
 
     async def show_page(self, index):
-        if not self._running: return
-        if index < 0: index = len(self.pages) - 1
-        if index > (len(self.pages) - 1): index = 0
+        if not self._running:
+            return
+        if index < 0:
+            index = len(self.pages) - 1
+        if index > (len(self.pages) - 1):
+            index = 0
         self.current_page = index
         await self.message.edit(**self._get_msg_kwargs(self.pages[index]))
 
-
-
-    async def close(self, manual = False):
+    async def close(self, manual=False):
         self._running = False
         if manual is True:
             await self.message.delete()
         else:
             await self.clear_reactions()
-        
-        
 
     def reactions_pred(self, payload):
         preds = []
@@ -121,20 +118,22 @@ class Paginator:
         return all(preds)
 
     async def _create_loop(self):
-        if not self._running: return
+        if not self._running:
+            return
         try:
             while self._running:
                 tasks = [asyncio.create_task(self.bot.wait_for('raw_reaction_add', check=self.reactions_pred))]
                 if not self._remove_reactions:
                     tasks.append(asyncio.create_task(self.bot.wait_for('raw_reaction_remove', check=self.reactions_pred)))
                 done, running = await asyncio.wait(tasks, timeout=self.timeout, return_when=asyncio.FIRST_COMPLETED)
-                if not done: raise asyncio.TimeoutError
+                if not done:
+                    raise asyncio.TimeoutError
                 [task.cancel() for task in running]
                 payload = done.pop().result()
 
                 if self._remove_reactions:
                     await self.message.remove_reaction(payload.emoji, type('', (), {'id': payload.user_id}))
- 
+
                 if (coro := self.emoji_map.get(payload.emoji.name)):
                     await coro()
                 else:
