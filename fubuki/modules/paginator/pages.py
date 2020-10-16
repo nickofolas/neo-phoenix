@@ -102,3 +102,6 @@ class EmbedPages(Pages):
     @property
     def pages(self):
         return self.items
+
+    def __getitem__(self, index):
+        return self.pages[index]

@@ -14,6 +14,7 @@ class Devel(fubuki.Addon):
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
+    @commands.guild_only()
     @commands.command(name="cleanup", aliases=["clean"])
     async def dev_cleanup(self, ctx, amount: int = 5):
         """Cleanup the bot's messages from a channel"""

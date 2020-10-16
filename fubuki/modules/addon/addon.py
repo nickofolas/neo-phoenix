@@ -38,9 +38,11 @@ class Addon(commands.Cog):
             self,
             listener.__name__,
             MethodType(
-                listener.__func__ if isinstance(listener, MethodType) else listener,
-                self,
-            ),
+                listener.__func__ if isinstance(
+                    listener,
+                    MethodType) else listener,
+                self
+            )
         )  # Bind the listener to the object as a method
         self.__cog_listeners__.append(
             (name or listener.__name__, listener.__name__)
@@ -48,9 +50,7 @@ class Addon(commands.Cog):
 
         for name, method_name in self.__cog_listeners__:
             self.bot.remove_listener(getattr(self, method_name))  # Just in case I guess
-            self.bot.add_listener(
-                getattr(self, method_name), name
-            )  # Register it as a listener
+            self.bot.add_listener(getattr(self, method_name), name)  # Register it as a listener
 
     def _merge_addon(self, other):
         """

@@ -21,6 +21,7 @@ def env_from_context(ctx):
         "author": ctx.author,
         "guild": ctx.guild,
         "message": ctx.message,
+        "channel": ctx.channel,
         "bot": ctx.bot,
         "_": ctx.bot._last_eval_result,
     }

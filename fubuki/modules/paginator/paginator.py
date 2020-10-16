@@ -106,10 +106,13 @@ class Paginator:
 
     async def close(self, manual=False):
         self._running = False
-        if manual is True:
-            await self.message.delete()
-        else:
-            await self.clear_reactions()
+        try:
+            if manual is True:
+                await self.message.delete()
+            else:
+                await self.clear_reactions()
+        except discord.NotFound:
+            return
 
     def reactions_pred(self, payload):
         preds = []
