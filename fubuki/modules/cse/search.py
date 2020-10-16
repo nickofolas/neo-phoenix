@@ -37,7 +37,7 @@ class Search:
                             image=image
                         )
                     else:
-                        raise NotImplementedError()
+                        raise NotImplementedError()  # TODO: Put a proper error here
         return GoogleResponse(_data)
 
     def search(self, *args, **kwargs):

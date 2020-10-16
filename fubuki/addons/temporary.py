@@ -17,7 +17,7 @@ class Temp(fubuki.Addon):
         self.bot = bot
 
         self.search = cse.Search(
-            key=bot.cfg['bot']['cse_tokens'],
+            key=bot.cfg['bot']['cse_keys'],
             engine_id=bot.cfg['bot']['cse_engine'],
             session=bot.session
         )
