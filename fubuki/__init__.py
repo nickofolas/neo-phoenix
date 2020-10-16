@@ -15,6 +15,7 @@ class Fubuki(commands.Bot):
 
         self.cfg = config
         self._last_eval_result = None
+        self.session = None
 
         kwargs.setdefault('command_prefix', self.get_prefix)
         kwargs.setdefault('activity', discord.Game(config['bot']['playing_name']))

@@ -4,6 +4,12 @@ from discord.ext import commands
 
 
 class Addon(commands.Cog):
+    def __init__(self, bot):
+        """
+        This just removes the mandatory __init__ for every single addon
+        """
+        self.bot = bot
+
     def add_command(self, command):
         """
         Add a commands.Command or a subclass of it to a loaded Addon
