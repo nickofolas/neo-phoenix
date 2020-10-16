@@ -2,7 +2,7 @@ import asyncio
 
 import discord
 
-from .pages import Pages, EmbedPages
+from .pages import EmbedPages, Pages
 
 
 class Paginator:

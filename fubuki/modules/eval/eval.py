@@ -1,6 +1,6 @@
-from inspect import isasyncgenfunction
 import re
 import traceback
+from inspect import isasyncgenfunction
 
 import import_expression
 

@@ -1,15 +1,9 @@
-from discord.ext import commands
-
 import fubuki
-
-from fubuki.modules.paginator import Paginator, Pages
+from discord.ext import commands
+from fubuki.modules.eval import (Eval, clear_intersection, env_from_context,
+                                 format_exception)
+from fubuki.modules.paginator import Pages, Paginator
 from fubuki.types.converters import CodeblockConverter
-from fubuki.modules.eval import (
-    Eval,
-    format_exception,
-    env_from_context,
-    clear_intersection,
-)
 
 
 class Devel(fubuki.Addon):

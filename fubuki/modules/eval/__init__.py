@@ -1,3 +1,4 @@
 from .compiler import compile_all
-from .eval import Eval, format_exception, env_from_context, clear_intersection
+from .eval import Eval, clear_intersection, env_from_context, format_exception
+
 # flake8: noqa F401

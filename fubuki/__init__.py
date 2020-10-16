@@ -1,7 +1,7 @@
-import pathlib
 import asyncio
 import logging
 
+import discord
 from discord.ext import commands
 
 from .modules import *  # noqa: F401, F403
@@ -14,18 +14,15 @@ class Fubuki(commands.Bot):
 
         self.cfg = config
         self._last_eval_result = None
+
         kwargs.setdefault('command_prefix', self.get_prefix)
+        kwargs.setdefault('activity', discord.Game(config['bot']['playing_name']))
 
         super().__init__(**kwargs)
 
     def run(self):
-        WD = pathlib.Path(__file__).parent / "addons"
-        CWD = pathlib.Path(__file__).parents[1]
-
-        for addon in WD.iterdir():
-            if addon.name.endswith('.py') and not addon.is_dir():
-                _to_load = addon.relative_to(CWD).as_posix().replace('/', '.')[:-3]
-                self.load_extension(_to_load)
+        for addon in self.cfg['addons']:
+            self.load_extension(addon)
 
         super().run(self.cfg['bot']['token'])
 
