@@ -1,5 +1,5 @@
-import asyncio
 import logging
+from asyncio import all_tasks
 
 import discord
 from aiohttp import ClientSession
@@ -37,7 +37,8 @@ class Fubuki(commands.Bot):
 
     async def close(self):
 
-        [task.cancel() for task in asyncio.all_tasks(self.loop)]
+        await self.session.close()
+        [task.cancel() for task in all_tasks(self.loop)]
 
     async def on_ready(self):
 

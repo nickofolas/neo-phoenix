@@ -36,8 +36,7 @@ class Search:
                             safesearch=safesearch,
                             image=image
                         )
-                    else:
-                        raise NotImplementedError()  # TODO: Put a proper error here
+                    raise NotImplementedError()  # TODO: Put a proper error here
         return GoogleResponse(_data)
 
     def search(self, *args, **kwargs):

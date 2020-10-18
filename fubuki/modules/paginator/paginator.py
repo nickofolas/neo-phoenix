@@ -34,11 +34,11 @@ class Paginator:
         self._running = False
 
         self.emoji_map = {  # ◀️▶️⏮️⏭️⏹️
-            '⏮️': lambda: self.show_page(0),
-            '◀️': lambda: self.show_page(self.current_page - 1),
-            '⏹️': lambda: self.close(manual=True),
-            '▶️': lambda: self.show_page(self.current_page + 1),
-            '⏭️': lambda: self.show_page(len(self.pages) - 1)
+            '⏪': lambda: self.show_page(0),
+            '⬅️': lambda: self.show_page(self.current_page - 1),
+            '🚮': lambda: self.close(manual=True),
+            '➡️': lambda: self.show_page(self.current_page + 1),
+            '⏩': lambda: self.show_page(len(self.pages) - 1)
         }
 
         self.pages.link(self)
