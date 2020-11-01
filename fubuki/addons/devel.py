@@ -18,10 +18,19 @@ class Devel(fubuki.Addon):
     @commands.command(name="cleanup", aliases=["clean"])
     async def dev_cleanup(self, ctx, amount: int = 5):
         """Cleanup the bot's messages from a channel"""
+        can_manage = ctx.channel.permissions_for(ctx.me).manage_messages
+        if can_manage:
+            def check(message):
+                return any([
+                    message.author == ctx.me,
+                    message.content.startswith(ctx.prefix)
+                ])
+        else:
+            check = lambda message: message.author == ctx.me  # noqa: E731
         purged = await ctx.channel.purge(
             limit=amount,
-            bulk=ctx.channel.permissions_for(ctx.me).manage_messages,
-            check=lambda m: m.author == ctx.me,
+            bulk=can_manage,
+            check=check
         )
         await ctx.send(f"Cleaned {len(purged)} message(s).", delete_after=5)
 

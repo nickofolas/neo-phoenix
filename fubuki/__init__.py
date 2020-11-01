@@ -5,8 +5,9 @@ import discord
 from aiohttp import ClientSession
 from discord.ext import commands
 
-from .modules import *  # noqa: F401, F403
-from .types import Embed  # noqa: F401, F403
+from .modules import *  # noqa: F403
+from .tools import *  # noqa: F403
+from .types import Embed
 
 log = logging.getLogger(__name__)
 

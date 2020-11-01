@@ -1,3 +1,2 @@
-from .paginator import *
+from .paginator import Pages, Paginator
 from .addon import Addon
-# flake8: noqa F401

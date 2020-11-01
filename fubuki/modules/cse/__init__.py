@@ -1,1 +1,1 @@
-from .search import Search  # noqa: F401
+from .search import Search
