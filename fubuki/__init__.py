@@ -11,6 +11,7 @@ from .types import Embed
 
 log = logging.getLogger(__name__)
 
+
 class Fubuki(commands.Bot):
     def __init__(self, config, **kwargs):
 

@@ -56,4 +56,7 @@ class Patcher:
         for name in self._to_set.keys():
             delattr(self.target, name)
         for name, attr in self._backup.items():
-            setattr(self.target, name, attr)
+            try:
+                setattr(self.target, name, attr)
+            except (TypeError, AttributeError):
+                continue
