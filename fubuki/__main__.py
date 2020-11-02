@@ -4,8 +4,10 @@ import sys
 
 import discord
 import toml
+from discord.ext import commands
 
 from fubuki import Fubuki
+from fubuki.modules.args.commands import ArgCommand, ArgGroup
 from fubuki.tools import Patcher
 
 # Sect: Logging
@@ -31,6 +33,7 @@ os.environ["JISHAKU_RETAIN"] = "true"
 
 guild = Patcher(discord.Guild)
 gateway = Patcher(discord.gateway.DiscordWebSocket)
+group = Patcher(commands.Group)
 
 
 @guild.attribute()
@@ -84,6 +87,29 @@ async def identify(self):  # Mobile statuses are funny
     await self.send_as_json(payload)
     loggers[-1].info('Shard ID %s has sent the IDENTIFY payload.', self.shard_id)
 
+
+@group.attribute()
+def arg_command(self, **kwargs):
+    def inner(func):
+        cls = kwargs.get('cls', ArgCommand)
+        kwargs['parent'] = self
+        result = cls(func, **kwargs)
+        self.add_command(result)
+        return result
+    return inner
+
+
+@group.attribute()
+def arg_group(self, **kwargs):
+    def inner(func):
+        cls = kwargs.get('cls', ArgGroup)
+        kwargs['parent'] = self
+        result = cls(func, **kwargs)
+        self.add_command(result)
+        return result
+    return inner
+
+group.patch()
 guild.patch()
 gateway.patch()
 
