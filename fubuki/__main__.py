@@ -37,16 +37,8 @@ gateway = Patcher(discord.gateway.DiscordWebSocket)
 async def fetch_member(self, member_id):
     data = await self._state.http.get_member(self.id, member_id)
     mem = discord.Member(data=data, state=self._state, guild=self)
-    self._cached_members[mem.id] = mem
+    self._members[mem.id] = mem
     return mem
-
-
-@guild.attribute()
-def get_member(self, user_id):
-    return self._members.get(user_id) or \
-        self._cached_members.get(user_id)
-
-guild.attribute({}, name='_cached_members')
 
 
 @gateway.attribute()

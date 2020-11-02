@@ -8,12 +8,12 @@ class Patcher:
 
     def __init__(self, target):
         self.target = target
-        self._to_set = {}
-        self._backup = {}
+        self._patches = {}
+        self._original = {}
         for name, attr in map(
-                lambda i: (i, getattr(target, i)),
+                lambda _attr: (_attr, getattr(target, _attr)),
                 dir(target)):
-            self._backup[name] = attr
+            self._original[name] = attr
 
     def attribute(self, value=None, *, name=None):
         """
@@ -31,21 +31,21 @@ class Patcher:
         internally. The patch() method applies the patch itself.
         """
         if value is not None:
-            self._to_set[getattr(value, '__name__', name)] = value
+            self._patches[getattr(value, '__name__', name)] = value
             return
 
         def inner(attr):
-            self._to_set[getattr(attr, '__name__', name)] = attr
+            self._patches[getattr(attr, '__name__', name)] = attr
         return inner
 
-    def patch(self):
+    def patch(self) -> None:
         """
         Applies all staged patches to the target.
         """
-        for name, attr in self._to_set.items():
+        for name, attr in self._patches.items():
             setattr(self.target, name, attr)
 
-    def revert(self):
+    def revert(self) -> None:
         """
         Reverts the target back to its state at the time that the
         Patcher was instantiated.
@@ -53,9 +53,9 @@ class Patcher:
         Any *new* attributes will be removed, and all overridden
         attributes will be reverted.
         """
-        for name in self._to_set.keys():
+        for name in self._patches.keys():
             delattr(self.target, name)
-        for name, attr in self._backup.items():
+        for name, attr in self._original.items():
             try:
                 setattr(self.target, name, attr)
             except (TypeError, AttributeError):
