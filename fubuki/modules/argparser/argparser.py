@@ -9,7 +9,9 @@ class ArgParser:  # Let's rewrite ArgParse from the ground up because why not
     The key difference is that is parses full strings, not a split list.
     This means that newlines and such are preserved.
     """
-    _args = {}
+
+    def __init__(self):
+        self._args = {}
 
     def add_arg(
             self,
@@ -42,7 +44,7 @@ class ArgParser:  # Let's rewrite ArgParse from the ground up because why not
             Specify if an argument is required. A TypeError will be
             raised if it is not found.
         """
-        if type not in ('arg', 'flag'):
+        if type not in ('arg', 'flag', 'pos'):
             raise TypeError('\'type\' must be one of [\'arg\', \'flag\']')
 
         argnames = [*map(lambda n: n.lstrip('-'), argnames)]
@@ -69,6 +71,9 @@ class ArgParser:  # Let's rewrite ArgParse from the ground up because why not
                     if (match := p.search(string)):
                         break
                 else:
+                    if v['type'] == 'pos':
+                        dash_split.remove(string)
+                        output[k] = string
                     continue
                 no_arg = string[len(match.group(0)):].strip()
 

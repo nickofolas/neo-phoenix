@@ -17,8 +17,6 @@ def _res_to_embed(result):
 class Temp(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
-        self.parser = argparser.ArgParser()
-        self.parser.add_arg('-i', '--image', type='flag', default=False)
 
         self.google = cse.Search(
             key=bot.cfg['bot']['cse_keys'],
@@ -26,11 +24,12 @@ class Temp(fubuki.Addon):
             session=bot.session
         )
 
-    @commands.command(name='google', aliases=['g'], usage='[--image] <query>')
+    @commands.command(cls=argparser.ArgCommand, name='google', aliases=['g'])
+    @argparser.add_arg('query', type='pos', required=True)
+    @argparser.add_arg('-i', '--image', type='flag', default=False)
     async def temp_google(self, ctx, *, query):
-        query = self.parser.parse(query)
         resp = await self.google.search(
-            ''.join(query.unused_strings),
+            ''.join(query.query),
             image=query.image)
         embeds = [*map(_res_to_embed, resp)]
         menu = Paginator.from_embeds(embeds)
