@@ -11,8 +11,7 @@ def format_exception(error):
     fmtd_exc = "".join(
         traceback.format_exception(type(error), error, error.__traceback__)
     )
-    formatted = "".join(re.sub(r'File ".+",', 'File "<eval>"', fmtd_exc))
-    return formatted
+    return re.sub(r'File ".+",', 'File "<eval>"', fmtd_exc)
 
 
 def env_from_context(ctx):
