@@ -1,17 +1,12 @@
-from argparse import ArgumentParser
+from inspect import isawaitable
 
 import discord
 from discord.ext import commands
 
-class SafeArgParser(ArgumentParser):
-    def error(self, message):
-        raise RuntimeError(message)
+from .parser import Parser
 
 
 class ArgCommand(commands.Command):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     @property
     def signature(self):
@@ -34,6 +29,8 @@ class ArgCommand(commands.Command):
 
     async def _parse_arguments(self, ctx):
 
+        self.callback.parser.ctx = ctx
+
         ctx.args = [ctx] if self.cog is None else [self.cog, ctx]
         ctx.kwargs = {}
 
@@ -54,27 +51,62 @@ class ArgCommand(commands.Command):
                 fmt = 'Callback for {0.name} command is missing "ctx" parameter.'
                 raise discord.ClientException(fmt.format(self))
 
-            for name, param in iterator:
-                if param.kind == param.KEYWORD_ONLY:
-                    if self.rest_is_raw:
-                        converter = self._get_converter(param)
-                        argument = view.read_rest()
-                        to_parse = await self.do_conversion(ctx, converter, argument, param)
-                    else:
-                        to_parse = await self.transform(ctx, param)
-                    to_parse = (to_parse or '').split(' ')
-                    kwargs[name] = self.callback.parser.parse_args(to_parse)
-                else:
-                    fmt = 'Callback for {0.name} can only contain one keyword-only argument.'
+            fmt = 'Callback for {0.name} must contain one keyword-only argument.'
+            try:
+                name, param = next(iterator)
+                if param.kind != param.KEYWORD_ONLY:
                     raise discord.ClientException(fmt.format(self))
+
+                to_parse = view.read_rest().strip()
+                if to_parse is None:
+                    kwargs[name] = None
+                    return
+
+                try:
+                    parsed = self.callback.parser.parse_args(to_parse.split(' '))
+                except Exception as e:
+                    kwargs[name] = None
+                    await self.dispatch_error(ctx, e)
+                    return
+                else:
+                    for k, v in vars(parsed).items():
+
+                        if not isinstance(v, list):
+                            continue
+                        values = []
+                        for result in v:
+
+                            if isawaitable(result):
+                                try:
+                                    values.append(await result)
+                                    continue
+                                except Exception as e:
+                                    await self.dispatch_error(ctx, e)
+                                    return
+
+                            values.append(result)
+                        vars(parsed)[k] = values
+
+                    kwargs[name] = parsed
+
+            except StopIteration:
+                raise discord.ClientException(fmt.format(self))
 
 
 def add_arg(*args, **kwargs):
+    """
+    Add an argument to this command's arguments.
+
+    Parameters are just those of argparse's parser.add_argument.
+
+    Note: The `type` kwarg can be a commands.Converter subclass,
+    and will attempt to convert the given values.
+    """
     def inner(func):
         _func = func.callback if isinstance(func, commands.Command) else func
 
         if not hasattr(_func, 'parser'):
-            _func.parser = SafeArgParser(add_help=False)
+            _func.parser = Parser()
 
         _func.parser.add_argument(*args, **kwargs)
         return func

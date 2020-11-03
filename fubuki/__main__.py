@@ -109,9 +109,9 @@ def arg_group(self, **kwargs):
         return result
     return inner
 
-group.patch()
 guild.patch()
 gateway.patch()
+group.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot

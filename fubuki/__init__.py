@@ -54,3 +54,6 @@ class Fubuki(commands.Bot):
     async def get_prefix(self, message):
 
         return commands.when_mentioned_or(self.cfg['bot']['prefix'])(self, message)
+
+    async def on_command_error(self, ctx, error):
+        await ctx.send(repr(error))
