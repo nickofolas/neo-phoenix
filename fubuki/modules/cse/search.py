@@ -8,7 +8,7 @@ from .objects import GoogleResponse
 search_base = URL('https://www.googleapis.com/customsearch/v1')
 
 
-_safe = lambda _input: 'active' if _input else 'off'  # noqa: E731
+_safe = lambda _input: 'active' if _input else 'off'
 
 
 class Search:
@@ -41,7 +41,7 @@ class Search:
                             query,
                             safesearch=safesearch,
                             image=image
-                        )
+                        )  # Try to get a new key to use
                     raise NotImplementedError()  # TODO: Put a proper error here
 
         return GoogleResponse(_data)

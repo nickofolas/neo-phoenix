@@ -1,4 +1,3 @@
-import sys
 from argparse import ArgumentError, ArgumentParser
 
 from discord.ext.commands import Converter
@@ -23,6 +22,7 @@ class Parser(ArgumentParser):
         try:
             if isinstance(converter, type) and issubclass(converter, Converter):
                 result = converter().convert(self.ctx, arg_string)
+                # Above tries to return an awaitable from a converter
             else:
                 result = converter(arg_string)
 

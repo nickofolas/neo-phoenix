@@ -1,4 +1,3 @@
-import re
 import traceback
 from inspect import isasyncgenfunction
 
@@ -8,10 +7,7 @@ from .compiler import compile_all
 
 
 def format_exception(error):
-    fmtd_exc = "".join(
-        traceback.format_exception(type(error), error, error.__traceback__)
-    )
-    return re.sub(r'File ".+",', 'File "<eval>"', fmtd_exc)
+    return ''.join(traceback.format_exception(type(error), error, error.__traceback__))
 
 
 def env_from_context(ctx):
@@ -22,14 +18,13 @@ def env_from_context(ctx):
         "message": ctx.message,
         "channel": ctx.channel,
         "bot": ctx.bot,
-        "_": ctx.bot._last_eval_result,
+        "_": ctx.cog._last_eval_result,
     }
 
 
 def clear_intersection(dict1, dict2):
     for key in dict1.keys():
-        if dict2.get(key):
-            del dict2[key]
+        dict2.pop(key, None)
 
 
 class Eval:

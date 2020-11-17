@@ -13,7 +13,7 @@ def _res_to_embed(result):
     return embed
 
 
-class Temp(fubuki.Addon):
+class Google(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
         self.google = cse.Search(
@@ -25,7 +25,7 @@ class Temp(fubuki.Addon):
     @args.add_arg('query', nargs='*')
     @args.add_arg('-i', '--image', action='store_true')
     @args.command(name='google', aliases=['g'])
-    async def temp_google(self, ctx, *, query):
+    async def google_command(self, ctx, *, query):
         resp = await self.google.search(
             ' '.join(query.query),
             image=query.image)
@@ -36,4 +36,4 @@ class Temp(fubuki.Addon):
 
 
 def setup(bot):
-    bot.add_cog(Temp(bot))
+    bot.add_cog(Google(bot))

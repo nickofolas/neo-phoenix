@@ -10,6 +10,7 @@ class Devel(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
         self._eval_scope = {}
+        self._last_eval_result = None
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -26,7 +27,9 @@ class Devel(fubuki.Addon):
                     message.content.startswith(ctx.prefix)
                 ])
         else:
-            check = lambda message: message.author == ctx.me  # noqa: E731
+            def check(message):
+                return message.author == ctx.me
+
         purged = await ctx.channel.purge(
             limit=amount,
             bulk=can_manage,
@@ -39,19 +42,25 @@ class Devel(fubuki.Addon):
         """Executes some code, retaining the result"""
         clear_intersection(globals(), self._eval_scope)
         (environment := env_from_context(ctx)).update(**globals(), **self._eval_scope)
+
         results = []
         return_value = None
+
         try:
             async for res in Eval(code, environment, self._eval_scope):
                 if res is None:
                     continue
-                self.bot._last_eval_result = res
+
+                self._last_eval_result = res
                 res = repr(res) if not isinstance(res, str) else res
                 results.append(res)
+
             return_value = "\n".join(results)
             await ctx.message.add_reaction("\U00002611")
+
         except Exception as e:
             return_value = format_exception(e)
+
         finally:
             if not return_value:
                 return
