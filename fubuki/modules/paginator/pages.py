@@ -57,12 +57,17 @@ class Pages:
         _items = self.items
         _pages = []
         while _items:
+
             if self.suffix or self.prefix:
-                to_append = self.prefix + _items[: self.per_page] + self.suffix
+                prefix = (self.prefix if isinstance(_items, str) else [self.prefix])
+                suffix = (self.suffix if isinstance(_items, str) else [self.suffix])
+                to_append = prefix + _items[: self.per_page] + suffix
+
             else:
                 to_append = _items[: self.per_page]
             _pages.append(to_append)
             _items = _items[self.per_page:]
+
         return _pages
 
     @property
@@ -77,13 +82,19 @@ class Pages:
 
     def append(self, new):
         self._old_page_count = len(self.pages)
-        self.items.append(new)
+        if isinstance(self.items, str):
+            self.items += new
+        else:
+            self.items.append(new)
         if self.paginator:
             self.paginator.dispatch_update()
 
     def prepend(self, new):
         self._old_page_count = len(self.pages)
-        self.items.insert(0, new)
+        if isinstance(self.items, str):
+            self.items = new + self.items
+        else:
+            self.items.insert(0, new)
         if self.paginator:
             self.paginator.dispatch_update()
 

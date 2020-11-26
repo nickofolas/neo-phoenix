@@ -43,8 +43,11 @@ class Devel(fubuki.Addon):
         clear_intersection(globals(), self._eval_scope)
         (environment := env_from_context(ctx)).update(**globals(), **self._eval_scope)
 
-        results = []
-        return_value = None
+        pages = Pages(
+            '\r', 1500, use_embed=True, prefix="```py\n", suffix="\n```"
+        )
+        menu = Paginator(pages, timeout=180)
+        await menu.start(ctx, delay_add=True)
 
         try:
             async for res in Eval(code, environment, self._eval_scope):
@@ -53,22 +56,15 @@ class Devel(fubuki.Addon):
 
                 self._last_eval_result = res
                 res = repr(res) if not isinstance(res, str) else res
-                results.append(res)
+                menu.pages.append('\n{}'.format(res))
 
-            return_value = "\n".join(results)
             await ctx.message.add_reaction("\U00002611")
 
         except Exception as e:
-            return_value = format_exception(e)
+            menu.pages.append('\n{}'.format(format_exception(e)))
 
         finally:
-            if not return_value:
-                return
-            pages = Pages(
-                return_value, 1500, use_embed=True, prefix="```py\n", suffix="\n```"
-            )
-            menu = Paginator(pages, timeout=180)
-            await menu.start(ctx)
+            await menu.add_buttons()
 
 
 def setup(bot):

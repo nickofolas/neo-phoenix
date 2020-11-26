@@ -59,17 +59,18 @@ class Paginator:
         _pages = EmbedPages(iterable)
         return cls(_pages, **kwargs)
 
-    async def start(self, _ctx):
+    async def start(self, _ctx, *, delay_add=False):
         self.ctx = _ctx
         self.message = await self.ctx.send(**self._get_msg_kwargs(self.pages[0]))
         self.bot = self.ctx.bot
         self.author = self.ctx.author
         self._remove_reactions = self.ctx.channel.permissions_for(self.ctx.me).manage_messages
-        await self._add_buttons()
+        if delay_add is False:
+            await self.add_buttons()
         self._running = True
         self._loop_task = self.bot.loop.create_task(self._create_loop())
 
-    async def _add_buttons(self):
+    async def add_buttons(self):
         _buttons = list(self.emoji_map.items())
         if len(self.pages) == 1:
             buttons = dict([_buttons[2]])

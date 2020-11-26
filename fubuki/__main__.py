@@ -34,6 +34,7 @@ os.environ["JISHAKU_RETAIN"] = "true"
 guild = Patcher(discord.Guild)
 gateway = Patcher(discord.gateway.DiscordWebSocket)
 group = Patcher(commands.Group)
+message = Patcher(discord.Message)
 
 
 @guild.attribute()
@@ -109,9 +110,19 @@ def arg_group(self, **kwargs):
         return result
     return inner
 
+
+@message.attribute(name='jump_url')
+@property
+def jump_url(self):
+    """:class:`str`: Returns a URL that allows the client to jump to this message."""
+    guild_id = getattr(self.guild, 'id', '@me')
+    return 'https://canary.discord.com/channels/{0}/{1.channel.id}/{1.id}'.format(guild_id, self)
+
+
 guild.patch()
 gateway.patch()
 group.patch()
+message.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot
