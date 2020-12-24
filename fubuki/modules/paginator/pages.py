@@ -86,7 +86,8 @@ class Pages:
             self.items += new
         else:
             self.items.append(new)
-        if self.paginator:
+
+        if getattr(self.paginator, "bot", None):
             self.paginator.dispatch_update()
 
     def prepend(self, new):
@@ -95,7 +96,8 @@ class Pages:
             self.items = new + self.items
         else:
             self.items.insert(0, new)
-        if self.paginator:
+
+        if getattr(self.paginator, "bot", None):
             self.paginator.dispatch_update()
 
     def __len__(self):

@@ -33,6 +33,8 @@ class Paginator:
         self.current_page = 0
         self._running = False
 
+        self.update_lock = asyncio.Lock()
+
         self.emoji_map = {  # ◀️▶️⏮️⏭️⏹️
             '⏪': lambda: self.show_page(0),
             '⬅️': lambda: self.show_page(self.current_page - 1),
@@ -140,8 +142,7 @@ class Paginator:
 
                 if (coro := self.emoji_map.get(payload.emoji.name)):
                     await coro()
-                else:
-                    continue
+
         except asyncio.TimeoutError:
             await self.close()
         finally:
@@ -149,4 +150,14 @@ class Paginator:
             self._loop_task.cancel()
 
     def dispatch_update(self):
-        self.bot.loop.create_task(self.show_page(self.current_page))
+        async def inner():
+            if self.update_lock.locked():
+                return
+
+            async with self.update_lock:
+                if self.update_lock.locked():
+                    await asyncio.sleep(1)
+
+                self.bot.loop.create_task(self.show_page(self.current_page))
+
+        self.bot.loop.create_task(inner())
