@@ -1,3 +1,4 @@
 discord.py
 toml
 jishaku
+asyncpg

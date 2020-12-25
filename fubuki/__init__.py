@@ -3,6 +3,7 @@ from asyncio import all_tasks
 
 import discord
 from aiohttp import ClientSession
+from asyncpg import create_pool
 from discord.ext import commands
 
 from .modules import *  # noqa: F403
@@ -26,32 +27,27 @@ class Fubuki(commands.Bot):
         self.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
-
         self.session = ClientSession()
+        self.db = await create_pool(**self.cfg["database"])
 
     def run(self):
-
         for addon in self.cfg['addons']:
             self.load_extension(addon)
 
         super().run(self.cfg['bot']['token'])
 
     async def close(self):
-
         await self.session.close()
-        [task.cancel() for task in all_tasks(self.loop)]
+        await self.db.close()
 
     async def on_ready(self):
-
         log.info('{} has received ready event'.format(self.user))
 
     async def on_message_edit(self, before, after):
-
         if after.content != before.content:
             await self.process_commands(after)
 
     async def get_prefix(self, message):
-
         return commands.when_mentioned_or(self.cfg['bot']['prefix'])(self, message)
 
     async def on_command_error(self, ctx, error):
