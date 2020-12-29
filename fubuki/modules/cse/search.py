@@ -5,7 +5,7 @@ from yarl import URL
 
 from .objects import GoogleResponse
 
-search_base = URL('https://www.googleapis.com/customsearch/v1')
+SEARCH_BASE = URL('https://www.googleapis.com/customsearch/v1')
 
 
 _safe = lambda _input: 'active' if _input else 'off'
@@ -30,7 +30,7 @@ class Search:
         if image is True:
             params.update(searchType='image')
 
-        async with self.session.get(search_base.with_query(**params)) as resp:
+        async with self.session.get(SEARCH_BASE.with_query(**params)) as resp:
 
             _data = await resp.json()
             if isinstance((error := _data.get('error')), dict):
