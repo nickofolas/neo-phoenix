@@ -4,6 +4,7 @@ from yarl import URL
 from .objects import DictionaryResponse
 
 BASE = URL("https://api.dictionaryapi.dev/api/v2/entries/")
+DefinitionError = type("DefinitionError", (Exception,), {})
 
 
 class Define:
@@ -17,8 +18,7 @@ class Define:
 
             _data = await resp.json()
             if resp.status != 200:
-                raise NotImplementedError()
-            # TODO: Actual error
+                raise DefinitionError(f"Error fetching definition ({resp.status})")
 
         return DictionaryResponse(_data)
 

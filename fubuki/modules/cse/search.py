@@ -6,9 +6,11 @@ from yarl import URL
 from .objects import GoogleResponse
 
 SEARCH_BASE = URL('https://www.googleapis.com/customsearch/v1')
+GoogleError = type("GoogleError", (Exception,), {})
 
 
-_safe = lambda _input: 'active' if _input else 'off'
+def _safe(_input):
+    return 'active' if _input else 'off'
 
 
 class Search:
@@ -42,7 +44,7 @@ class Search:
                             safesearch=safesearch,
                             image=image
                         )  # Try to get a new key to use
-                    raise NotImplementedError()  # TODO: Put a proper error here
+                    raise GoogleError(f"Error with search ({error['code']})")
 
         return GoogleResponse(_data)
 

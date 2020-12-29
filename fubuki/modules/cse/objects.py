@@ -53,7 +53,7 @@ class GoogleResponse:
 
     @cached_property
     def results(self):
-        _results = self._data['items']
+        _results = self._data.get('items', [])
         return [*map(SearchResult, _results)]
 
     def __iter__(self):

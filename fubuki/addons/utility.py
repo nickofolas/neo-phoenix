@@ -46,6 +46,9 @@ class Utility(fubuki.Addon):
             image=query.image)
 
         embeds = [*map(_result_to_embed, resp)]
+        if not embeds:
+            return await ctx.send("Search returned no results")
+
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
 
@@ -62,7 +65,7 @@ class Utility(fubuki.Addon):
         embeds = []
         for word in resp.words:
             embeds.extend(_definitions_to_embed(word))
-        else:
+        if not embeds:
             return await ctx.send("No definition found")
 
         menu = Paginator.from_embeds(embeds)
