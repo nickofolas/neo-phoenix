@@ -16,7 +16,7 @@ class Pages:
         Default: False
     - joiner: str
         The string that will be used to join items on a page
-        Default: ''
+        Default: ""
 
     Attributes:
     - pages
@@ -42,7 +42,7 @@ class Pages:
 
         if (prefix or suffix) and not isinstance(items, str):
             raise TypeError(
-                'Arguments "prefix" and "suffix" may only be used in conjunction with an input of type str'
+                "Arguments \"prefix\" and \"suffix\" may only be used in conjunction with an input of type str"
             )
         self.prefix = prefix
         self.suffix = suffix

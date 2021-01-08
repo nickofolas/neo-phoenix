@@ -36,11 +36,11 @@ class Paginator:
         self.update_lock = asyncio.Lock()
 
         self.emoji_map = {  # ◀️▶️⏮️⏭️⏹️
-            '⏪': lambda: self.show_page(0),
-            '⬅️': lambda: self.show_page(self.current_page - 1),
-            '🚮': lambda: self.close(manual=True),
-            '➡️': lambda: self.show_page(self.current_page + 1),
-            '⏩': lambda: self.show_page(len(self.pages) - 1)
+            "⏪": lambda: self.show_page(0),
+            "⬅️": lambda: self.show_page(self.current_page - 1),
+            "🚮": lambda: self.close(manual=True),
+            "➡️": lambda: self.show_page(self.current_page + 1),
+            "⏩": lambda: self.show_page(len(self.pages) - 1)
         }
 
         self.pages.link(self)
@@ -51,7 +51,7 @@ class Paginator:
             iterable,
             *, per_page=1,
             use_embed=False,
-            joiner='\n',
+            joiner="\n",
             **kwargs):
         _pages = Pages(iterable, per_page, use_embed=use_embed, joiner=joiner)
         return cls(_pages, **kwargs)
@@ -92,10 +92,10 @@ class Paginator:
 
     def _get_msg_kwargs(self, item):
         if isinstance(item, discord.Embed):
-            item.set_footer(text=f'Page {self.current_page + 1}/{len(self.pages)}')
-            return {'embed': item}
+            item.set_footer(text=f"Page {self.current_page + 1}/{len(self.pages)}")
+            return {"embed": item}
         elif isinstance(item, (str, tuple)):
-            return {'content': item}
+            return {"content": item}
 
     async def show_page(self, index):
         if not self._running:
@@ -128,9 +128,9 @@ class Paginator:
             return
         try:
             while self._running:
-                tasks = [asyncio.create_task(self.bot.wait_for('raw_reaction_add', check=self.reactions_pred))]
+                tasks = [asyncio.create_task(self.bot.wait_for("raw_reaction_add", check=self.reactions_pred))]
                 if not self._remove_reactions:
-                    tasks.append(asyncio.create_task(self.bot.wait_for('raw_reaction_remove', check=self.reactions_pred)))
+                    tasks.append(asyncio.create_task(self.bot.wait_for("raw_reaction_remove", check=self.reactions_pred)))
                 done, running = await asyncio.wait(tasks, timeout=self.timeout, return_when=asyncio.FIRST_COMPLETED)
                 if not done:
                     raise asyncio.TimeoutError
@@ -138,7 +138,7 @@ class Paginator:
                 payload = done.pop().result()
 
                 if self._remove_reactions:
-                    await self.message.remove_reaction(payload.emoji, type('', (), {'id': payload.user_id}))
+                    await self.message.remove_reaction(payload.emoji, type("", (), {"id": payload.user_id}))
 
                 if (coro := self.emoji_map.get(payload.emoji.name)):
                     await coro()

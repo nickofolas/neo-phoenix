@@ -44,7 +44,7 @@ class Devel(fubuki.Addon):
         (environment := env_from_context(ctx)).update(**globals(), **self._eval_scope)
 
         pages = Pages(
-            '\r',
+            "\r",
             1500,
             prefix="```py\n",
             suffix="\n```",
@@ -59,7 +59,7 @@ class Devel(fubuki.Addon):
 
                 self._last_eval_result = res
                 res = repr(res) if not isinstance(res, str) else res
-                menu.pages.append('\n{}'.format(res))
+                menu.pages.append("\n{}".format(res))
 
                 if not menu._running:
                     await menu.start(ctx, delay_add=True)
@@ -67,7 +67,7 @@ class Devel(fubuki.Addon):
             await ctx.message.add_reaction("\U00002611")
 
         except Exception as e:
-            menu.pages.append('\n{}'.format(format_exception(e)))
+            menu.pages.append("\n{}".format(format_exception(e)))
             await menu.start(ctx, delay_add=True)
 
         finally:

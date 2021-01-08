@@ -2,7 +2,7 @@ import re
 
 from discord.ext import commands
 
-codeblock_regex = re.compile(r"^\w*\n", re.I)
+CODEBLOCK_REGEX = re.compile(r"^\w*\n", re.I)
 
 
 class CodeblockConverter(commands.Converter):
@@ -10,5 +10,5 @@ class CodeblockConverter(commands.Converter):
         new = None
         if all([arg.startswith("`"), arg.endswith("`")]):
             new = arg.strip("`")
-            return re.sub(codeblock_regex, "", new)
+            return re.sub(CODEBLOCK_REGEX, "", new)
         return arg

@@ -2,8 +2,7 @@ class Patcher:
     """
     Utility class to facilitate monkeypatching... stuff
 
-    Initialise class with a target, which can be a module, or a class
-        or maybe other things I don't know
+    Initialise class with a target, which can be a module, or a class, etc
     """
 
     def __init__(self, target):
@@ -31,11 +30,11 @@ class Patcher:
         internally. The patch() method applies the patch itself.
         """
         if value is not None:
-            self._patches[getattr(value, '__name__', name)] = value
+            self._patches[getattr(value, "__name__", name)] = value
             return
 
         def inner(attr):
-            self._patches[getattr(attr, '__name__', name)] = attr
+            self._patches[getattr(attr, "__name__", name)] = attr
         return inner
 
     def patch(self) -> None:

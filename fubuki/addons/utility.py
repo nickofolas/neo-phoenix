@@ -9,7 +9,7 @@ def _result_to_embed(result):
         description=result.snippet,
         url=result.url
     )
-    embed.set_image(url=result.image_url or '')
+    embed.set_image(url=result.image_url or "")
     return embed
 
 
@@ -19,10 +19,10 @@ def _definitions_to_embed(word):
             embed = fubuki.Embed(
                 description=definition.definition
             ).set_author(
-                name=f'{word.word}: {meaning.part_of_speech}'
+                name=f"{word.word}: {meaning.part_of_speech}"
             ).add_field(
                 name="Synonyms",
-                value=', '.join((definition.synonyms or ['No synonyms'])[:5])
+                value=", ".join((definition.synonyms or ["No synonyms"])[:5])
             )
             yield embed
 
@@ -31,8 +31,8 @@ class Utility(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
         self.google = cse.Search(
-            key=bot.cfg['bot']['cse_keys'],
-            engine_id=bot.cfg['bot']['cse_engine'],
+            key=bot.cfg["bot"]["cse_keys"],
+            engine_id=bot.cfg["bot"]["cse_engine"],
             session=bot.session
         )
         self.dictionary = dictionary.Define(bot.session)
@@ -43,14 +43,14 @@ class Utility(fubuki.Addon):
         help="The query which will searched for on Google"
     )
     @args.add_arg(
-        '-i', '--image',
-        action='store_true',
+        "-i", "--image",
+        action="store_true",
         help="Toggles whether or not Google Images will be searched"
     )
-    @args.command(name='google', aliases=['g'])
+    @args.command(name="google", aliases=["g"])
     async def google_command(self, ctx, *, query):
         resp = await self.google.search(
-            ' '.join(query.query),
+            " ".join(query.query),
             image=query.image)
 
         embeds = [*map(_result_to_embed, resp)]
@@ -71,11 +71,11 @@ class Utility(fubuki.Addon):
         default="en",
         help="The language code of the dictionary to search"
     )
-    @args.command(name='define')
+    @args.command(name="define")
     async def dictionary_command(self, ctx, *, query):
         """Search the dictionary for a word's definition."""
         resp = await self.dictionary.define(
-            ' '.join(query.word),
+            " ".join(query.word),
             lang_code=query.lang_code
         )
 

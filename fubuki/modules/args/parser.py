@@ -6,17 +6,17 @@ from discord.ext.commands import Converter
 class Parser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         self.ctx = None
-        kwargs.setdefault('add_help', False)
+        kwargs.setdefault("add_help", False)
         super().__init__(*args, **kwargs)
 
     def error(self, message, _error=RuntimeError):
         raise _error(message)
 
     def _get_value(self, action, arg_string):
-        converter = self._registry_get('type', action.type, action.type)
+        converter = self._registry_get("type", action.type, action.type)
 
         if not callable(converter):
-            msg = '%r is not callable'
+            msg = "%r is not callable"
             raise ArgumentError(action, msg % converter)
 
         try:

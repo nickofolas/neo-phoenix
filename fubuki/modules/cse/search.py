@@ -5,12 +5,12 @@ from yarl import URL
 
 from .objects import GoogleResponse
 
-SEARCH_BASE = URL('https://www.googleapis.com/customsearch/v1')
+SEARCH_BASE = URL("https://www.googleapis.com/customsearch/v1")
 GoogleError = type("GoogleError", (Exception,), {})
 
 
 def _safe(_input):
-    return 'active' if _input else 'off'
+    return "active" if _input else "off"
 
 
 class Search:
@@ -30,13 +30,13 @@ class Search:
         )
 
         if image is True:
-            params.update(searchType='image')
+            params.update(searchType="image")
 
         async with self.session.get(SEARCH_BASE.with_query(**params)) as resp:
 
             _data = await resp.json()
-            if isinstance((error := _data.get('error')), dict):
-                if error['code'] == 429 and error['status'] == 'RESOURCE_EXHAUSTED':
+            if isinstance((error := _data.get("error")), dict):
+                if error["code"] == 429 and error["status"] == "RESOURCE_EXHAUSTED":
                     if isinstance(self.key, list):
                         self.key.remove(key)
                         return await self._perform_search(

@@ -49,51 +49,51 @@ async def fetch_member(self, member_id):
 async def identify(self):  # Mobile statuses are funny
     """Sends the IDENTIFY packet."""
     payload = {
-        'op': self.IDENTIFY,
-        'd': {
-            'token': self.token,
-            'properties': {
-                '$os': sys.platform,
-                '$browser': 'Discord iOS',
-                '$device': 'discord.py',
-                '$referrer': '',
-                '$referring_domain': ''
+        "op": self.IDENTIFY,
+        "d": {
+            "token": self.token,
+            "properties": {
+                "$os": sys.platform,
+                "$browser": "Discord iOS",
+                "$device": "discord.py",
+                "$referrer": "",
+                "$referring_domain": ""
             },
-            'compress': True,
-            'large_threshold': 250,
-            'guild_subscriptions': self._connection.guild_subscriptions,
-            'v': 3
+            "compress": True,
+            "large_threshold": 250,
+            "guild_subscriptions": self._connection.guild_subscriptions,
+            "v": 3
         }
     }
 
     if not self._connection.is_bot:
-        payload['d']['synced_guilds'] = []
+        payload["d"]["synced_guilds"] = []
 
     if self.shard_id is not None and self.shard_count is not None:
-        payload['d']['shard'] = [self.shard_id, self.shard_count]
+        payload["d"]["shard"] = [self.shard_id, self.shard_count]
 
     state = self._connection
     if state._activity is not None or state._status is not None:
-        payload['d']['presence'] = {
-            'status': state._status,
-            'game': state._activity,
-            'since': 0,
-            'afk': False
+        payload["d"]["presence"] = {
+            "status": state._status,
+            "game": state._activity,
+            "since": 0,
+            "afk": False
         }
 
     if state._intents is not None:
-        payload['d']['intents'] = state._intents.value
+        payload["d"]["intents"] = state._intents.value
 
-    await self.call_hooks('before_identify', self.shard_id, initial=self._initial_identify)
+    await self.call_hooks("before_identify", self.shard_id, initial=self._initial_identify)
     await self.send_as_json(payload)
-    loggers[-1].info('Shard ID %s has sent the IDENTIFY payload.', self.shard_id)
+    loggers[-1].info("Shard ID %s has sent the IDENTIFY payload.", self.shard_id)
 
 
 @group.attribute()
 def arg_command(self, **kwargs):
     def inner(func):
-        cls = kwargs.get('cls', ArgCommand)
-        kwargs['parent'] = self
+        cls = kwargs.get("cls", ArgCommand)
+        kwargs["parent"] = self
         result = cls(func, **kwargs)
         self.add_command(result)
         return result
@@ -103,20 +103,20 @@ def arg_command(self, **kwargs):
 @group.attribute()
 def arg_group(self, **kwargs):
     def inner(func):
-        cls = kwargs.get('cls', ArgGroup)
-        kwargs['parent'] = self
+        cls = kwargs.get("cls", ArgGroup)
+        kwargs["parent"] = self
         result = cls(func, **kwargs)
         self.add_command(result)
         return result
     return inner
 
 
-@message.attribute(name='jump_url')
+@message.attribute(name="jump_url")
 @property
 def jump_url(self):
     """:class:`str`: Returns a URL that allows the client to jump to this message."""
-    guild_id = getattr(self.guild, 'id', '@me')
-    return 'https://canary.discord.com/channels/{0}/{1.channel.id}/{1.id}'.format(guild_id, self)
+    guild_id = getattr(self.guild, "id", "@me")
+    return "https://canary.discord.com/channels/{0}/{1.channel.id}/{1.id}".format(guild_id, self)
 
 
 guild.patch()

@@ -40,14 +40,14 @@ def check_regex(content):  # Using sre_parse.parse is too tedious
 
 def format_hl_context(message, is_trigger=False):
     fmt = (
-        '{0} **__{1.author.display_name}:__** {1.content}'
+        "{0} **__{1.author.display_name}:__** {1.content}"
         if is_trigger else
-        '{0} **{1.author.display_name}:** {1.content}'
+        "{0} **{1.author.display_name}:** {1.content}"
     )
     if message.attachments:
-        message.content += ' *[Attachment x{}]*'.format(len(message.attachments))
+        message.content += " *[Attachment x{}]*".format(len(message.attachments))
     if message.embeds:
-        message.content += ' *[Embed x{}]*'.format(len(message.embeds))
+        message.content += " *[Embed x{}]*".format(len(message.embeds))
 
     return fmt.format(
         DEFAULT_AVATARS[message.author.default_avatar.name],
@@ -100,9 +100,9 @@ class Highlight:
 
             formatted = format_hl_context(m, m.id == message.id)
             if len(content + formatted) > 1500:  # Don't exceed embed limits
-                formatted = '{0.author.display_name}: *[Omitted due to length]*'.format(m)
+                formatted = "{0.author.display_name}: *[Omitted due to length]*".format(m)
 
-            content += '{}\n'.format(formatted)
+            content += "{}\n".format(formatted)
 
         embed = fubuki.Embed(
             title="Highlighted in #{0.channel.name}".format(message),
@@ -148,7 +148,7 @@ class Highlights(fubuki.Addon):
                     **await hl.to_send_kwargs(message)
                 )
 
-    @commands.group(aliases=['hl'], invoke_without_command=True)
+    @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
         """List your highlights"""
 
@@ -178,14 +178,14 @@ class Highlights(fubuki.Addon):
         action="store_true",
         help="Toggles whether or not this highlight should be parsed as regex"
     )
-    @highlight.arg_command(name='add')
+    @highlight.arg_command(name="add")
     async def highlight_add(self, ctx, *, input):
         """Add a new highlight
 
         Actual documentation coming soonTM"""
 
         if input.regex:
-            check_regex(''.join(input.content))
+            check_regex("".join(input.content))
 
         result = await self.bot.db.fetchrow(
             """
@@ -197,13 +197,13 @@ class Highlights(fubuki.Addon):
             RETURNING *
             """,
             ctx.author.id,
-            ''.join(input.content),
+            "".join(input.content),
             input.regex
         )
         self.highlights.append(Highlight(self.bot, **result))
         await ctx.message.add_reaction("\U00002611")
 
-    @highlight.command(name='remove')
+    @highlight.command(name="remove")
     async def highlight_remove(self, ctx, hl_index: int):
         """Remove a highlight by its index"""
 

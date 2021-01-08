@@ -7,7 +7,7 @@ from .compiler import compile_all
 
 
 def format_exception(error):
-    return ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+    return "".join(traceback.format_exception(type(error), error, error.__traceback__))
 
 
 def env_from_context(ctx):
