@@ -27,6 +27,14 @@ class ArgCommand(commands.Command):
 
         return ' '.join(args)
 
+    def get_args_help(self):
+
+        for action in self.callback.parser._actions:
+            if not hasattr(action, "dest"):  # Logically this shouldn't happen
+                continue
+
+            yield (action.dest, getattr(action, "help", None))
+
     async def _parse_arguments(self, ctx):
 
         self.callback.parser.ctx = ctx

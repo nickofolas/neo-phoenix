@@ -19,7 +19,7 @@ DEFAULT_AVATARS = {  # TODO: Use actual icons for this?
 EXCESSIVE_OR = re.compile(r"(?<!\\)\|")
 EXCESSIVE_ESCAPES = re.compile(r"(?<!\\)\\s|\\d|\\w", re.I)
 REGEX_CHECK = re.compile(
-    r"""(?P<uncontrolled>(?<!\\)[\*\+])|
+    r"""(?<!\\)[\*\+]|
         (?<!\\)\{\d*(\,\s?\d*)?\}|
         (?<!\\)\.""",
     re.I | re.X,
@@ -168,8 +168,16 @@ class Highlights(fubuki.Addon):
 
         await ctx.send(embed=embed)
 
-    @args.add_arg('content', nargs="*")
-    @args.add_arg("-re", "--regex", action="store_true")
+    @args.add_arg(
+        "content",
+        nargs="*",
+        help="The content by which you will be highlighted"
+    )
+    @args.add_arg(
+        "-re", "--regex",
+        action="store_true",
+        help="Toggles whether or not this highlight should be parsed as regex"
+    )
     @highlight.arg_command(name='add')
     async def highlight_add(self, ctx, *, input):
         """Add a new highlight

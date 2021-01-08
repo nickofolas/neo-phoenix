@@ -37,8 +37,16 @@ class Utility(fubuki.Addon):
         )
         self.dictionary = dictionary.Define(bot.session)
 
-    @args.add_arg('query', nargs='*')
-    @args.add_arg('-i', '--image', action='store_true')
+    @args.add_arg(
+        "query",
+        nargs="*",
+        help="The query which will searched for on Google"
+    )
+    @args.add_arg(
+        '-i', '--image',
+        action='store_true',
+        help="Toggles whether or not Google Images will be searched"
+    )
     @args.command(name='google', aliases=['g'])
     async def google_command(self, ctx, *, query):
         resp = await self.google.search(
@@ -52,8 +60,17 @@ class Utility(fubuki.Addon):
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
 
-    @args.add_arg('word', nargs='*')
-    @args.add_arg('-lc', '--lang_code', nargs="?", default="en")
+    @args.add_arg(
+        "word",
+        nargs="*",
+        help="The word to search a dictionary for"
+    )
+    @args.add_arg(
+        "-lc", "--lang_code",
+        nargs="?",
+        default="en",
+        help="The language code of the dictionary to search"
+    )
     @args.command(name='define')
     async def dictionary_command(self, ctx, *, query):
         """Search the dictionary for a word's definition."""

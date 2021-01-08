@@ -39,6 +39,7 @@ class Fubuki(commands.Bot):
     async def close(self):
         await self.session.close()
         await self.db.close()
+        await super().close()
 
     async def on_ready(self):
         log.info('{} has received ready event'.format(self.user))
