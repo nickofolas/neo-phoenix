@@ -21,6 +21,7 @@ class Fubuki(commands.Bot):
 
         kwargs.setdefault("command_prefix", self.get_prefix)
         kwargs.setdefault("activity", discord.Game(config["bot"]["playing_name"]))
+        kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
 
         super().__init__(**kwargs)
 
