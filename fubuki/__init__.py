@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
-from .types import Embed
+from .types import Embed, help_command
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +22,7 @@ class Fubuki(commands.Bot):
         kwargs.setdefault("command_prefix", self.get_prefix)
         kwargs.setdefault("activity", discord.Game(config["bot"]["playing_name"]))
         kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
+        kwargs.setdefault("help_command", help_command.FubukiHelpCommand())
 
         super().__init__(**kwargs)
 
@@ -43,7 +44,7 @@ class Fubuki(commands.Bot):
         await super().close()
 
     async def on_ready(self):
-        log.info("{} has received ready event".format(self.user))
+        log.info(f"{self.user} has received ready event")
 
     async def on_message_edit(self, before, after):
         if after.content != before.content:

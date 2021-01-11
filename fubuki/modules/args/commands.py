@@ -16,20 +16,23 @@ class ArgCommand(commands.Command):
         args = []
 
         for arg in reversed(self.callback.parser._actions):
-            argname = "--%s" % arg.dest if arg.option_strings else arg.dest
+            argname = f"--{arg.dest}" if arg.option_strings else arg.dest
+
             if arg.choices:
-                argname += " [%s]" % "|".join(args.choices)
-            if arg.required is True:
-                argname = "<%s>" % argname
+                argname += " [{}]".format("|".join(args.choices))
+
+            if arg.required:
+                argname = f"<{argname}>"
             else:
-                argname = "[%s]" % argname
+                argname = f"[{argname}]"
+
             args.append(argname)
 
         return " ".join(args)
 
     def get_args_help(self):
 
-        for action in self.callback.parser._actions:
+        for action in reversed(self.callback.parser._actions):
             if not hasattr(action, "dest"):  # Logically this shouldn't happen
                 continue
 
