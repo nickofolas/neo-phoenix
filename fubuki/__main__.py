@@ -8,6 +8,7 @@ from discord.ext import commands
 
 from fubuki import Fubuki
 from fubuki.modules.args.commands import ArgCommand, ArgGroup
+from fubuki.types.partials import PartialUser
 from fubuki.tools import Patcher
 
 # Sect: Logging
@@ -34,7 +35,7 @@ os.environ["JISHAKU_RETAIN"] = "true"
 guild = Patcher(discord.Guild)
 gateway = Patcher(discord.gateway.DiscordWebSocket)
 group = Patcher(commands.Group)
-message = Patcher(discord.Message)
+client = Patcher(discord.Client)
 
 
 @guild.attribute()
@@ -111,18 +112,18 @@ def arg_group(self, **kwargs):
     return inner
 
 
-@message.attribute(name="jump_url")
-@property
-def jump_url(self):
-    """:class:`str`: Returns a URL that allows the client to jump to this message."""
-    guild_id = getattr(self.guild, "id", "@me")
-    return "https://canary.discord.com/channels/{0}/{1.channel.id}/{1.id}".format(guild_id, self)
+@client.attribute()
+def get_user(self, id):
+    user = self._connection.get_user(id)
+    if not user:
+        user = PartialUser(state=self._connection, id=id)
+    return user
 
 
 guild.patch()
 gateway.patch()
 group.patch()
-message.patch()
+client.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot

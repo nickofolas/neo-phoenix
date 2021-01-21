@@ -144,7 +144,7 @@ class Highlights(fubuki.Addon):
                 if message.channel.id in self.grace_periods[hl.user_id]:
                     continue
 
-                await message.guild.get_member(hl.user_id).send(
+                await self.bot.get_user(hl.user_id).send(
                     **await hl.to_send_kwargs(message)
                 )
 

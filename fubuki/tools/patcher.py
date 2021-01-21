@@ -10,8 +10,9 @@ class Patcher:
         self._patches = {}
         self._original = {}
         for name, attr in map(
-                lambda _attr: (_attr, getattr(target, _attr)),
-                dir(target)):
+            lambda _attr: (_attr, getattr(target, _attr)),
+            dir(target)
+        ):
             self._original[name] = attr
 
     def attribute(self, value=None, *, name=None):

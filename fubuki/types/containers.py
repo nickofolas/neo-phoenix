@@ -14,6 +14,7 @@ class TimedSet(set):
         self.decay_time = decay_time
         self.loop = loop or asyncio.get_event_loop()
         self.running = {}
+
         for item in self:
             self.add(item)
 
