@@ -1,4 +1,4 @@
-from discord import Object, abc
+from discord import Object, abc, User
 
 
 class PartialUser(abc.Messageable, Object):
@@ -25,3 +25,8 @@ class PartialUser(abc.Messageable, Object):
         state = self._state
         data = await state.http.start_private_message(self.id)
         return state.add_dm_channel(data)
+
+    async def fetch(self):
+        """Fetches the partial user to a full User"""
+        data = await self._state.http.get_user(self.id)
+        return User(state=self._state, data=data)

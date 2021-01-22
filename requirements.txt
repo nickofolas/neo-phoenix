@@ -1,5 +1,4 @@
 discord.py
 toml
-jishaku # TODO: Remove this
 asyncpg
 import-expression
