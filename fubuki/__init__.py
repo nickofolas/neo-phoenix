@@ -20,7 +20,12 @@ class Fubuki(commands.Bot):
         self.session = None
 
         kwargs.setdefault("command_prefix", self.get_prefix)
-        kwargs.setdefault("activity", discord.Game(config["bot"]["playing_name"]))
+        kwargs.setdefault("activity", discord.Activity(
+            name=config["bot"]["activity_name"],
+            type=discord.ActivityType[config["bot"]["activity_type"]],
+            url="https://twitch.tv/#"  # for spoofing Discord when activity type is streaming
+        ))
+        kwargs.setdefault("status", discord.Status[config["bot"]["status"]])
         kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
         kwargs.setdefault("help_command", help_command.FubukiHelpCommand())
 

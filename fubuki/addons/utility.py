@@ -81,6 +81,7 @@ class Utility(fubuki.Addon):
     @args.command(name="define")
     async def dictionary_command(self, ctx, *, query):
         """Search the dictionary for a word's definition."""
+
         resp = await self.dictionary.define(
             " ".join(query.word),
             lang_code=query.lang_code

@@ -52,6 +52,7 @@ class Todos(fubuki.Addon):
     @commands.group(invoke_without_command=True)
     async def todo(self, ctx):
         """List your todos"""
+
         formatted_todos = []
 
         for index, todo in enumerate(self.todos[ctx.author.id]):
@@ -69,6 +70,7 @@ class Todos(fubuki.Addon):
     @todo.command(name="add")
     async def todo_add(self, ctx, *, content):
         """Add a new todo"""
+
         data = {
             "user_id": ctx.author.id,
             "content": content,
@@ -95,23 +97,42 @@ class Todos(fubuki.Addon):
         self.todos[ctx.author.id].append(Todo(**data))
 
     @todo.command(name="remove", aliases=["rm"])
-    async def todo_remove(self, ctx, indices: commands.Greedy[int]):
-        """Remove 1 or more todo by index"""
-        indices.sort(reverse=True)
-        todos = [self.todos[ctx.author.id].pop(index) for index in indices]
+    async def todo_remove(self, ctx, *indices):
+        """Remove 1 or more todo by index
+
+        Passing `~` will remove all todos at once."""
+
+        if "~" in indices:
+            todos = self.todos[ctx.author.id].copy()
+            self.todos[ctx.author.id].clear()
+
+        else:
+            (indices := [*map(str, indices)]).sort(reverse=True)  # Pop in an way that preserves the list's original order
+            try:
+                todos = [self.todos[ctx.author.id].pop(index) for index in map(
+                    int, filter(str.isdigit, indices))
+                ]
+            except IndexError:
+                return await ctx.send("One or more of the provided indices is invalid.")
 
         await self.bot.db.execute(
             """
             DELETE FROM todos WHERE
-                message_id=ANY($1::BIGINT[])
+                message_id=ANY($1::BIGINT[]) AND
+                user_id=$2
             """,
-            [*map(attrgetter("message_id"), todos)]
+            [*map(attrgetter("message_id"), todos)],
+            ctx.author.id
         )
 
     @todo.command(name="view", aliases=["show"])
     async def todo_view(self, ctx, index: int):
         """View a todo by its listed index"""
-        todo = self.todos[ctx.author.id][index]
+
+        try:
+            todo = self.todos[ctx.author.id][index]
+        except IndexError:
+            return await ctx.send("Couldn't find that todo.")
 
         embed = fubuki.Embed(
             description=todo.content
