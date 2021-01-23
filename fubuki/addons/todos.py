@@ -37,6 +37,8 @@ class Todo:
 
 
 class Todos(fubuki.Addon):
+    """Commands for managing a todo list"""
+
     def __init__(self, bot):
         self.bot = bot
         self.todos = defaultdict(list)
@@ -100,7 +102,7 @@ class Todos(fubuki.Addon):
     async def todo_remove(self, ctx, *indices):
         """Remove 1 or more todo by index
 
-        Passing `~` will remove all todos at once."""
+        Passing `~` will remove all todos at once"""
 
         if "~" in indices:
             todos = self.todos[ctx.author.id].copy()

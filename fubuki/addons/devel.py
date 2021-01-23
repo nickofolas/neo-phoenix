@@ -7,6 +7,8 @@ from fubuki.types.converters import CodeblockConverter
 
 
 class Devel(fubuki.Addon):
+    """Developer-only utility commands"""
+
     def __init__(self, bot):
         self.bot = bot
         self._eval_scope = {}

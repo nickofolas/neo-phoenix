@@ -119,6 +119,8 @@ class Highlight:
 
 
 class Highlights(fubuki.Addon):
+    """Commands for managing highlights"""
+
     def __init__(self, bot):
         self.bot = bot
 

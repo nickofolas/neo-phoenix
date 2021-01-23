@@ -28,6 +28,8 @@ def _definitions_to_embed(word):
 
 
 class Utility(fubuki.Addon):
+    """Various utility commands"""
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -56,6 +58,8 @@ class Utility(fubuki.Addon):
     )
     @args.command(name="google", aliases=["g"])
     async def google_command(self, ctx, *, query):
+        """Search Google for a query"""
+
         resp = await self.google.search(
             " ".join(query.query),
             image=query.image)
@@ -80,7 +84,7 @@ class Utility(fubuki.Addon):
     )
     @args.command(name="define")
     async def dictionary_command(self, ctx, *, query):
-        """Search the dictionary for a word's definition."""
+        """Search the dictionary for a word's definition"""
 
         resp = await self.dictionary.define(
             " ".join(query.word),
