@@ -17,6 +17,12 @@ class Pages:
     - joiner: str
         The string that will be used to join items on a page
         Default: ""
+    - prefix: str
+        A string that all pages will be prefixed with
+        Default: None
+    - suffix: str
+        A string that all pages will be suffixed with
+        Default: None
 
     Attributes:
     - pages
@@ -32,7 +38,7 @@ class Pages:
         use_embed: bool = False,
         joiner: str = "",
         prefix: str = None,
-        suffix: str = None,
+        suffix: str = None
     ):
         self.items = items
         self.joiner = joiner

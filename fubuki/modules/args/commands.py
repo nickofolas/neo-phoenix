@@ -74,7 +74,7 @@ class ArgCommand(commands.Command):
                     return
 
                 try:
-                    parsed = self.callback.parser.parse_args(to_parse.split(' '))
+                    parsed = self.callback.parser.parse_args(to_parse.split(" "))
                 except Exception as e:
                     kwargs[name] = None
                     await self.dispatch_error(ctx, e)

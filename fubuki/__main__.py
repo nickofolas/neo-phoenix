@@ -8,8 +8,8 @@ from discord.ext import commands
 
 from fubuki import Fubuki
 from fubuki.modules.args.commands import ArgCommand, ArgGroup
-from fubuki.types.partials import PartialUser
 from fubuki.tools import Patcher
+from fubuki.types.partials import PartialUser
 
 # Sect: Logging
 
@@ -24,10 +24,6 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 
 [(logger.setLevel(logging.INFO), logger.addHandler(handler)) for logger in loggers]
-
-os.environ["JISHAKU_NO_DM_TRACEBACK"] = "true"
-os.environ["JISHAKU_NO_UNDERSCORE"] = "true"
-os.environ["JISHAKU_RETAIN"] = "true"
 
 # /Sect: Logging
 # Sect: Monkeypatches
