@@ -30,12 +30,19 @@ def _definitions_to_embed(word):
 class Utility(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
+
+        self.bot.loop.create_task(self.__ainit__())
+
+    async def __ainit__(self):
+        await self.bot.wait_until_ready()
+
+        # These both take a ClientSession, so we wait until ready so we can use the bot's
         self.google = cse.Search(
-            key=bot.cfg["bot"]["cse_keys"],
-            engine_id=bot.cfg["bot"]["cse_engine"],
-            session=bot.session
+            key=self.bot.cfg["bot"]["cse_keys"],
+            engine_id=self.bot.cfg["bot"]["cse_engine"],
+            session=self.bot.session
         )
-        self.dictionary = dictionary.Define(bot.session)
+        self.dictionary = dictionary.Define(self.bot.session)
 
     @args.add_arg(
         "query",

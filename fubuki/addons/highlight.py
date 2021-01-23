@@ -203,7 +203,7 @@ class Highlights(fubuki.Addon):
         self.highlights.append(Highlight(self.bot, **result))
         await ctx.message.add_reaction("\U00002611")
 
-    @highlight.command(name="remove")
+    @highlight.command(name="remove", aliases=["rm"])
     async def highlight_remove(self, ctx, hl_index: int):
         """Remove a highlight by its index"""
 

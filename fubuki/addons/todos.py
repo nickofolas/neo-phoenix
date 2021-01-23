@@ -39,7 +39,6 @@ class Todo:
 class Todos(fubuki.Addon):
     def __init__(self, bot):
         self.bot = bot
-
         self.todos = defaultdict(list)
 
         self.bot.loop.create_task(self.__ainit__())
@@ -78,7 +77,8 @@ class Todos(fubuki.Addon):
             "message_id": ctx.message.id
         }
 
-        await self.bot.db.execute("""
+        await self.bot.db.execute(
+            """
             INSERT INTO todos (
                 user_id,
                 content,
@@ -87,11 +87,14 @@ class Todos(fubuki.Addon):
                 message_id
             ) VALUES (
                 $1, $2, $3, $4, $5
-            )""", *data.values())
+            )
+            """,
+            *data.values()
+        )
 
         self.todos[ctx.author.id].append(Todo(**data))
 
-    @todo.command(name="remove")
+    @todo.command(name="remove", aliases=["rm"])
     async def todo_remove(self, ctx, indices: commands.Greedy[int]):
         """Remove 1 or more todo by index"""
         indices.sort(reverse=True)
@@ -105,7 +108,7 @@ class Todos(fubuki.Addon):
             [*map(attrgetter("message_id"), todos)]
         )
 
-    @todo.command(name="view")
+    @todo.command(name="view", aliases=["show"])
     async def todo_view(self, ctx, index: int):
         """View a todo by its listed index"""
         todo = self.todos[ctx.author.id][index]
