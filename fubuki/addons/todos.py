@@ -8,7 +8,7 @@ from discord.ext import commands
 from fubuki.modules import Paginator
 
 
-class Todo:
+class TodoItem:
     def __init__(
         self,
         *,
@@ -49,7 +49,7 @@ class Todos(fubuki.Addon):
         await self.bot.wait_until_ready()
 
         for record in await self.bot.db.fetch("SELECT * FROM todos"):
-            self.todos[record["user_id"]].append(Todo(**record))
+            self.todos[record["user_id"]].append(TodoItem(**record))
 
     @commands.group(invoke_without_command=True)
     async def todo(self, ctx):
@@ -96,7 +96,8 @@ class Todos(fubuki.Addon):
             *data.values()
         )
 
-        self.todos[ctx.author.id].append(Todo(**data))
+        self.todos[ctx.author.id].append(TodoItem(**data))
+        await ctx.message.add_reaction("\U00002611")
 
     @todo.command(name="remove", aliases=["rm"])
     async def todo_remove(self, ctx, *indices):
@@ -126,6 +127,7 @@ class Todos(fubuki.Addon):
             [*map(attrgetter("message_id"), todos)],
             ctx.author.id
         )
+        await ctx.message.add_reaction("\U00002611")
 
     @todo.command(name="view", aliases=["show"])
     async def todo_view(self, ctx, index: int):

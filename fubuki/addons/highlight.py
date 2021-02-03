@@ -2,6 +2,7 @@ import asyncio
 import re
 from collections import defaultdict
 from functools import cached_property
+from operator import attrgetter
 
 import fubuki
 from discord import NotFound
@@ -86,7 +87,11 @@ class Highlight:
         except NotFound:
             return
 
-        # TODO: Logic for highlight blocks
+        blacklist = self.bot.get_profile(self.user_id).hl_blocks
+        if any(attrgetter(attr)(message) in blacklist for attr in (
+                "id", "guild.id", "channel.id", "author.id")
+               ):
+            return
 
         if member not in message.channel.members:
             return
@@ -178,7 +183,7 @@ class Highlights(fubuki.Addon):
     @args.add_arg(
         "-re", "--regex",
         action="store_true",
-        help="Toggles whether or not this highlight should be parsed as regex"
+        help="Toggles whether or not this highlight should be compiled as regex"
     )
     @highlight.arg_command(name="add")
     async def highlight_add(self, ctx, *, input):

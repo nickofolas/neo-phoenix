@@ -1,3 +1,8 @@
+CREATE TABLE profiles (
+    user_id   BIGINT PRIMARY KEY,
+    hl_blocks BIGINT[] DEFAULT ARRAY[]::BIGINT[]
+);
+
 CREATE TABLE highlights (
     user_id  BIGINT NOT NULL,
     content  TEXT NOT NULL,

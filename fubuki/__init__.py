@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
-from .types import Embed, help_command
+from .types import Embed, help_command, containers
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ class Fubuki(commands.Bot):
 
         self.cfg = config
         self.session = None
+        self._profiles = {}
 
         kwargs.setdefault("command_prefix", self.get_prefix)
         kwargs.setdefault("activity", discord.Activity(
@@ -36,6 +37,15 @@ class Fubuki(commands.Bot):
     async def __ainit__(self):
         self.session = ClientSession()
         self.db = await create_pool(**self.cfg["database"])
+
+        for record in await self.db.fetch("SELECT * FROM profiles"):
+            self._profiles[record["user_id"]] = containers.FubukiUser(
+                pool=self.db,
+                **record
+            )
+
+    def get_profile(self, user_id):
+        return self._profiles.get(user_id)
 
     def run(self):
         for addon in self.cfg["addons"]:
