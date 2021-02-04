@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import re
 from collections import defaultdict
@@ -7,7 +8,7 @@ from operator import attrgetter
 import fubuki
 from discord import NotFound
 from discord.ext import commands
-from fubuki.modules import args
+from fubuki.modules import args, paginator
 from fubuki.types.containers import TimedSet
 
 DEFAULT_AVATARS = {  # TODO: Use actual icons for this?
@@ -233,6 +234,43 @@ class Highlights(fubuki.Addon):
             to_remove.is_regex
         )
         self.highlights.remove(to_remove)
+        await ctx.message.add_reaction("\U00002611")
+
+    @args.add_arg(
+        "entities",
+        nargs="*",
+        help="One or many entities to block. Inputs must be IDs"
+    )
+    @args.add_arg(
+        "-u", "--unblock",
+        action="store_true",
+        help="If passed, will unblock all entities provided"
+    )
+    @highlight.arg_command(name="block")
+    async def highlight_block(self, ctx, *, input):
+        """Manage a blocklist for highlights
+
+        Server, user, and channels can all be blocked via ID"""
+
+        profile = self.bot.get_profile(ctx.author.id)
+        blacklist = set(profile.hl_blocks)
+
+        entities = [*map(int, filter(str.isdigit, input.entities))]
+        if not entities:
+            menu = paginator.Paginator.from_iterable(
+                [*map(str, blacklist)] or ["No highlight blocks"],
+                per_page=10,
+                use_embed=True
+            )
+            await menu.start(ctx)
+            return
+
+        if input.unblock:
+            blacklist -= set(entities)
+        else:
+            blacklist |= set(entities)
+
+        profile.hl_blocks = list(blacklist)
         await ctx.message.add_reaction("\U00002611")
 
 
