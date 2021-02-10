@@ -30,6 +30,7 @@ REGEX_CHECK = re.compile(
 
 def check_regex(content):  # Using sre_parse.parse is too tedious
     """Make sure only permitted patterns are used"""
+
     if REGEX_CHECK.search(content):
         raise ValueError("Disallowed regex pattern")
 
@@ -110,6 +111,8 @@ class Highlight:
 
             content += "{}\n".format(formatted)
 
+        content += f"[Jump]({message.jump_url})"
+
         embed = fubuki.Embed(
             title="Highlighted in #{0.channel.name}".format(message),
             description=content
@@ -131,7 +134,7 @@ class Highlights(fubuki.Addon):
         self.bot = bot
 
         self.highlights = []
-        self.grace_periods = defaultdict(TimedSet)
+        self.grace_periods = defaultdict(TimedSet)  # TODO: Configurable timeouts?
 
         self.bot.loop.create_task(self.__ainit__())
 
@@ -146,15 +149,18 @@ class Highlights(fubuki.Addon):
         if message.author.id in {hl.user_id for hl in self.highlights}:
             self.grace_periods[message.author.id].add(message.channel.id)
 
+        to_deliver = {}  # Collect all highlights so only one message is sent per user
         for hl in filter(lambda hl: hl.matches(message.content), self.highlights):
 
             if await hl.predicate(message):
                 if message.channel.id in self.grace_periods[hl.user_id]:
                     continue
+                to_deliver[hl.user_id] = (hl, message)
 
-                await self.bot.get_user(hl.user_id).send(
-                    **await hl.to_send_kwargs(message)
-                )
+        for hl, message in to_deliver.values():
+            await self.bot.get_user(hl.user_id).send(
+                **await hl.to_send_kwargs(message)
+            )
 
     @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
@@ -248,7 +254,7 @@ class Highlights(fubuki.Addon):
     )
     @highlight.arg_command(name="block")
     async def highlight_block(self, ctx, *, input):
-        """Manage a blocklist for highlights
+        """Manage a blocklist for highlights. Run with no arguments for a list of blocks
 
         Server, user, and channels can all be blocked via ID"""
 
@@ -257,8 +263,15 @@ class Highlights(fubuki.Addon):
 
         entities = [*map(int, filter(str.isdigit, input.entities))]
         if not entities:
+
+            def transform_mention(id):
+                mention = getattr(self.bot.get_guild(id), "name",
+                                  getattr(self.bot.get_channel(id), "mention",
+                                          f"<@{id}>"))  # Yes this could lead to fake user mentions
+                return "`{0}` [{1}]".format(id, mention)
+
             menu = paginator.Paginator.from_iterable(
-                [*map(str, blacklist)] or ["No highlight blocks"],
+                [*map(transform_mention, blacklist)] or ["No highlight blocks"],
                 per_page=10,
                 use_embed=True
             )
@@ -270,7 +283,7 @@ class Highlights(fubuki.Addon):
         else:
             blacklist |= set(entities)
 
-        profile.hl_blocks = list(blacklist)
+        profile.hl_blocks = [*blacklist]
         await ctx.message.add_reaction("\U00002611")
 
 
