@@ -109,9 +109,9 @@ def arg_group(self, **kwargs):
 
 
 @client.attribute()
-def get_user(self, id):
+def get_user(self, id, *, as_partial=False):
     user = self._connection.get_user(id)
-    if not user:
+    if as_partial or not user:
         user = PartialUser(state=self._connection, id=id)
     return user
 

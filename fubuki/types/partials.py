@@ -11,6 +11,15 @@ class PartialUser(abc.Messageable, Object):
     def __repr__(self):
         return "<{0.__class__.__name__} id={0.id}>".format(self)
 
+    @property
+    def mention(self):
+        return "<@{.id}>".format(self)
+
+    async def fetch(self):
+        """Fetches the partial user to a full User"""
+        data = await self._state.http.get_user(self.id)
+        return User(state=self._state, data=data)
+
     async def _get_channel(self):
         return await self.create_dm()
 
@@ -26,8 +35,3 @@ class PartialUser(abc.Messageable, Object):
         state = self._state
         data = await state.http.start_private_message(self.id)
         return state.add_dm_channel(data)
-
-    async def fetch(self):
-        """Fetches the partial user to a full User"""
-        data = await self._state.http.get_user(self.id)
-        return User(state=self._state, data=data)
