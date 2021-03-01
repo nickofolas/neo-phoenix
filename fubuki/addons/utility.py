@@ -1,6 +1,10 @@
+from typing import Union
+
+import discord
 import fubuki
 from discord.ext import commands
 from fubuki.modules import Paginator, args, cse, dictionary
+from fubuki.types.converters import MentionConverter
 
 
 def _result_to_embed(result):
@@ -99,6 +103,19 @@ class Utility(fubuki.Addon):
 
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
+
+    @commands.command(name="avatar", aliases=["av"])
+    async def avatar_command(self, ctx, *, user: Union[int, MentionConverter] = None):
+        """Retrieves the avatar of yourself, or a specified user"""
+
+        user = await self.bot.fetch_user(user) if user else ctx.author
+        url = user.avatar_url
+
+        embed = fubuki.Embed(
+            description=f"[View in browser]({url})"
+        ).set_image(url=url).set_footer(text=str(user))
+
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

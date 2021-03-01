@@ -35,10 +35,11 @@ client = Patcher(discord.Client)
 
 
 @guild.attribute()
-async def fetch_member(self, member_id):
+async def fetch_member(self, member_id, *, cache=False):
     data = await self._state.http.get_member(self.id, member_id)
     mem = discord.Member(data=data, state=self._state, guild=self)
-    self._members[mem.id] = mem
+    if cache:
+        self._members[mem.id] = mem
     return mem
 
 
