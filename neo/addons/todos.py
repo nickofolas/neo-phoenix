@@ -3,9 +3,9 @@ from operator import attrgetter
 from textwrap import shorten
 
 import discord
-import fubuki
+import neo
 from discord.ext import commands
-from fubuki.modules import Paginator
+from neo.modules import Paginator
 
 
 class TodoItem:
@@ -36,7 +36,7 @@ class TodoItem:
         return discord.utils.snowflake_time(self.message_id)
 
 
-class Todos(fubuki.Addon):
+class Todos(neo.Addon):
     """Commands for managing a todo list"""
 
     def __init__(self, bot):
@@ -138,7 +138,7 @@ class Todos(fubuki.Addon):
         except IndexError:
             return await ctx.send("Couldn't find that todo.")
 
-        embed = fubuki.Embed(
+        embed = neo.Embed(
             description=todo.content
         ).add_field(
             name=f"Created on {todo.created_at:%a, %b %d, %Y at %H:%M:%S} UTC",

@@ -1,12 +1,12 @@
-import fubuki
+import neo
 from discord.ext import commands
-from fubuki.modules.eval import (Eval, clear_intersection, env_from_context,
-                                 format_exception)
-from fubuki.modules.paginator import Pages, Paginator
-from fubuki.types.converters import CodeblockConverter
+from neo.modules.eval import (Eval, clear_intersection, env_from_context,
+                              format_exception)
+from neo.modules.paginator import Pages, Paginator
+from neo.types.converters import CodeblockConverter
 
 
-class Devel(fubuki.Addon):
+class Devel(neo.Addon):
     """Developer-only utility commands"""
 
     def __init__(self, bot):

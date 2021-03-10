@@ -13,7 +13,7 @@ from .types import Embed, help_command, containers
 log = logging.getLogger(__name__)
 
 
-class Fubuki(commands.Bot):
+class Neo(commands.Bot):
     def __init__(self, config, **kwargs):
 
         self.cfg = config

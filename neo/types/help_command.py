@@ -1,8 +1,8 @@
 import operator
 
-import fubuki
+import neo
 from discord.ext import commands
-from fubuki.modules.paginator import Paginator
+from neo.modules.paginator import Paginator
 
 
 def format_command(command):
@@ -38,7 +38,7 @@ class FubukiHelpCommand(commands.HelpCommand):
             cog_name = getattr(cog, "qualified_name", "Uncategorized")
 
             embeds.append(
-                fubuki.Embed(
+                neo.Embed(
                     title=cog_name,
                     description=getattr(cog, "description", None)
                 ).add_field(
@@ -56,7 +56,7 @@ class FubukiHelpCommand(commands.HelpCommand):
         cog_name = cog.qualified_name
         cog_commands = await self.filter_commands(cog.get_commands())
 
-        embed = fubuki.Embed(
+        embed = neo.Embed(
             title=cog_name,
             description=getattr(cog, "description", None)
         ).add_field(
@@ -70,7 +70,7 @@ class FubukiHelpCommand(commands.HelpCommand):
         await self.context.send(embed=embed)
 
     async def send_command_help(self, command):
-        embed = fubuki.Embed(
+        embed = neo.Embed(
             title=f"{self.clean_prefix}{command.qualified_name} {command.signature}",
             description="{}\n".format(command.help or "No description")
         )

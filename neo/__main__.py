@@ -6,14 +6,14 @@ import discord
 import toml
 from discord.ext import commands
 
-from fubuki import Fubuki
-from fubuki.modules.args.commands import ArgCommand, ArgGroup
-from fubuki.tools import Patcher
-from fubuki.types.partials import PartialUser
+from neo import Neo
+from neo.modules.args.commands import ArgCommand, ArgGroup
+from neo.tools import Patcher
+from neo.types.partials import PartialUser
 
 # Sect: Logging
 
-loggers = [logging.getLogger("discord"), logging.getLogger("fubuki")]
+loggers = [logging.getLogger("discord"), logging.getLogger("neo")]
 
 formatter = logging.Formatter(
     fmt="{asctime} [{levelname}/{module}] {message:<5}",
@@ -128,7 +128,7 @@ client.patch()
 with open("config.toml", "r") as file:
     config = toml.load(file)
 
-bot = Fubuki(config)
+bot = Neo(config)
 bot.run()
 
 # /Sect: Running bot

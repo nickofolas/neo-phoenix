@@ -1,14 +1,14 @@
 from typing import Union
 
 import discord
-import fubuki
+import neo
 from discord.ext import commands
-from fubuki.modules import Paginator, args, cse, dictionary
-from fubuki.types.converters import MentionConverter
+from neo.modules import Paginator, args, cse, dictionary
+from neo.types.converters import MentionConverter
 
 
 def _result_to_embed(result):
-    embed = fubuki.Embed(
+    embed = neo.Embed(
         title=result.title,
         description=result.snippet,
         url=result.url
@@ -20,7 +20,7 @@ def _result_to_embed(result):
 def _definitions_to_embed(word):
     for meaning in word.meanings:
         for definition in meaning.definitions:
-            embed = fubuki.Embed(
+            embed = neo.Embed(
                 description=definition.definition
             ).set_author(
                 name=f"{word.word}: {meaning.part_of_speech}"
@@ -31,7 +31,7 @@ def _definitions_to_embed(word):
             yield embed
 
 
-class Utility(fubuki.Addon):
+class Utility(neo.Addon):
     """Various utility commands"""
 
     def __init__(self, bot):
@@ -111,7 +111,7 @@ class Utility(fubuki.Addon):
         user = await self.bot.fetch_user(user) if user else ctx.author
         url = user.avatar_url
 
-        embed = fubuki.Embed(
+        embed = neo.Embed(
             description=f"[View in browser]({url})"
         ).set_image(url=url).set_footer(text=str(user))
 

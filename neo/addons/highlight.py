@@ -5,11 +5,11 @@ from collections import defaultdict
 from functools import cached_property
 from operator import attrgetter
 
-import fubuki
+import neo
 from discord import NotFound
 from discord.ext import commands
-from fubuki.modules import args, paginator
-from fubuki.types.containers import TimedSet
+from neo.modules import args, paginator
+from neo.types.containers import TimedSet
 
 DEFAULT_AVATARS = {  # TODO: Use actual icons for this?
     "red": "🔴",
@@ -113,7 +113,7 @@ class Highlight:
 
         content += f"[Jump]({message.jump_url})"
 
-        embed = fubuki.Embed(
+        embed = neo.Embed(
             title="Highlighted in #{0.channel.name}".format(message),
             description=content
         ).set_author(name=message.guild.name)
@@ -127,7 +127,7 @@ class Highlight:
         return self.pattern.search(other)
 
 
-class Highlights(fubuki.Addon):
+class Highlights(neo.Addon):
     """Commands for managing highlights"""
 
     def __init__(self, bot):
@@ -178,7 +178,7 @@ class Highlights(fubuki.Addon):
                 hl.content
             )
 
-        embed = fubuki.Embed(description=description or "You have no highlights")
+        embed = neo.Embed(description=description or "You have no highlights")
 
         await ctx.send(embed=embed)
 
