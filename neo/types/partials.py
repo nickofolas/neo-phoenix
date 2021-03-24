@@ -11,6 +11,15 @@ class PartialUser(abc.Messageable, Object):
     def __repr__(self):
         return "<{0.__class__.__name__} id={0.id}>".format(self)
 
+    def __eq__(self, other):
+        return isinstance(other, (abc.User, PartialUser)) and other.id == self.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return self.id >> 22
+
     @property
     def mention(self):
         return "<@{.id}>".format(self)

@@ -28,7 +28,7 @@ class Neo(commands.Bot):
         ))
         kwargs.setdefault("status", discord.Status[config["bot"]["status"]])
         kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
-        kwargs.setdefault("help_command", help_command.FubukiHelpCommand())
+        kwargs.setdefault("help_command", help_command.NeoHelpCommand())
 
         super().__init__(**kwargs)
 
@@ -39,7 +39,7 @@ class Neo(commands.Bot):
         self.db = await create_pool(**self.cfg["database"])
 
         for record in await self.db.fetch("SELECT * FROM profiles"):
-            self._profiles[record["user_id"]] = containers.FubukiUser(
+            self._profiles[record["user_id"]] = containers.NeoUser(
                 pool=self.db,
                 **record
             )

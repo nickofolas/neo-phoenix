@@ -16,7 +16,7 @@ def format_command(command):
     return fmt.format(symbol, command)
 
 
-class FubukiHelpCommand(commands.HelpCommand):
+class NeoHelpCommand(commands.HelpCommand):
 
     def __init__(self):
         description = """Displays help for the bot.

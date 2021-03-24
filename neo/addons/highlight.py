@@ -85,7 +85,7 @@ class Highlight:
             return
 
         try:  # This lets us update the channel members and make sure the user exists
-            member = await message.guild.fetch_member(self.user_id)
+            member = await message.guild.fetch_member(self.user_id, cache=True)
         except NotFound:
             return
 
@@ -97,6 +97,9 @@ class Highlight:
 
         if member not in message.channel.members:
             return
+
+        if member in message.mentions:
+            return  # Don't highlight users with messages they are mentioned in
 
         return True
 

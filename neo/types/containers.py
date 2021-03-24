@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 
 
-class FubukiUser:
+class NeoUser:
     __slots__ = ("ready", "pool", "user_id", "hl_blocks")
 
     def __init__(self, *, pool, **record):
