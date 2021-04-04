@@ -117,9 +117,9 @@ class Highlight:
         content += f"[Jump]({message.jump_url})"
 
         embed = neo.Embed(
-            title="Highlighted in #{0.channel.name}".format(message),
+            title="In {0.guild.name}/#{0.channel.name}".format(message),
             description=content
-        ).set_author(name=message.guild.name)
+        )
 
         return {
             "content": "{0.author}: {0.content}".format(message)[:1500],
@@ -161,7 +161,7 @@ class Highlights(neo.Addon):
                 to_deliver[hl.user_id] = (hl, message)
 
         for hl, message in to_deliver.values():
-            await self.bot.get_user(hl.user_id).send(
+            await self.bot.get_user(hl.user_id, as_partial=True).send(
                 **await hl.to_send_kwargs(message)
             )
 

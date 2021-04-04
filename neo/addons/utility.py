@@ -2,9 +2,42 @@ from typing import Union
 
 import discord
 import neo
+from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 from neo.modules import Paginator, args, cse, dictionary
 from neo.types.converters import MentionConverter
+
+DELTA_FORMAT = "{0.months} months and {0.days} days ago"
+ACTIVITY_TYPE_MAPPING = {
+    discord.ActivityType.watching: "Watching",
+    discord.ActivityType.playing: "Playing",
+    discord.ActivityType.streaming: "Streaming",
+    discord.ActivityType.listening: "Listening to",
+    discord.ActivityType.competing: "Competing in",
+}
+ACTIVITY_MAPPING = {
+    discord.Spotify: "Listening to **{0}**",
+    discord.Game: "Playing **{0}**",
+    discord.Streaming: "Streaming **{0}**"
+}
+STATUS_ICON_MAPPING = {
+    "online": "<:online:743228917279752202>",
+    "dnd": "<:dnd:743228917619490826>",
+    "idle": "<:idle:743228917589999678>",
+    "offline": "<:offline:743228917279621221>"
+}
+BADGE_ICON_MAPPING = {
+    "staff": "<:staff:743223905812086865>",
+    "partner": "<:partner:743223905820606588>",
+    "hypesquad": "<:events:743223907271573595>",
+    "hypesquad_balance": "<:balance:743223907301064704>",
+    "hypesquad_bravery": "<:bravery:743223907519299694>",
+    "hypesquad_brilliance": "<:brilliance:743223907372499046>",
+    "bug_hunter": "<:bug1:743223907380756591>",
+    "bug_hunter_level_2": "<:bug2:743223907129098311>",
+    "verified_bot_developer": "<:dev:743223907246407761>",
+    "early_supporter": "<:early:743223907338944522>"
+}
 
 
 def _result_to_embed(result):
@@ -114,6 +147,65 @@ class Utility(neo.Addon):
         embed = neo.Embed(
             description=f"[View in browser]({url})"
         ).set_image(url=url).set_footer(text=str(user))
+
+        await ctx.send(embed=embed)
+
+    # TODO: Display bot tags and owner crowns
+    @commands.command(name="userinfo", aliases=["ui"])
+    async def userinfo_command(self, ctx, *, user: Union[discord.Member, int, MentionConverter] = None):
+        """Retrieves information of yourself, or a specified user"""
+
+        user = user or ctx.author
+        if not isinstance(user, discord.Member):
+            user = await self.bot.fetch_user(user)
+
+        else:
+            joined_ago = relativedelta(ctx.message.created_at, user.joined_at)
+
+        created_ago = relativedelta(ctx.message.created_at, user.created_at)
+
+        embed = neo.Embed().set_thumbnail(url=user.avatar_url)
+
+        flags = [BADGE_ICON_MAPPING[pair[0]] for pair in user.public_flags if pair[1]]
+        title = str(user)
+        description = " ".join(flags) + ("\n" if flags else "")
+        description += "**Created** " + DELTA_FORMAT.format(created_ago)
+
+        if isinstance(user, discord.Member):
+            title = f"{STATUS_ICON_MAPPING[user.raw_status]} {title}"
+
+            description += "\n**Joined** " + DELTA_FORMAT.format(joined_ago)
+            # description += "\n**Join Position** {}".format(
+            #     sorted(ctx.guild.members, key=lambda m: m.joined_at).index(user) + 1
+            # )  # This is currently commented out for aesthetic reasons lmao
+
+            activities = []
+            for activity in user.activities:
+                if (act := ACTIVITY_MAPPING.get(type(activity))):
+                    activities.append(act.format(activity.name))  # For stuff like Spotify
+
+                elif isinstance(activity, discord.activity.Activity):
+                    activities.append("{0} **{1.name}**".format(
+                        ACTIVITY_TYPE_MAPPING.get(activity.type), activity)
+                    )  # For more ambiguous status types
+
+                elif isinstance(activity, discord.CustomActivity):
+                    if not activity.emoji:
+                        emoji = ""
+                    elif activity.emoji.is_unicode_emoji() or activity.emoji in self.bot.emojis:
+                        emoji = activity.emoji
+                    else:
+                        emoji = ":question:"
+                    activities.append(f"{emoji} {activity.name}")
+
+            if activities:
+                embed.add_field(
+                    name="Activities",
+                    value="\n".join(activities)
+                )
+
+        embed.title = title
+        embed.description = description
 
         await ctx.send(embed=embed)
 

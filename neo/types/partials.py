@@ -22,7 +22,7 @@ class PartialUser(abc.Messageable, Object):
 
     @property
     def mention(self):
-        return "<@{.id}>".format(self)
+        return f"<@{self.id}>"
 
     async def fetch(self):
         """Fetches the partial user to a full User"""
