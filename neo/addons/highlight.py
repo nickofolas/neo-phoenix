@@ -34,10 +34,10 @@ def check_regex(content):  # Using sre_parse.parse is too tedious
     if REGEX_CHECK.search(content):
         raise ValueError("Disallowed regex pattern")
 
-    if any(map(
+    if any([*map(
         lambda pattern: len(pattern.findall(content)) > 5,
         (EXCESSIVE_ESCAPES, EXCESSIVE_OR)
-    )):
+    )]):
         raise ValueError("Disallowed regex pattern")
 
 
@@ -202,7 +202,7 @@ class Highlights(neo.Addon):
         Actual documentation coming soonTM"""
 
         if input.regex:
-            check_regex("".join(input.content))
+            check_regex(" ".join(input.content))
 
         result = await self.bot.db.fetchrow(
             """
@@ -214,7 +214,7 @@ class Highlights(neo.Addon):
             RETURNING *
             """,
             ctx.author.id,
-            "".join(input.content),
+            " ".join(input.content),
             input.regex
         )
         self.highlights.append(Highlight(self.bot, **result))
