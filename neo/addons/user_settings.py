@@ -25,8 +25,7 @@ class UserSettings(neo.Addon):
 
         for setting in SETTINGS_MAPPING.keys():
             description += "`{0}` = `{1}`\n".format(
-                setting,
-                getattr(profile, setting)
+                setting, getattr(profile, setting)
             )
 
         embed = neo.Embed(
@@ -65,6 +64,16 @@ class UserSettings(neo.Addon):
         profile = self.bot.get_profile(ctx.author.id)
         setattr(profile, setting, value)
         await ctx.send(f"Setting `{setting}` has been changed!")
+
+    @settings.command(name="list")
+    async def settings_list(self, ctx):
+        """Lists out available settings, their value types, and describes their function"""
+
+        # TODO: All of it.
+        # TODO: Decide best method of implementation:
+        #       - * Database column comments with get_comment function?
+        #       - Store descriptions in some other file that's loaded in?
+        #       - Write descriptions into this file itself?
 
 
 def setup(bot):

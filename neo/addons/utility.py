@@ -151,6 +151,7 @@ class Utility(neo.Addon):
         await ctx.send(embed=embed)
 
     # TODO: Display bot tags and owner crowns
+    # TODO: Figure out how to make this look good without intents
     @commands.command(name="userinfo", aliases=["ui"], enabled=False)
     async def userinfo_command(self, ctx, *, user: Union[discord.Member, int, MentionConverter] = None):
         """Retrieves information of yourself, or a specified user"""
