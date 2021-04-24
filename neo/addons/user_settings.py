@@ -1,8 +1,12 @@
 import neo
 from discord.ext import commands
+from neo.modules import Paginator
 
 SETTINGS_MAPPING = {
-    "receive_highlights": commands.core._convert_to_bool
+    "receive_highlights": {
+        "converter": commands.core._convert_to_bool,
+        "description": None
+    }
 }
 
 
@@ -16,39 +20,64 @@ def try_or_none(func, *args, **kwargs):
 class UserSettings(neo.Addon):
     """Contains everything needed for managing your neo profile"""
 
-    @commands.group(invoke_without_command=True, ignore_extra=False)
-    async def settings(self, ctx):
-        """Displays an overview of your profile settings"""
+    def __init__(self, bot):
+        self.bot = bot
 
-        profile = self.bot.get_profile(ctx.author.id)
-        description = ""
+        self.bot.loop.create_task(self.__ainit__())
 
-        for setting in SETTINGS_MAPPING.keys():
-            description += "`{0}` = `{1}`\n".format(
-                setting, getattr(profile, setting)
+    async def __ainit__(self):
+        await self.bot.wait_until_ready()
+
+        for col_name in SETTINGS_MAPPING.keys():
+            col_desc = await self.bot.db.fetchval(
+                """
+                SELECT get_column_description(
+                    $1, 'profiles', $2
+                )
+                """,
+                self.bot.cfg["database"]["database"],
+                col_name
             )
 
-        embed = neo.Embed(
-            title="Settings for {}".format(ctx.author),
-            description=description.strip()
-        ).set_thumbnail(
-            url=ctx.author.avatar_url
-        )
+            SETTINGS_MAPPING[col_name]["description"] = col_desc
 
-        await ctx.send(embed=embed)
+    @commands.group(invoke_without_command=True, ignore_extra=False)
+    async def settings(self, ctx):
+        """Displays an overview of your profile settings
+
+        Descriptions of the settings is also provided here"""
+
+        profile = self.bot.get_profile(ctx.author.id)
+        embeds = []
+
+        for setting, setting_info in SETTINGS_MAPPING.items():
+            description = setting_info["description"].format(
+                getattr(profile, setting)
+            )
+            embed = neo.Embed(
+                title="Settings for {}".format(ctx.author),
+                description=description
+            ).set_thumbnail(
+                url=ctx.author.avatar_url
+            )
+            embeds.append(embed)
+
+        menu = Paginator.from_embeds(embeds)
+        await menu.start(ctx)
 
     @settings.command(name="set")
     async def settings_set(self, ctx, setting, *, new_value):
         """Updates the value of a profile setting
 
-        More information on what the available settings are, and their functions, are in the `settings list` command"""
+        More information on what the available settings are, and their functions, are in the `settings` command"""
 
-        if not (converter := SETTINGS_MAPPING.get(setting)):
+        if not (valid_setting := SETTINGS_MAPPING.get(setting)):
             raise commands.BadArgument(
                 "That's not a valid setting! "
-                "Try `settings list` for a list of settings!"
+                "Try `settings` for a list of settings!"
             )
 
+        converter = valid_setting["converter"]
         if isinstance(converter, commands.Converter):
             if (converted := await converter.convert(ctx, new_value)) is not None:
                 value = converted
@@ -64,16 +93,6 @@ class UserSettings(neo.Addon):
         profile = self.bot.get_profile(ctx.author.id)
         setattr(profile, setting, value)
         await ctx.send(f"Setting `{setting}` has been changed!")
-
-    @settings.command(name="list")
-    async def settings_list(self, ctx):
-        """Lists out available settings, their value types, and describes their function"""
-
-        # TODO: All of it.
-        # TODO: Decide best method of implementation:
-        #       - * Database column comments with get_comment function?
-        #       - Store descriptions in some other file that's loaded in?
-        #       - Write descriptions into this file itself?
 
 
 def setup(bot):
