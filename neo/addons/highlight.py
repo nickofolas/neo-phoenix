@@ -84,15 +84,18 @@ class Highlight:
                 message.author.bot]):
             return
 
-        try:  # This lets us update the channel members and make sure the user exists
-            member = await message.guild.fetch_member(self.user_id, cache=True)
-        except NotFound:
-            return
+        if self.bot.get_profile(self.user_id).receive_highlights is False:
+            return  # Don't highlight users who have disabled highlight receipt
 
         blacklist = self.bot.get_profile(self.user_id).hl_blocks
         if any(attrgetter(attr)(message) in blacklist for attr in (
                 "id", "guild.id", "channel.id", "author.id")
                ):
+            return
+
+        try:  # This lets us update the channel members and make sure the user exists
+            member = await message.guild.fetch_member(self.user_id, cache=True)
+        except NotFound:
             return
 
         if member not in message.channel.members:

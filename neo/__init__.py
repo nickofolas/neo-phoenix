@@ -11,7 +11,7 @@ from .tools import *  # noqa: F403
 from .types import Embed, help_command, containers
 
 log = logging.getLogger(__name__)
-intents = discord.Intents.all()
+# intents = discord.Intents.all()
 
 
 class Neo(commands.Bot):
@@ -30,7 +30,7 @@ class Neo(commands.Bot):
         kwargs.setdefault("status", discord.Status[config["bot"]["status"]])
         kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
         kwargs.setdefault("help_command", help_command.NeoHelpCommand())
-        kwargs.setdefault("intents", intents)
+        # kwargs.setdefault("intents", intents)
 
         super().__init__(**kwargs)
 

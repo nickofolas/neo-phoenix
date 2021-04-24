@@ -3,7 +3,7 @@ import contextlib
 
 
 class NeoUser:
-    __slots__ = ("ready", "pool", "user_id", "hl_blocks")
+    __slots__ = ("ready", "pool", "user_id", "hl_blocks", "receive_highlights")
 
     def __init__(self, *, pool, **record):
         self.ready = False

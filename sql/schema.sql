@@ -1,6 +1,7 @@
 CREATE TABLE profiles (
-    user_id   BIGINT PRIMARY KEY,
-    hl_blocks BIGINT[] DEFAULT ARRAY[]::BIGINT[]
+    user_id            BIGINT PRIMARY KEY,
+    hl_blocks          BIGINT[] DEFAULT ARRAY[]::BIGINT[],
+    receive_highlights BOOLEAN  DEFAULT TRUE
 );
 
 CREATE TABLE highlights (
