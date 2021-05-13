@@ -137,7 +137,7 @@ class Utility(neo.Addon):
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
 
-    @commands.command(name="avatar", aliases=["av"])
+    @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
     async def avatar_command(self, ctx, *, user: Union[int, MentionConverter] = None):
         """Retrieves the avatar of yourself, or a specified user"""
 

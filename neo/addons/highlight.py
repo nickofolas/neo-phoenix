@@ -251,27 +251,28 @@ class Highlights(neo.Addon):
         self.highlights.remove(to_remove)
         await ctx.message.add_reaction("\U00002611")
 
-    @args.add_arg(
-        "entities",
-        nargs="*",
-        help="One or many entities to block. Inputs must be IDs"
-    )
-    @args.add_arg(
-        "-u", "--unblock",
-        action="store_true",
-        help="If passed, will unblock all entities provided"
-    )
-    @highlight.arg_command(name="block")
-    async def highlight_block(self, ctx, *, input):
-        """Manage a blocklist for highlights. Run with no arguments for a list of blocks
+    def do_block_unblock(self, *, profile, ids, action="block"):
+        blacklist = {*profile.hl_blocks, }
+        ids = {*ids, }
 
-        Server, user, and channels can all be blocked via ID"""
+        if action == "unblock":
+            blacklist -= ids
+        else:
+            blacklist |= ids
+
+        profile.hl_blocks = [*blacklist]
+
+    @highlight.command(name="block")
+    async def highlight_block(self, ctx, ids: commands.Greedy[int]):
+        """Manage a blocklist for highlights. Run with no arguments for a list of your blocks
+
+        Servers, users, and channels can all be blocked via ID
+
+        A variable number of IDs can be provided to this command"""
 
         profile = self.bot.get_profile(ctx.author.id)
-        blacklist = set(profile.hl_blocks)
 
-        entities = [*map(int, filter(str.isdigit, input.entities))]
-        if not entities:
+        if not ids:
 
             def transform_mention(id):
                 mention = getattr(self.bot.get_guild(id), "name",
@@ -280,19 +281,27 @@ class Highlights(neo.Addon):
                 return "`{0}` [{1}]".format(id, mention)
 
             menu = paginator.Paginator.from_iterable(
-                [*map(transform_mention, blacklist)] or ["No highlight blocks"],
+                [*map(transform_mention, profile.hl_blocks)] or ["No highlight blocks"],
                 per_page=10,
                 use_embed=True
             )
             await menu.start(ctx)
             return
 
-        if input.unblock:
-            blacklist -= set(entities)
-        else:
-            blacklist |= set(entities)
+        self.do_block_unblock(profile=profile, ids=ids)
+        await ctx.message.add_reaction("\U00002611")
 
-        profile.hl_blocks = [*blacklist]
+    @highlight.command(name="unblock")
+    async def highlight_unblock(self, ctx, ids: commands.Greedy[int]):
+        """Unblock users from triggering your highlights
+
+        Servers, users, and channels can all be unblocked via ID
+
+        A variable number of IDs can be provided to this command"""
+
+        profile = self.bot.get_profile(ctx.author.id)
+
+        self.do_block_unblock(profile=profile, ids=ids, action="unblock")
         await ctx.message.add_reaction("\U00002611")
 
 

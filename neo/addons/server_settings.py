@@ -36,7 +36,16 @@ class ServerSettings(neo.Addon):
             SETTINGS_MAPPING[col_name]["description"] = col_desc
 
     async def cog_check(self, ctx):
-        return ctx.guild is not None
+        if not ctx.guild:
+            raise commands.NoPrivateMessage()
+
+        if not any([
+            ctx.author.guild_permissions.administrator,
+            await self.bot.is_owner(ctx.author)
+        ]):
+            raise commands.MissingPermissions(["administrator"])
+
+        return True
 
     @commands.group(invoke_without_command=True, ignore_extra=False)
     async def server(self, ctx):

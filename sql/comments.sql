@@ -10,6 +10,7 @@ Default Value: `True`
 -- Table: servers | Documentation for settings --
 COMMENT ON COLUMN servers.prefix IS
 'Sets the bot''s prefix for the server.
+Pinging the bot is always an alternative prefix.
 
 Expected Value Type: A string of text
 Default Value: `n!`

@@ -79,13 +79,11 @@ class Neo(commands.Bot):
 
     async def get_prefix(self, message):
         if message.guild:
-            return commands.when_mentioned_or(
-                getattr(
-                    self.get_server(message.guild.id),
-                    "prefix",
-                    self.cfg["bot"]["prefix"]
-                )
-            )(self, message)
+            return commands.when_mentioned_or(getattr(
+                self.get_server(message.guild.id),
+                "prefix",
+                self.cfg["bot"]["prefix"]
+            ))(self, message)
 
         return commands.when_mentioned_or(self.cfg["bot"]["prefix"])(self, message)
 
