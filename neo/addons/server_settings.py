@@ -4,15 +4,15 @@ from neo.modules import Paginator
 from neo.tools import try_or_none
 
 SETTINGS_MAPPING = {
-    "receive_highlights": {
-        "converter": commands.core._convert_to_bool,
+    "prefix": {
+        "converter": str,
         "description": None
     }
 }
 
 
-class UserSettings(neo.Addon):
-    """Contains everything needed for managing your neo profile"""
+class ServerSettings(neo.Addon):
+    """Contains everything needed for managing your server's settings"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -26,7 +26,7 @@ class UserSettings(neo.Addon):
             col_desc = await self.bot.db.fetchval(
                 """
                 SELECT get_column_description(
-                    $1, 'profiles', $2
+                    $1, 'servers', $2
                 )
                 """,
                 self.bot.cfg["database"]["database"],
@@ -35,40 +35,43 @@ class UserSettings(neo.Addon):
 
             SETTINGS_MAPPING[col_name]["description"] = col_desc
 
+    async def cog_check(self, ctx):
+        return ctx.guild is not None
+
     @commands.group(invoke_without_command=True, ignore_extra=False)
-    async def settings(self, ctx):
-        """Displays an overview of your profile settings
+    async def server(self, ctx):
+        """Displays an overview of your server's settings
 
         Descriptions of the settings are also provided here"""
 
-        profile = self.bot.get_profile(ctx.author.id)
+        server = self.bot.get_server(ctx.guild.id)
         embeds = []
 
         for setting, setting_info in SETTINGS_MAPPING.items():
             description = setting_info["description"].format(
-                getattr(profile, setting)
+                getattr(server, setting)
             )
             embed = neo.Embed(
-                title=f"Settings for {ctx.author}",
+                title=f"Settings for {ctx.guild}",
                 description=f"**Setting: `{setting}`**\n\n" + description
             ).set_thumbnail(
-                url=ctx.author.avatar_url
+                url=ctx.guild.icon_url
             )
             embeds.append(embed)
 
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
 
-    @settings.command(name="set")
-    async def settings_set(self, ctx, setting, *, new_value):
-        """Updates the value of a profile setting
+    @server.command(name="set")
+    async def server_set(self, ctx, setting, *, new_value):
+        """Updates the value of a server setting
 
-        More information on the available settings and their functions is in the `settings` command"""
+        More information on the available settings and their functions is in the `server` command"""
 
         if not (valid_setting := SETTINGS_MAPPING.get(setting)):
             raise commands.BadArgument(
                 "That's not a valid setting! "
-                "Try `settings` for a list of settings!"
+                "Try `server` for a list of settings!"
             )
 
         converter = valid_setting["converter"]
@@ -84,10 +87,10 @@ class UserSettings(neo.Addon):
                 "Bad value provided for setting `{}`".format(setting)
             )
 
-        profile = self.bot.get_profile(ctx.author.id)
-        setattr(profile, setting, value)
+        server = self.bot.get_server(ctx.guild.id)
+        setattr(server, setting, value)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
 
 def setup(bot):
-    bot.add_cog(UserSettings(bot))
+    bot.add_cog(ServerSettings(bot))

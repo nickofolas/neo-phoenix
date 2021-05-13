@@ -20,6 +20,7 @@ class Neo(commands.Bot):
         self.cfg = config
         self.session = None
         self._profiles = {}
+        self._servers = {}
 
         kwargs.setdefault("command_prefix", self.get_prefix)
         kwargs.setdefault("activity", discord.Activity(
@@ -46,8 +47,17 @@ class Neo(commands.Bot):
                 **record
             )
 
+        for record in await self.db.fetch("SELECT * FROM servers"):
+            self._servers[record["server_id"]] = containers.NeoServer(
+                pool=self.db,
+                **record
+            )
+
     def get_profile(self, user_id):
         return self._profiles.get(user_id)
+
+    def get_server(self, server_id):
+        return self._servers.get(server_id)
 
     def run(self):
         for addon in self.cfg["addons"]:
@@ -68,6 +78,15 @@ class Neo(commands.Bot):
             await self.process_commands(after)
 
     async def get_prefix(self, message):
+        if message.guild:
+            return commands.when_mentioned_or(
+                getattr(
+                    self.get_server(message.guild.id),
+                    "prefix",
+                    self.cfg["bot"]["prefix"]
+                )
+            )(self, message)
+
         return commands.when_mentioned_or(self.cfg["bot"]["prefix"])(self, message)
 
     async def on_command_error(self, ctx, error):

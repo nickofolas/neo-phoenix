@@ -5,6 +5,7 @@ from textwrap import shorten
 import discord
 import neo
 from discord.ext import commands
+from discord.utils import escape_markdown
 from neo.modules import Paginator
 
 
@@ -59,7 +60,7 @@ class Todos(neo.Addon):
 
         for index, todo in enumerate(self.todos[ctx.author.id]):
             formatted_todos.append("`{0}` {1}".format(
-                index, shorten(todo.content, width=75)
+                index, escape_markdown(shorten(todo.content, width=75))
             ))
 
         menu = Paginator.from_iterable(

@@ -4,6 +4,11 @@ CREATE TABLE profiles (
     receive_highlights BOOLEAN  DEFAULT TRUE
 );
 
+CREATE TABLE servers (
+    server_id BIGINT PRIMARY KEY,
+    prefix    TEXT DEFAULT 'n!'
+);
+
 CREATE TABLE highlights (
     user_id  BIGINT NOT NULL,
     content  TEXT NOT NULL,

@@ -170,7 +170,10 @@ class Highlights(neo.Addon):
 
     @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
-        """List your highlights"""
+        """List your highlights
+
+        A [✓] before a highlight means that the highlight uses regex
+        A [⨉] indicates that a highlight does not use regex"""
 
         description = ""
 
