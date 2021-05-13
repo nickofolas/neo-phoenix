@@ -225,7 +225,7 @@ class Highlights(neo.Addon):
 
     @highlight.command(name="remove", aliases=["rm"])
     async def highlight_remove(self, ctx, hl_index: int):
-        """Remove a highlight by its index"""
+        """Remove a **single** highlight by its index"""
 
         to_remove = [*filter(
             lambda hl: hl.user_id == ctx.author.id,

@@ -38,14 +38,14 @@ class Patcher:
             self._patches[getattr(attr, "__name__", name)] = attr
         return inner
 
-    def patch(self) -> None:
+    def patch(self):
         """
         Applies all staged patches to the target.
         """
         for name, attr in self._patches.items():
             setattr(self.target, name, attr)
 
-    def revert(self) -> None:
+    def revert(self):
         """
         Reverts the target back to its state at the time that the
         Patcher was instantiated.

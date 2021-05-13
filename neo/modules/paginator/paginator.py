@@ -143,9 +143,11 @@ class Paginator:
                 tasks = [asyncio.create_task(self.bot.wait_for("raw_reaction_add", check=self.reactions_pred))]
                 if not self._remove_reactions:
                     tasks.append(asyncio.create_task(self.bot.wait_for("raw_reaction_remove", check=self.reactions_pred)))
+
                 done, running = await asyncio.wait(tasks, timeout=self.timeout, return_when=asyncio.FIRST_COMPLETED)
                 if not done:
                     raise asyncio.TimeoutError
+
                 [task.cancel() for task in running]
                 payload = done.pop().result()
 

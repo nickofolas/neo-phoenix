@@ -45,7 +45,7 @@ class UserSettings(neo.Addon):
     async def settings(self, ctx):
         """Displays an overview of your profile settings
 
-        Descriptions of the settings is also provided here"""
+        Descriptions of the settings are also provided here"""
 
         profile = self.bot.get_profile(ctx.author.id)
         embeds = []
@@ -55,8 +55,8 @@ class UserSettings(neo.Addon):
                 getattr(profile, setting)
             )
             embed = neo.Embed(
-                title="Settings for {}".format(ctx.author),
-                description=description
+                title=f"Settings for {ctx.author}",
+                description=f"**Setting: `{setting}`**\n\n" + description
             ).set_thumbnail(
                 url=ctx.author.avatar_url
             )

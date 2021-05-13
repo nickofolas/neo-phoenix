@@ -8,6 +8,11 @@ from .parser import Parser
 
 class ArgCommand(commands.Command):
 
+    def __init__(self, *args, split_method=str, **kwargs):
+        self.split_method = split_method
+
+        super().__init__(*args, **kwargs)
+
     @property
     def signature(self):
         if self.usage is not None:
@@ -74,7 +79,8 @@ class ArgCommand(commands.Command):
                     return
 
                 try:
-                    parsed = self.callback.parser.parse_args(to_parse.split(" "))
+                    to_parse = self.split_method.split(to_parse, " ")
+                    parsed = self.callback.parser.parse_args(to_parse)
                 except Exception as e:
                     kwargs[name] = None
                     await self.dispatch_error(ctx, e)
