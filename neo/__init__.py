@@ -42,22 +42,48 @@ class Neo(commands.Bot):
         self.db = await create_pool(**self.cfg["database"])
 
         for record in await self.db.fetch("SELECT * FROM profiles"):
-            self._profiles[record["user_id"]] = containers.NeoUser(
-                pool=self.db,
-                **record
-            )
+            await self.add_profile(record["user_id"], record=record)
 
         for record in await self.db.fetch("SELECT * FROM servers"):
-            self._servers[record["server_id"]] = containers.NeoServer(
-                pool=self.db,
-                **record
-            )
+            await self.add_server(record["server_id"], record=record)
 
     def get_profile(self, user_id):
         return self._profiles.get(user_id)
 
     def get_server(self, server_id):
         return self._servers.get(server_id)
+
+    async def add_profile(self, user_id, *, record=None):
+        if not record:
+            record = await self.db.fetchrow(
+                """
+                INSERT INTO profiles (
+                    user_id
+                ) VALUES (
+                    $1
+                ) RETURNING *
+                """,
+                user_id
+            )
+
+        self._profiles[user_id] = containers.NeoUser(pool=self.db, **record)
+        return self.get_profile(user_id)
+
+    async def add_server(self, server_id, *, record=None):
+        if not record:
+            record = await self.db.fetchrow(
+                """
+                INSERT INTO servers (
+                    server_id
+                ) VALUES (
+                    $1
+                ) RETURNING *
+                """,
+                server_id
+            )
+
+        self._servers[server_id] = containers.NeoServer(pool=self.db, **record)
+        return self.get_server(server_id)
 
     def run(self):
         for addon in self.cfg["addons"]:
