@@ -142,7 +142,7 @@ class Utility(neo.Addon):
         """Retrieves the avatar of yourself, or a specified user"""
 
         user = await self.bot.fetch_user(user) if user else ctx.author
-        url = user.avatar_url
+        url = user.avatar
 
         embed = neo.Embed(
             description=f"[View in browser]({url})"
@@ -165,7 +165,7 @@ class Utility(neo.Addon):
 
         created_ago = relativedelta(ctx.message.created_at, user.created_at)
 
-        embed = neo.Embed().set_thumbnail(url=user.avatar_url)
+        embed = neo.Embed().set_thumbnail(url=user.avatar)
 
         flags = [BADGE_ICON_MAPPING[pair[0]] for pair in user.public_flags if pair[1]]
         title = str(user)

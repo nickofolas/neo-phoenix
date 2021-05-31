@@ -52,7 +52,7 @@ class UserSettings(neo.Addon):
                 title=f"Settings for {ctx.author}",
                 description=f"**Setting: `{setting}`**\n\n" + description
             ).set_thumbnail(
-                url=ctx.author.avatar_url
+                url=ctx.author.avatar
             )
             embeds.append(embed)
 
