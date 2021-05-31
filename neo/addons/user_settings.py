@@ -5,7 +5,7 @@ from neo.tools import try_or_none
 
 SETTINGS_MAPPING = {
     "receive_highlights": {
-        "converter": commands.core._convert_to_bool,
+        "converter": commands.converter._convert_to_bool,
         "description": None
     }
 }

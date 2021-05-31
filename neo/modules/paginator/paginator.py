@@ -3,6 +3,7 @@ import asyncio
 import discord
 
 from .pages import EmbedPages, Pages
+from .ui import MenuActions
 
 
 class Paginator:
@@ -73,7 +74,7 @@ class Paginator:
                 )
             )
 
-        self.message = await self.ctx.send(**send_kwargs)
+        self.message = await self.ctx.send(view=MenuActions(self), **send_kwargs)
         self.bot = self.ctx.bot
         self.author = self.ctx.author
 
