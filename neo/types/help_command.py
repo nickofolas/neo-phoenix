@@ -21,9 +21,41 @@ class NeoHelpCommand(commands.HelpCommand):
     def __init__(self):
         description = """Displays help for the bot.
 
-        Some symbols are used to identify commands:
+        __**Command Lists**__
+        In a list of commands, command types are identified symbolically:
         - A `⑄` symbol next to a listed command identifies it as a standalone command.
-        - A `⑃` symbol next to a listed command identifies it as a command group."""
+        - A `⑃` symbol next to a listed command identifies it as a command group.
+
+        __**Command Help**__
+        There are several elements of a command's help page to consider.
+
+        __Description__
+        Stable (completed) commands will have a description to explain
+        the command's function and purpose.
+
+        __Arguments__
+        Arguments represent the relevant information that you pass to neo.
+        When reading a command's arguments, the order they are listed is also
+        the order in which you must provide them.
+
+        Arguments also have some identifiers to them:
+        - An argument surrounded by angle brackets (`<>`) is **required**.
+        The command will not run if you do not provide this argument.
+        - An argument surrounded by square brackets (`[]`) is **optional**.
+        The command will run without them, or they can be provided to
+        alter the result of the command.
+
+        A unique argument type is a *flag argument*, identified by `--`
+
+        Flag arguments are special in that they can be used
+        at any spot in the arguments input, unlike non-flag (positional) arguments.
+        When a command takes a flag argument, you pass it like so:
+        > <command> <positional argument> **--<flag argument>**
+
+        The input value type of a flag command may differ by command, so make sure
+        to read the explanation for the argument at the bottom of the command's
+        help page.
+        """
 
         super().__init__(command_attrs={"help": description})
 
@@ -40,7 +72,7 @@ class NeoHelpCommand(commands.HelpCommand):
             embeds.append(
                 neo.Embed(
                     title=cog_name,
-                    description=getattr(cog, "description", None)
+                    description=getattr(cog, "description", "No description")
                 ).add_field(
                     name="Commands",
                     value="\n".join(map(
@@ -58,7 +90,7 @@ class NeoHelpCommand(commands.HelpCommand):
 
         embed = neo.Embed(
             title=cog_name,
-            description=getattr(cog, "description", None)
+            description=getattr(cog, "description", "No description")
         ).add_field(
             name="Commands",
             value="\n".join(map(
@@ -71,7 +103,7 @@ class NeoHelpCommand(commands.HelpCommand):
 
     async def send_command_help(self, command):
         embed = neo.Embed(
-            title=f"{self.clean_prefix}{command.qualified_name} {command.signature}",
+            title=f"{self.context.clean_prefix}{command.qualified_name} {command.signature}",
             description="{}\n".format(command.help or "No description")
         )
 
