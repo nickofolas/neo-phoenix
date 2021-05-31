@@ -65,18 +65,14 @@ class Devel(neo.Addon):
                 res = repr(res) if not isinstance(res, str) else res
                 menu.pages.append("\n{}".format(res))
 
-                if not menu._running:
-                    await menu.start(ctx, delay_add=True, as_reply=True)
+                if not menu.running:
+                    await menu.start(ctx, as_reply=True)
 
             await ctx.message.add_reaction("\U00002611")
 
         except Exception as e:
             menu.pages.append("\n{}".format(format_exception(e)))
-            await menu.start(ctx, delay_add=True, as_reply=True)
-
-        finally:
-            if menu._running:
-                await menu.add_buttons()
+            await menu.start(ctx, as_reply=True)
 
 
 def setup(bot):
