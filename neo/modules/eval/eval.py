@@ -22,11 +22,6 @@ def env_from_context(ctx):
     }
 
 
-def clear_intersection(dict1, dict2):
-    for key in dict1.keys():
-        dict2.pop(key, None)
-
-
 class Eval:
     def __init__(self, code_input, environment={}, output={}):
         self.compiled = compile_all(code_input)
@@ -45,4 +40,4 @@ class Eval:
             async for result in coro(*args, **kwargs):
                 yield result
         else:
-            yield await coro(*args, **kwargs) or ""
+            yield await coro(*args, **kwargs)

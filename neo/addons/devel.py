@@ -1,7 +1,6 @@
 import neo
 from discord.ext import commands
-from neo.modules.eval import (Eval, clear_intersection, env_from_context,
-                              format_exception)
+from neo.modules.eval import Eval, env_from_context, format_exception
 from neo.modules.paginator import Pages, Paginator
 from neo.types.converters import CodeblockConverter
 
@@ -44,8 +43,7 @@ class Devel(neo.Addon):
     async def dev_eval(self, ctx, *, code: CodeblockConverter):
         """Executes some code, retaining the result"""
 
-        clear_intersection(globals(), self._eval_scope)
-        (environment := env_from_context(ctx)).update(**globals(), **self._eval_scope)
+        (environment := env_from_context(ctx)).update(**self._eval_scope | globals())
 
         pages = Pages(
             "\r",

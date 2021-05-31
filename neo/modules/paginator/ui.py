@@ -12,8 +12,6 @@ class Previous(MenuButton):
     label = "<"
 
     async def callback(self, interaction):
-        self.view.last_interaction = interaction
-
         current_page = self.menu.get_current_page(self.menu.current_page - 1)
         send_kwargs = self.menu._get_msg_kwargs(current_page)
 
@@ -25,8 +23,6 @@ class Close(MenuButton):
     label = "X"
 
     async def callback(self, interaction):
-        self.view.last_interaction = interaction
-
         self.view.stop()
         await self.menu.close(manual=True)
 
@@ -36,8 +32,6 @@ class Next(MenuButton):
     label = ">"
 
     async def callback(self, interaction):
-        self.view.last_interaction = interaction
-
         current_page = self.menu.get_current_page(self.menu.current_page + 1)
         send_kwargs = self.menu._get_msg_kwargs(current_page)
 

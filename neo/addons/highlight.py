@@ -188,7 +188,6 @@ class Highlights(neo.Addon):
             )
 
         embed = neo.Embed(description=description or "You have no highlights")
-
         await ctx.send(embed=embed)
 
     @args.add_arg(
@@ -226,6 +225,7 @@ class Highlights(neo.Addon):
         self.highlights.append(Highlight(self.bot, **result))
         await ctx.message.add_reaction("\U00002611")
 
+    # TODO: This needs to support index chaining.
     @highlight.command(name="remove", aliases=["rm"])
     async def highlight_remove(self, ctx, hl_index: int):
         """Remove a **single** highlight by its index"""
@@ -251,7 +251,7 @@ class Highlights(neo.Addon):
         self.highlights.remove(to_remove)
         await ctx.message.add_reaction("\U00002611")
 
-    def do_block_unblock(self, *, profile, ids, action="block"):
+    def perform_blocklist_action(self, *, profile, ids, action="block"):
         blacklist = {*profile.hl_blocks, }
         ids = {*ids, }
 
@@ -277,7 +277,7 @@ class Highlights(neo.Addon):
             def transform_mention(id):
                 mention = getattr(self.bot.get_guild(id), "name",
                                   getattr(self.bot.get_channel(id), "mention",
-                                          f"<@{id}>"))  # Yes this could lead to fake user mentions
+                                          f"<@{id}>"))  # Yes, this could lead to fake user mentions
                 return "`{0}` [{1}]".format(id, mention)
 
             menu = paginator.Paginator.from_iterable(
@@ -288,12 +288,12 @@ class Highlights(neo.Addon):
             await menu.start(ctx)
             return
 
-        self.do_block_unblock(profile=profile, ids=ids)
+        self.perform_blocklist_action(profile=profile, ids=ids)
         await ctx.message.add_reaction("\U00002611")
 
     @highlight.command(name="unblock")
     async def highlight_unblock(self, ctx, ids: commands.Greedy[int]):
-        """Unblock users from triggering your highlights
+        """Unblock entities from triggering your highlights
 
         Servers, users, and channels can all be unblocked via ID
 
@@ -301,7 +301,7 @@ class Highlights(neo.Addon):
 
         profile = self.bot.get_profile(ctx.author.id)
 
-        self.do_block_unblock(profile=profile, ids=ids, action="unblock")
+        self.perform_blocklist_action(profile=profile, ids=ids, action="unblock")
         await ctx.message.add_reaction("\U00002611")
 
 
