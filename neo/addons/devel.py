@@ -52,7 +52,7 @@ class Devel(neo.Addon):
             suffix="\n```",
             use_embed=True
         )
-        menu = Paginator(pages, timeout=180)
+        menu = Paginator(pages)
 
         try:
             async for res in Eval(code, environment, self._eval_scope):

@@ -1,3 +1,5 @@
+from asyncio import get_running_loop
+
 import discord
 
 
@@ -39,15 +41,12 @@ class Next(MenuButton):
 
 
 class MenuActions(discord.ui.View):
-    def __init__(self, menu, timeout):
-        super().__init__(timeout=timeout)
+    def __init__(self, menu):
+        super().__init__()
         self.menu = menu
 
         for button in (Previous, Close, Next):
             self.add_item(button(self.menu))
-
-    async def on_timeout(self):
-        self.stop()
 
     async def interaction_check(self, interaction):
         predicates = []
