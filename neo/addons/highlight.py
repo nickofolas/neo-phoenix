@@ -18,27 +18,7 @@ DEFAULT_AVATARS = {  # TODO: Use actual icons for this?
     "grey": "⚫",
     "blurple": "🔵"
 }
-EXCESSIVE_OR = re.compile(r"(?<!\\)\|")
-EXCESSIVE_ESCAPES = re.compile(r"(?<!\\)\\s|\\d|\\w", re.I)
-REGEX_CHECK = re.compile(
-    r"""(?<!\\)[\*\+]|
-        (?<!\\)\{\d*(\,\s?\d*)?\}|
-        (?<!\\)\.""",
-    re.I | re.X,
-)
-
-
-def check_regex(content):  # Using sre_parse.parse is too tedious
-    """Make sure only permitted patterns are used"""
-
-    if REGEX_CHECK.search(content):
-        raise ValueError("Disallowed regex pattern")
-
-    if any([*map(
-        lambda pattern: len(pattern.findall(content)) > 5,
-        (EXCESSIVE_ESCAPES, EXCESSIVE_OR)
-    )]):
-        raise ValueError("Disallowed regex pattern")
+MAX_TRIGGERS = 10
 
 
 def format_hl_context(message, is_trigger=False):
@@ -59,22 +39,18 @@ def format_hl_context(message, is_trigger=False):
 
 
 class Highlight:
-    def __init__(self, bot, *, content, is_regex, user_id):
+    def __init__(self, bot, *, content, user_id):
         self.bot = bot
 
         self.content = content
-        self.is_regex = is_regex
         self.user_id = user_id
 
     def __repr__(self):
         return ("<{0.__class__.__name__} user_id={0.user_id!r} "
-                "is_regex={0.is_regex} content={0.content!r}>").format(self)
+                "content={0.content!r}>").format(self)
 
     @cached_property
     def pattern(self):
-        if self.is_regex:
-            return re.compile(self.content)
-
         return re.compile(fr"\b{self.content}\b")
 
     async def predicate(self, message):
@@ -150,6 +126,12 @@ class Highlights(neo.Addon):
         for record in await self.bot.db.fetch("SELECT * FROM highlights"):
             self.highlights.append(Highlight(self.bot, **record))
 
+    def get_user_highlights(self, user_id):
+        return [*filter(
+            lambda hl: hl.user_id == user_id,
+            self.highlights
+        )]
+
     @commands.Cog.listener("on_message")
     async def listen_for_highlights(self, message):
         if message.author.id in {hl.user_id for hl in self.highlights}:
@@ -170,57 +152,43 @@ class Highlights(neo.Addon):
 
     @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
-        """List your highlights
-
-        A [✓] before a highlight means that the highlight uses regex
-        A [⨉] indicates that a highlight does not use regex"""
+        """List your highlights"""
 
         description = ""
+        user_highlights = self.get_user_highlights(ctx.author.id)
 
-        for index, hl in enumerate(filter(
-            lambda hl: hl.user_id == ctx.author.id,
-            self.highlights
-        )):
-            description += "`{0}` [{1}] `{2}`\n".format(
+        for index, hl in enumerate(user_highlights):
+            description += "`{0}` `{1}`\n".format(
                 index,
-                "✓" if hl.is_regex else "⨉",
                 hl.content
             )
 
         embed = neo.Embed(description=description or "You have no highlights")
+        embed.set_footer(text=f"{len(user_highlights)}/{MAX_TRIGGERS} slots used")
         await ctx.send(embed=embed)
 
-    @args.add_arg(
-        "content",
-        nargs="*",
-        help="The content by which you will be highlighted"
-    )
-    @args.add_arg(
-        "-re", "--regex",
-        action="store_true",
-        help="Toggles whether or not this highlight should be compiled as regex"
-    )
-    @highlight.arg_command(name="add")
-    async def highlight_add(self, ctx, *, input):
+    @highlight.command(name="add")
+    async def highlight_add(self, ctx, *, content):
         """Add a new highlight
 
-        Actual documentation coming soonTM"""
+        Highlights will notify you when the word/phrase you add is mentioned"""
 
-        if input.regex:
-            check_regex(" ".join(input.content))
+        if len(content) <= 1:
+            return await ctx.send("Highlights must contain more than 1 character.")
+
+        if len(self.get_user_highlights(ctx.author.id)) >= MAX_TRIGGERS:
+            return await ctx.send("You've used up all of your highlight slots!")
 
         result = await self.bot.db.fetchrow(
             """
             INSERT INTO highlights (
                 user_id,
-                content,
-                is_regex
-            ) VALUES ( $1, $2, $3 )
+                content
+            ) VALUES ( $1, $2 )
             RETURNING *
             """,
             ctx.author.id,
-            " ".join(input.content),
-            input.regex
+            content
         )
         self.highlights.append(Highlight(self.bot, **result))
         await ctx.message.add_reaction("\U00002611")
@@ -241,12 +209,10 @@ class Highlights(neo.Addon):
                 highlights
             WHERE
                 user_id = $1 AND
-                content = $2 AND
-                is_regex = $3
+                content = $2
             """,
             to_remove.user_id,
-            to_remove.content,
-            to_remove.is_regex
+            to_remove.content
         )
         self.highlights.remove(to_remove)
         await ctx.message.add_reaction("\U00002611")

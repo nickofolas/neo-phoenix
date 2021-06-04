@@ -4,13 +4,14 @@ import discord
 
 
 class MenuButton(discord.ui.Button):
+    style = discord.ButtonStyle.secondary
+
     def __init__(self, menu):
         super().__init__(style=self.style, label=self.label)
         self.menu = menu
 
 
 class Previous(MenuButton):
-    style = discord.ButtonStyle.primary
     label = "<"
 
     async def callback(self, interaction):
@@ -21,7 +22,6 @@ class Previous(MenuButton):
 
 
 class Close(MenuButton):
-    style = discord.ButtonStyle.danger
     label = "X"
 
     async def callback(self, interaction):
@@ -30,7 +30,6 @@ class Close(MenuButton):
 
 
 class Next(MenuButton):
-    style = discord.ButtonStyle.primary
     label = ">"
 
     async def callback(self, interaction):
