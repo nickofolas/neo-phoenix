@@ -47,8 +47,8 @@ CREATE TABLE stars (
     server_id             BIGINT NOT NULL,
     message_id            BIGINT NOT NULL,
     channel_id            BIGINT NOT NULL,
-    stars                 BIGINT,
-    starboard_message_id  BIGINT,
+    stars                 BIGINT NOT NULL,
+    starboard_message_id  BIGINT NOT NULL,
     PRIMARY KEY (server_id, message_id, channel_id),
     CONSTRAINT foreign_server_id
         FOREIGN KEY (

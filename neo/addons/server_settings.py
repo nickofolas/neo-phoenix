@@ -102,6 +102,7 @@ class ServerSettings(neo.Addon):
 
         server = self.bot.get_server(ctx.guild.id)
         setattr(server, setting, value)
+        self.bot.dispatch("server_settings_update", server)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
 

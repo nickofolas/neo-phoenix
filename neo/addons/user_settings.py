@@ -86,6 +86,7 @@ class UserSettings(neo.Addon):
 
         profile = self.bot.get_profile(ctx.author.id)
         setattr(profile, setting, value)
+        self.bot.dispatch("user_settings_update", profile)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
 
