@@ -1,5 +1,3 @@
-import argparse
-import asyncio
 import re
 from collections import defaultdict
 from functools import cached_property
@@ -11,13 +9,7 @@ from discord.ext import commands
 from neo.modules import args, paginator
 from neo.types.containers import TimedSet
 
-DEFAULT_AVATARS = {  # TODO: Use actual icons for this?
-    "red": "🔴",
-    "orange": "🟠",
-    "green": "🟢",
-    "grey": "⚫",
-    "blurple": "🔵"
-}
+DEFAULT_AVATARS = ["🔵", "⚫", "🟢", "🟠", "🔴"]
 MAX_TRIGGERS = 10
 
 
@@ -33,7 +25,7 @@ def format_hl_context(message, is_trigger=False):
         message.content += " *[Embed x{}]*".format(len(message.embeds))
 
     return fmt.format(
-        DEFAULT_AVATARS[message.author.default_avatar.name],
+        DEFAULT_AVATARS[int(message.author.default_avatar.key)],
         message
     )
 
