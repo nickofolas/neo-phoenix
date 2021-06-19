@@ -1,6 +1,7 @@
 from collections import defaultdict
 from operator import attrgetter
 from textwrap import shorten
+from dataclasses import dataclass
 
 import discord
 import neo
@@ -9,21 +10,14 @@ from discord.utils import escape_markdown
 from neo.modules import Paginator
 
 
+@dataclass
 class TodoItem:
-    def __init__(
-        self,
-        *,
-        user_id,
-        content,
-        guild_id,
-        channel_id,
-        message_id
-    ):
-        self.user_id = user_id
-        self.content = content
-        self.guild_id = guild_id
-        self.channel_id = channel_id
-        self.message_id = message_id
+    user_id: int
+    content: str
+    guild_id: str
+    channel_id: int
+    message_id: int
+    edited: bool
 
     def __repr__(self):
         return "<{0.__class__.__name__} user_id={0.user_id} message_id={0.message_id}>".format(self)
@@ -71,7 +65,7 @@ class Todos(neo.Addon):
         await menu.start(ctx)
 
     @todo.command(name="add")
-    async def todo_add(self, ctx, *, content):
+    async def todo_add(self, ctx, *, content: str):
         """Add a new todo"""
 
         data = {
@@ -135,7 +129,7 @@ class Todos(neo.Addon):
         """View a todo by its listed index"""
 
         try:
-            todo = self.todos[ctx.author.id][index]
+            todo: TodoItem = self.todos[ctx.author.id][index]
         except IndexError:
             return await ctx.send("Couldn't find that todo.")
 
@@ -145,11 +139,38 @@ class Todos(neo.Addon):
             name=f"Created on {todo.created_at:%a, %b %d, %Y at %H:%M:%S} UTC",
             value=f"[Jump to origin]({todo.jump_url})"
         ).set_author(
-            name="Viewing a todo",
-            icon_url=ctx.author.avatar_url
+            name="Viewing a todo {}".format(
+                "[edited]" if todo.edited else ""
+            ),
+            icon_url=ctx.author.avatar
         )
 
         await ctx.send(embed=embed)
+
+    @todo.command(name="edit")
+    async def todo_edit(self, ctx, index: int, *, new_content: str):
+        """Edit the content of a todo"""
+
+        try:
+            todo: TodoItem = self.todos[ctx.author.id][index]
+        except IndexError:
+            return await ctx.send("Couldn't find that todo.")
+
+        todo.content = new_content
+        todo.edited = True
+        await self.bot.db.execute(
+            """
+            UPDATE todos
+            SET
+                content=$1,
+                edited=TRUE
+            WHERE
+                message_id=$2 AND
+                user_id=$3
+            """,
+            new_content, todo.message_id, todo.user_id
+        )
+        await ctx.message.add_reaction("\U00002611")
 
 
 def setup(bot):

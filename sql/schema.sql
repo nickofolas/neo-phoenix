@@ -20,5 +20,6 @@ CREATE TABLE todos (
     content    TEXT NOT NULL,
     guild_id   TEXT NOT NULL, -- This can be an ID or @me, so we have to be inclusive
     channel_id BIGINT NOT NULL,
-    message_id BIGINT NOT NULL
+    message_id BIGINT NOT NULL,
+    edited     BOOLEAN DEFAULT FALSE
 );
