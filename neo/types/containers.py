@@ -53,7 +53,7 @@ class NeoUser(RecordContainer):
 
 
 class NeoServer(RecordContainer):
-    __slots__ = ("server_id", "prefix")
+    __slots__ = ("server_id", "prefix", "starboard_enabled")
 
     def __repr__(self):
         return "<{0.__class__.__name__} server_id={0.server_id}>".format(self)

@@ -5,8 +5,9 @@ CREATE TABLE profiles (
 );
 
 CREATE TABLE servers (
-    server_id BIGINT PRIMARY KEY,
-    prefix    TEXT DEFAULT 'n!'
+    server_id         BIGINT PRIMARY KEY,
+    prefix            TEXT DEFAULT 'n!',
+    starboard_enabled BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE highlights (
@@ -23,3 +24,36 @@ CREATE TABLE todos (
     message_id BIGINT NOT NULL,
     edited     BOOLEAN DEFAULT FALSE
 );
+
+-- Use foreign keys so that, if a server is deleted from the servers
+-- table, all related entries in starboard tables are also deleted
+CREATE TABLE starboards (
+    server_id      BIGINT PRIMARY KEY,
+    channel_id     BIGINT,
+    threshold      BIGINT DEFAULT 5,
+    star_format    VARCHAR(200) DEFAULT ':star: **{stars}**',
+    max_days       BIGINT CHECK (max_days > 1) DEFAULT 7,
+    star_character TEXT DEFAULT '⭐',
+    CONSTRAINT foreign_server_id
+        FOREIGN KEY (
+            server_id
+        ) REFERENCES servers (
+            server_id
+        ) ON DELETE CASCADE
+);
+
+-- Same as above with foreign keys
+CREATE TABLE stars (
+    server_id             BIGINT NOT NULL,
+    message_id            BIGINT NOT NULL,
+    channel_id            BIGINT NOT NULL,
+    stars                 BIGINT,
+    referenced_message_id BIGINT,
+    PRIMARY KEY (server_id, message_id, channel_id),
+    CONSTRAINT foreign_server_id
+        FOREIGN KEY (
+            server_id
+        ) REFERENCES starboards (
+            server_id
+        ) ON DELETE CASCADE
+)

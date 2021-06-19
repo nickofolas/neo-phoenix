@@ -16,3 +16,11 @@ Expected Value Type: A string of text
 Default Value: `n!`
 
 **Current Value:** `{}`';
+
+COMMENT ON COLUMN servers.starboard_enabled IS
+'Dictates whether the server''s starboard is enabled.
+
+Expected Value Type: A boolean-like (`yes`/`no`) value
+Default Value: `False`
+
+**Current Value:** `{}`';

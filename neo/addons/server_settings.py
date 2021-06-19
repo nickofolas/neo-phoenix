@@ -7,6 +7,10 @@ SETTINGS_MAPPING = {
     "prefix": {
         "converter": str,
         "description": None
+    },
+    "starboard_enabled": {
+        "converter": commands.converter._convert_to_bool,
+        "description": None
     }
 }
 
