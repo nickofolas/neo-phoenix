@@ -1,5 +1,3 @@
-import operator
-
 import neo
 from discord.ext import commands
 from neo.modules.paginator import Paginator

@@ -6,7 +6,7 @@ from operator import attrgetter
 import neo
 from discord import NotFound
 from discord.ext import commands
-from neo.modules import args, paginator
+from neo.modules import paginator
 from neo.types.containers import TimedSet
 
 DEFAULT_AVATARS = ["🔵", "⚫", "🟢", "🟠", "🔴"]

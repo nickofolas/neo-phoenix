@@ -1,5 +1,3 @@
-from asyncio import get_running_loop
-
 import discord
 
 
