@@ -33,7 +33,7 @@ CREATE TABLE starboards (
     threshold      BIGINT DEFAULT 5,
     star_format    VARCHAR(200) DEFAULT ':star: **{stars}**',
     max_days       BIGINT CHECK (max_days > 1) DEFAULT 7,
-    star_character TEXT DEFAULT '⭐',
+    emoji          TEXT DEFAULT '⭐',
     CONSTRAINT foreign_server_id
         FOREIGN KEY (
             server_id
@@ -48,7 +48,7 @@ CREATE TABLE stars (
     message_id            BIGINT NOT NULL,
     channel_id            BIGINT NOT NULL,
     stars                 BIGINT,
-    referenced_message_id BIGINT,
+    starboard_message_id  BIGINT,
     PRIMARY KEY (server_id, message_id, channel_id),
     CONSTRAINT foreign_server_id
         FOREIGN KEY (
@@ -56,4 +56,4 @@ CREATE TABLE stars (
         ) REFERENCES starboards (
             server_id
         ) ON DELETE CASCADE
-)
+);

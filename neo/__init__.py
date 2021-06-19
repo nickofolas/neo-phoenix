@@ -18,8 +18,8 @@ class Neo(commands.Bot):
 
         self.cfg = config
         self.session = None
-        self._profiles = {}
-        self._servers = {}
+        self.profiles: dict[int, containers.NeoUser] = {}
+        self.servers: dict[int, containers.NeoServer] = {}
 
         kwargs.setdefault("command_prefix", self.get_prefix)
         kwargs.setdefault("activity", discord.Activity(
@@ -47,10 +47,10 @@ class Neo(commands.Bot):
             await self.add_server(record["server_id"], record=record)
 
     def get_profile(self, user_id):
-        return self._profiles.get(user_id)
+        return self.profiles.get(user_id)
 
     def get_server(self, server_id):
-        return self._servers.get(server_id)
+        return self.servers.get(server_id)
 
     async def add_profile(self, user_id, *, record=None):
         if not record:
@@ -65,10 +65,10 @@ class Neo(commands.Bot):
                 user_id
             )
 
-        self._profiles[user_id] = containers.NeoUser(pool=self.db, **record)
+        self.profiles[user_id] = containers.NeoUser(pool=self.db, **record)
         return self.get_profile(user_id)
 
-    async def add_server(self, server_id, *, record=None):
+    async def add_server(self, server_id: int, *, record=None):
         if not record:
             record = await self.db.fetchrow(
                 """
@@ -81,7 +81,7 @@ class Neo(commands.Bot):
                 server_id
             )
 
-        self._servers[server_id] = containers.NeoServer(pool=self.db, **record)
+        self.servers[server_id] = containers.NeoServer(pool=self.db, **record)
         return self.get_server(server_id)
 
     def run(self):
