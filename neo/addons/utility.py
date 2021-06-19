@@ -103,7 +103,7 @@ class Utility(neo.Addon):
 
         embeds = [*map(_result_to_embed, resp)]
         if not embeds:
-            return await ctx.send("Search returned no results")
+            raise RuntimeError("Search returned no results")
 
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
@@ -132,7 +132,7 @@ class Utility(neo.Addon):
         for word in resp.words:
             embeds.extend(_definitions_to_embed(word))
         if not embeds:
-            return await ctx.send("No definition found")
+            raise RuntimeError("No definition found")
 
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)

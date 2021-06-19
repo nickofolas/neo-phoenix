@@ -111,7 +111,7 @@ class Todos(neo.Addon):
                     int, filter(str.isdigit, indices))
                 ]
             except IndexError:
-                return await ctx.send("One or more of the provided indices is invalid.")
+                raise IndexError("One or more of the provided indices is invalid.")
 
         await self.bot.db.execute(
             """
@@ -131,7 +131,7 @@ class Todos(neo.Addon):
         try:
             todo: TodoItem = self.todos[ctx.author.id][index]
         except IndexError:
-            return await ctx.send("Couldn't find that todo.")
+            raise IndexError("Couldn't find that todo.")
 
         embed = neo.Embed(
             description=todo.content
@@ -154,7 +154,7 @@ class Todos(neo.Addon):
         try:
             todo: TodoItem = self.todos[ctx.author.id][index]
         except IndexError:
-            return await ctx.send("Couldn't find that todo.")
+            raise IndexError("Couldn't find that todo.")
 
         todo.content = new_content
         todo.edited = True

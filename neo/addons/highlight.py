@@ -166,10 +166,10 @@ class Highlights(neo.Addon):
         Highlights will notify you when the word/phrase you add is mentioned"""
 
         if len(content) <= 1:
-            return await ctx.send("Highlights must contain more than 1 character.")
+            raise ValueError("Highlights must contain more than 1 character.")
 
         if len(self.get_user_highlights(ctx.author.id)) >= MAX_TRIGGERS:
-            return await ctx.send("You've used up all of your highlight slots!")
+            raise ValueError("You've used up all of your highlight slots!")
 
         result = await self.bot.db.fetchrow(
             """
