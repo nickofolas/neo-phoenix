@@ -1,7 +1,7 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from operator import attrgetter
 from textwrap import shorten
-from dataclasses import dataclass
 
 import discord
 import neo

@@ -1,10 +1,9 @@
 import asyncio
-from datetime import datetime
 import textwrap
 from dataclasses import dataclass, field
+from datetime import datetime
 
 import discord
-from discord import reaction
 import neo
 from discord import utils
 from discord.ext import commands
@@ -34,6 +33,7 @@ class Starboard:
     star_format: str
     max_days: int
     emoji: str
+    ignored: list[int]
 
     cached_stars: dict[int, Star] = field(init=False)
     lock: asyncio.Lock = field(init=False)
@@ -148,7 +148,8 @@ class StarboardAddon(neo.Addon, name="Starboard"):
                 "threshold": settings["threshold"],
                 "star_format": settings["star_format"],
                 "max_days": settings["max_days"],
-                "emoji": settings["emoji"]
+                "emoji": settings["emoji"],
+                "ignored": settings["ignored"]
             }
             self.starboards[server_id] = Starboard(**kwargs)
 
@@ -170,7 +171,15 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             (datetime.utcnow() - discord.Object(payload.message_id)
              .created_at.replace(tzinfo=None)).days > starboard.max_days
         ]
+        check_ignored = [  # Ensure the channel/message isn't ignored
+            payload.message_id in starboard.ignored,
+            payload.channel_id in starboard.ignored
+        ]
+        checks.append(any(check_ignored))
         return not any(checks)
+
+    def reaction_check(self, starboard: Starboard, payload):
+        return str(payload.emoji) == starboard.emoji
 
     @commands.Cog.listener("on_raw_reaction_add")
     @commands.Cog.listener("on_raw_reaction_remove")
@@ -216,6 +225,54 @@ class StarboardAddon(neo.Addon, name="Starboard"):
                 reaction_count,
                 star.starboard_message.id
             )
+
+        else:
+            if not self.reaction_check(starboard, payload):
+                return
+
+            # Eventually replace this with a patma
+            if payload.event_type == "REACTION_ADD":
+                star.stars += 1
+            else:
+                star.stars -= 1
+
+        if star.stars < starboard.threshold:
+            await starboard.delete_star(star.message_id)
+            await self.bot.db.execute(
+                "DELETE FROM stars WHERE message_id=$1",
+                star.message_id
+            )
+        else:
+            await starboard.edit_star(star.message_id, star.stars)
+            await self.bot.db.execute(
+                """
+                UPDATE stars
+                SET stars=$1
+                WHERE message_id=$2
+                """,
+                star.stars,
+                star.message_id
+            )
+
+    @commands.Cog.listener("on_raw_reaction_clear")
+    @commands.Cog.listener("on_raw_reaction_clear_emoji")
+    @commands.Cog.listener("on_raw_message_delete")
+    async def handle_terminations(self, payload):
+        starboard: Starboard = self.starboards.get(payload.guild_id)
+
+        if not self.predicate(starboard, payload):
+            return
+
+        if isinstance(payload, discord.RawReactionClearEmojiEvent):
+            if not self.reaction_check(payload):
+                return
+
+        star = starboard.cached_stars.get(payload.message_id)
+        await starboard.delete_star(star.message_id)
+        await self.bot.db.execute(
+            "DELETE FROM stars WHERE message_id=$1",
+            star.message_id
+        )
 
 
 def setup(bot: neo.Neo):

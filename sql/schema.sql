@@ -34,6 +34,7 @@ CREATE TABLE starboards (
     star_format    VARCHAR(200) DEFAULT ':star: **{stars}**',
     max_days       BIGINT CHECK (max_days > 1) DEFAULT 7,
     emoji          TEXT DEFAULT '⭐',
+    ignored        BIGINT[] DEFAULT ARRAY[]::BIGINT[],
     CONSTRAINT foreign_server_id
         FOREIGN KEY (
             server_id
