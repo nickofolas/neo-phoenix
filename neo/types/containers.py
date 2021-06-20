@@ -33,7 +33,7 @@ class RecordContainer(metaclass=ABCMeta):
 
 
 class NeoUser(RecordContainer):
-    __slots__ = ("user_id", "hl_blocks", "receive_highlights")
+    __slots__ = ("user_id", "hl_blocks", "receive_highlights", "created_at")
 
     def __repr__(self):
         return "<{0.__class__.__name__} user_id={0.user_id}>".format(self)

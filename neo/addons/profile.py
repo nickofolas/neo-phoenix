@@ -11,7 +11,7 @@ SETTINGS_MAPPING = {
 }
 
 
-class UserSettings(neo.Addon):
+class Profile(neo.Addon):
     """Contains everything needed for managing your neo profile"""
 
     def __init__(self, bot):
@@ -77,4 +77,4 @@ class UserSettings(neo.Addon):
 
 
 def setup(bot):
-    bot.add_cog(UserSettings(bot))
+    bot.add_cog(Profile(bot))
