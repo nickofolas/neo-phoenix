@@ -13,7 +13,8 @@ CREATE TABLE servers (
 CREATE TABLE highlights (
     user_id  BIGINT NOT NULL,
     content  TEXT NOT NULL,
-    PRIMARY KEY(user_id, content)
+    PRIMARY KEY (user_id, content),
+    FOREIGN KEY (user_id) REFERENCES profiles (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE todos (
@@ -22,7 +23,8 @@ CREATE TABLE todos (
     guild_id   TEXT NOT NULL, -- This can be an ID or @me, so we have to be inclusive
     channel_id BIGINT NOT NULL,
     message_id BIGINT NOT NULL,
-    edited     BOOLEAN DEFAULT FALSE
+    edited     BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES profiles (user_id) ON DELETE CASCADE
 );
 
 -- Use foreign keys so that, if a server is deleted from the servers
@@ -35,12 +37,7 @@ CREATE TABLE starboards (
     max_days       BIGINT CHECK (max_days > 1) DEFAULT 7,
     emoji          TEXT DEFAULT '⭐',
     ignored        BIGINT[] DEFAULT ARRAY[]::BIGINT[],
-    CONSTRAINT foreign_server_id
-        FOREIGN KEY (
-            server_id
-        ) REFERENCES servers (
-            server_id
-        ) ON DELETE CASCADE
+    FOREIGN KEY (server_id) REFERENCES servers (server_id) ON DELETE CASCADE
 );
 
 -- Same as above with foreign keys
@@ -51,10 +48,5 @@ CREATE TABLE stars (
     stars                 BIGINT NOT NULL,
     starboard_message_id  BIGINT NOT NULL,
     PRIMARY KEY (server_id, message_id, channel_id),
-    CONSTRAINT foreign_server_id
-        FOREIGN KEY (
-            server_id
-        ) REFERENCES starboards (
-            server_id
-        ) ON DELETE CASCADE
+    FOREIGN KEY (server_id) REFERENCES starboards (server_id) ON DELETE CASCADE
 );
