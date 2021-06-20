@@ -73,7 +73,8 @@ class Todos(neo.Addon):
             "content": content,
             "guild_id": str(getattr(ctx.guild, "id", "@me")),
             "channel_id": ctx.channel.id,
-            "message_id": ctx.message.id
+            "message_id": ctx.message.id,
+            "edited": False
         }
 
         await self.bot.db.execute(
@@ -83,9 +84,10 @@ class Todos(neo.Addon):
                 content,
                 guild_id,
                 channel_id,
-                message_id
+                message_id,
+                edited
             ) VALUES (
-                $1, $2, $3, $4, $5
+                $1, $2, $3, $4, $5, $6
             )
             """,
             *data.values()
