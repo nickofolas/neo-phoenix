@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
-from .types import Embed, containers, help_command
+from .types import Embed, containers, help_command, context
 
 log = logging.getLogger(__name__)
 # intents = discord.Intents.all()
@@ -68,6 +68,19 @@ class Neo(commands.Bot):
         self.profiles[user_id] = containers.NeoUser(pool=self.db, **record)
         return self.get_profile(user_id)
 
+    async def delete_profile(self, user_id: int):
+        self.profiles.pop(user_id)
+        await self.db.execute(
+            """
+            DELETE FROM
+                profiles
+            WHERE
+                user_id=$1
+            """,
+            user_id
+        )
+        self.dispatch("profile_delete", user_id)
+
     async def add_server(self, server_id: int, *, record=None):
         if not record:
             record = await self.db.fetchrow(
@@ -83,6 +96,19 @@ class Neo(commands.Bot):
 
         self.servers[server_id] = containers.NeoServer(pool=self.db, **record)
         return self.get_server(server_id)
+
+    async def delete_server(self, server_id: int):
+        self.servers.pop(server_id)
+        await self.db.execute(
+            """
+            DELETE FROM
+                servers
+            WHERE
+                server_id=$1
+            """,
+            server_id
+        )
+        self.dispatch("server_delete", server_id)
 
     def run(self):
         for addon in self.cfg["addons"]:
@@ -114,3 +140,6 @@ class Neo(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         await ctx.send(repr(getattr(error, "original", error)))
+
+    async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
+        return await super().get_context(message, cls=cls)

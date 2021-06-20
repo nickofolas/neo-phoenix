@@ -142,6 +142,21 @@ class Highlights(neo.Addon):
                 **await hl.to_send_kwargs(message)
             )
 
+    # Need to dynamically account for deleted profiles
+    @commands.Cog.listener("on_profile_delete")
+    async def handle_deleted_profile(self, user_id: int):
+        to_delete = [*filter(lambda hl: hl.user_id == user_id, self.highlights)]
+        for hl in to_delete:
+            self.highlights.remove(hl)
+
+    async def cog_check(self, ctx):
+        if not self.bot.get_profile(ctx.author.id):
+            raise commands.CommandInvokeError(AttributeError(
+                "Looks like you don't have an existing profile! "
+                "You can fix this with the `profile init` command."
+            ))
+        return True
+
     @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
         """List your highlights"""

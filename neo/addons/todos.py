@@ -46,6 +46,19 @@ class Todos(neo.Addon):
         for record in await self.bot.db.fetch("SELECT * FROM todos"):
             self.todos[record["user_id"]].append(TodoItem(**record))
 
+    # Need to dynamically account for deleted profiles
+    @commands.Cog.listener("on_profile_delete")
+    async def handle_deleted_profile(self, user_id: int):
+        self.todos.pop(user_id, None)
+
+    async def cog_check(self, ctx):
+        if not self.bot.get_profile(ctx.author.id):
+            raise commands.CommandInvokeError(AttributeError(
+                "Looks like you don't have an existing profile! "
+                "You can fix this with the `profile init` command."
+            ))
+        return True
+
     @commands.group(invoke_without_command=True)
     async def todo(self, ctx):
         """List your todos"""

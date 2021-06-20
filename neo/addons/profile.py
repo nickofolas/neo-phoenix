@@ -116,6 +116,22 @@ class Profile(neo.Addon):
         await self.bot.add_profile(ctx.author.id)
         await ctx.send("Successfully initialized your profile!")
 
+    @profile.command(name="delete")
+    @is_registered_profile()
+    async def profile_delete(self, ctx):
+        """__Permanently__ deletes your neo profile"""
+
+        if await ctx.prompt_user(
+            "Are you sure you want to delete your profile?"
+            "\nThis will delete your profile and all associated "
+            "info (todos, highlights, etc), and **cannot** be undone.",
+            label_confirm="I'm sure. Delete my profile.",
+            label_cancel="Nevermind, don't delete my profile.",
+            content_confirmed="Confirmed. Your profile is being deleted."
+        ) is False:
+            return
+
+        await self.bot.delete_profile(ctx.author.id)
 
 def setup(bot):
     bot.add_cog(Profile(bot))

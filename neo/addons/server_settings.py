@@ -20,7 +20,7 @@ def is_registered_guild():
     def predicate(ctx):
         if not ctx.bot.get_server(ctx.guild.id):
             raise commands.CommandInvokeError(AttributeError(
-                "This server doesn't have a config entry, strange. "
+                "Looks like this server doesn't have an existing config entry. "
                 "You can fix this with the `server init` command."
             ))
         return True
@@ -119,6 +119,23 @@ class ServerSettings(neo.Addon):
 
         await self.bot.add_server(ctx.guild.id)
         await ctx.send("Successfully initialized your server's config!")
+
+    @server.command(name="delete")
+    @is_registered_guild()
+    async def server_delete(self, ctx):
+        """__Permanently__ deletes this server's config"""
+
+        if await ctx.prompt_user(
+            "Are you sure you want to delete the config?"
+            "\nThis will delete your config and all associated "
+            "data (starboard, stars, etc), and **cannot** be undone.",
+            label_confirm="I'm sure. Delete my server config.",
+            label_cancel="Nevermind, don't delete my server config.",
+            content_confirmed="Confirmed. Your server config is being deleted."
+        ) is False:
+            return
+
+        await self.bot.delete_server(ctx.guild.id)
 
 
 def setup(bot):
