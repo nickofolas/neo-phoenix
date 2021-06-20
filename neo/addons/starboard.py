@@ -64,11 +64,13 @@ class Starboard:
 
     cached_stars: dict[int, Star] = field(init=False)
     lock: asyncio.Lock = field(init=False)
+    emoji_partial: discord.PartialEmoji = field(init=False)
     ready: bool = field(init=False)
 
     def __post_init__(self):
-        self.lock = asyncio.Lock()
         self.cached_stars = {}
+        self.lock = asyncio.Lock()
+        self.emoji_partial = discord.PartialEmoji.from_str(self.emoji)
         self.ready = False
 
         for star in self.stars:
@@ -234,7 +236,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
     @staticmethod
     def reaction_check(starboard: Starboard, payload):
-        return str(payload.emoji) == starboard.emoji
+        return payload.emoji == starboard.emoji_partial
 
     @commands.Cog.listener("on_raw_reaction_add")
     @commands.Cog.listener("on_raw_reaction_remove")
@@ -365,7 +367,9 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             raise commands.NoPrivateMessage()
 
         server = self.bot.get_server(ctx.guild.id)
-        return server.starboard_enabled
+        if not getattr(server, "starboard_enabled", False):
+            raise commands.CommandInvokeError(ValueError("Starboard is not enabled for this server!"))
+        return True
 
     @commands.group(invoke_without_command=True)
     async def starboard(self, ctx):
