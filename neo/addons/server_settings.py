@@ -15,10 +15,22 @@ SETTINGS_MAPPING = {
 }
 
 
+def is_registered_guild():
+    """Verify the registration status of a guild"""
+    def predicate(ctx):
+        if not ctx.bot.get_server(ctx.guild.id):
+            raise commands.CommandInvokeError(ValueError(
+                "This server doesn't have a config entry, strange. "
+                "You can fix this with the `server init` command."
+            ))
+        return True
+    return commands.check(predicate)
+
+
 class ServerSettings(neo.Addon):
     """Contains everything needed for managing your server's settings"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: neo.Neo):
         self.bot = bot
 
         self.bot.loop.create_task(self.__ainit__())
@@ -52,6 +64,7 @@ class ServerSettings(neo.Addon):
         return True
 
     @commands.group(invoke_without_command=True, ignore_extra=False)
+    @is_registered_guild()
     async def server(self, ctx):
         """Displays an overview of your server's settings
 
@@ -76,6 +89,7 @@ class ServerSettings(neo.Addon):
         await menu.start(ctx)
 
     @server.command(name="set")
+    @is_registered_guild()
     async def server_set(self, ctx, setting, *, new_value):
         """Updates the value of a server setting
 
@@ -86,6 +100,21 @@ class ServerSettings(neo.Addon):
         setattr(server, setting, value)
         self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send(f"Setting `{setting}` has been changed!")
+
+    @server.command(name="init")
+    async def server_init(self, ctx):
+        """
+        Creates a config entry for the server
+
+        Generally, this command doesn't need to be executed. If it is needed, something
+        may have gone wrong internally. Consider reporting the issue?
+        """
+
+        if self.bot.get_server(ctx.guild.id):
+            raise RuntimeError("Your server already has a config entry!")
+
+        await self.bot.add_server(ctx.guild.id)
+        await ctx.send("Successfully initialized your server's config!")
 
 
 def setup(bot):
