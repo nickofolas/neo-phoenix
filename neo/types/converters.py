@@ -7,14 +7,20 @@ EXTRACT_MENTION_REGEX = re.compile(r"<@!?(\d+)>")
 
 
 class CodeblockConverter(commands.Converter):
-    async def convert(self, ctx, arg):
+    async def convert(self, ctx, argument):
         new = None
-        if all([arg.startswith("`"), arg.endswith("`")]):
-            new = arg.strip("`")
+        if all([argument.startswith("`"), argument.endswith("`")]):
+            new = argument.strip("`")
             return re.sub(CODEBLOCK_REGEX, "", new)
-        return arg
+        return argument
 
 
 class MentionConverter(commands.Converter):
-    async def convert(self, ctx, arg):
-        return EXTRACT_MENTION_REGEX.match(arg)[1]
+    async def convert(self, ctx, argument):
+        return EXTRACT_MENTION_REGEX.match(argument)[1]
+
+
+class PartialEmojiStrConverter(commands.PartialEmojiConverter):
+    async def convert(self, ctx, argument):
+        emoji = await super().convert(ctx, argument)
+        return str(emoji)

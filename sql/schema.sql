@@ -12,7 +12,7 @@ CREATE TABLE servers (
 
 CREATE TABLE highlights (
     user_id  BIGINT NOT NULL,
-    content  TEXT NOT NULL
+    content  TEXT NOT NULL,
     PRIMARY KEY(user_id, content)
 );
 
@@ -29,9 +29,9 @@ CREATE TABLE todos (
 -- table, all related entries in starboard tables are also deleted
 CREATE TABLE starboards (
     server_id      BIGINT PRIMARY KEY,
-    channel_id     BIGINT,
+    channel        BIGINT,
     threshold      BIGINT DEFAULT 5,
-    star_format    VARCHAR(200) DEFAULT ':star: **{stars}**',
+    star_format    VARCHAR(200) DEFAULT '⭐ **{stars}**',
     max_days       BIGINT CHECK (max_days > 1) DEFAULT 7,
     emoji          TEXT DEFAULT '⭐',
     ignored        BIGINT[] DEFAULT ARRAY[]::BIGINT[],

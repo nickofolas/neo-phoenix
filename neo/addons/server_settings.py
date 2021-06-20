@@ -1,7 +1,7 @@
 import neo
 from discord.ext import commands
 from neo.modules import Paginator
-from neo.tools import try_or_none
+from neo.tools import convert_setting
 
 SETTINGS_MAPPING = {
     "prefix": {
@@ -81,28 +81,10 @@ class ServerSettings(neo.Addon):
 
         More information on the available settings and their functions is in the `server` command"""
 
-        if not (valid_setting := SETTINGS_MAPPING.get(setting)):
-            raise commands.BadArgument(
-                "That's not a valid setting! "
-                "Try `server` for a list of settings!"
-            )
-
-        converter = valid_setting["converter"]
-        if isinstance(converter, commands.Converter):
-            if (converted := await converter.convert(ctx, new_value)) is not None:
-                value = converted
-
-        elif (converted := try_or_none(converter, new_value)) is not None:
-            value = converted
-
-        else:
-            raise commands.BadArgument(
-                "Bad value provided for setting `{}`".format(setting)
-            )
-
+        value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         server = self.bot.get_server(ctx.guild.id)
         setattr(server, setting, value)
-        self.bot.dispatch("server_settings_update", server)
+        self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
 
