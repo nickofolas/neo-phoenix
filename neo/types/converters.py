@@ -1,4 +1,5 @@
 import re
+import zoneinfo
 
 from discord.ext import commands
 
@@ -24,3 +25,12 @@ class PartialEmojiStrConverter(commands.PartialEmojiConverter):
     async def convert(self, ctx, argument):
         emoji = await super().convert(ctx, argument)
         return str(emoji)
+
+
+class TimezoneConverter(commands.Converter):
+    async def convert(self, ctx, argument: str):
+        try:
+            zone = zoneinfo.ZoneInfo(argument)
+        except zoneinfo.ZoneInfoNotFoundError:
+            raise ValueError("Provided timezone was invalid.")
+        return str(zone)

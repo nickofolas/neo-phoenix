@@ -2,7 +2,8 @@ CREATE TABLE profiles (
     user_id            BIGINT PRIMARY KEY,
     hl_blocks          BIGINT[] DEFAULT ARRAY[]::BIGINT[],
     receive_highlights BOOLEAN  DEFAULT TRUE,
-    created_at         TIMESTAMP DEFAULT NOW()
+    created_at         TIMESTAMP DEFAULT NOW(),
+    timezone           TEXT DEFAULT NULL
 );
 
 CREATE TABLE servers (

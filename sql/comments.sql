@@ -8,6 +8,24 @@ Default Value: `True`
 **Current Value:** `{}`
 ';
 
+COMMENT ON COLUMN profiles.timezone IS
+'Sets your local timezone.
+
+Disclosure: This information is to be used
+for several purposes:
+- Localization of various features
+- Public display
+By setting your timezone, you acknowledge and
+accept that this information will be displayed
+publicly on your profile, along with your local
+time (which is calculated from the timezone).
+
+Expected Value Type: A valid IANA timezone [[list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)]
+Default Value: `None`
+
+**Current Value:** `{}`
+';
+
 -- Table: servers | Documentation for settings --
 COMMENT ON COLUMN servers.prefix IS
 'Sets the bot''s prefix for the server.
