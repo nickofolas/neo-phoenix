@@ -4,15 +4,14 @@ import import_expression
 
 code_base = (
     "async def __aexec__(scope):"
-    "\n  try:"
-    "\n    pass"
-    "\n  finally:"
-    "\n    scope.update(locals())"
+    "\n    try:"
+    "\n        pass"
+    "\n    finally:"
+    "\n        scope.update(locals())"
 )
 
 
 def insert_yield(body):
-
     if not isinstance(body[-1], ast.Expr):
         return
 
@@ -25,7 +24,6 @@ def insert_yield(body):
 
 
 def compile_all(code_input):
-
     code_in = import_expression.parse(code_input)
     base = import_expression.parse(code_base)
 

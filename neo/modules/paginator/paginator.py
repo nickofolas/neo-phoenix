@@ -11,14 +11,16 @@ class Paginator:
     A class which accomodates the creation of interactive menus.
     A constructed menu may be started by calling `await menu.start(ctx: commands.Context)`
 
-    Parameters:
-    - pages: Pages
+    Parameters
+    ----------
+    pages: Pages
         The Pages object that is used as the pagination source.
 
-    Classmethods:
-    - from_iterable(iterable, per_page, use_embed, joiner, **kwargs)
+    Classmethods
+    ------------
+    from_iterable(iterable, per_page, use_embed, joiner, **kwargs)
         Creates a Paginator object without the need for a premade Pages.
-    - from_embeds(iterable, **kwargs)
+    from_embeds(iterable, **kwargs)
         Creates a Paginator object from a list of Embeds
     """
 

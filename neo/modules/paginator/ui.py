@@ -20,7 +20,7 @@ class Previous(MenuButton):
 
 
 class Close(MenuButton):
-    label = "X"
+    label = "⨉"
 
     async def callback(self, interaction):
         self.view.stop()

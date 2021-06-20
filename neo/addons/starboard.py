@@ -368,7 +368,9 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
         server = self.bot.get_server(ctx.guild.id)
         if not getattr(server, "starboard_enabled", False):
-            raise commands.CommandInvokeError(ValueError("Starboard is not enabled for this server!"))
+            raise commands.CommandInvokeError(AttributeError(
+                "Starboard is not enabled for this server!"
+            ))
         return True
 
     @commands.group(invoke_without_command=True)

@@ -19,7 +19,7 @@ def is_registered_guild():
     """Verify the registration status of a guild"""
     def predicate(ctx):
         if not ctx.bot.get_server(ctx.guild.id):
-            raise commands.CommandInvokeError(ValueError(
+            raise commands.CommandInvokeError(AttributeError(
                 "This server doesn't have a config entry, strange. "
                 "You can fix this with the `server init` command."
             ))

@@ -5,27 +5,29 @@ class Pages:
     """
     A base class for handling paginated objects.
 
-    Parameters:
-    - items: Any[Iterable]
+    Parameters
+    ----------
+    items: Any[Iterable]
         The items to be partitioned and paginated, can be any iterable
-    - per_page: int
+    per_page: int
         The number of items to be included on each page
         Default: 1
-    - use_embed: bool
+    use_embed: bool
         Whether the items should be returned as a uniform embed
         Default: False
-    - joiner: str
+    joiner: str
         The string that will be used to join items on a page
         Default: ""
-    - prefix: str
+    prefix: str
         A string that all pages will be prefixed with
         Default: None
-    - suffix: str
+    suffix: str
         A string that all pages will be suffixed with
         Default: None
 
-    Attributes:
-    - pages
+    Attributes
+    ----------
+    pages
         Returns all pages
     """
 
