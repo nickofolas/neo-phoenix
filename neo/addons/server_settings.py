@@ -66,9 +66,11 @@ class ServerSettings(neo.Addon):
     @commands.group(invoke_without_command=True, ignore_extra=False)
     @is_registered_guild()
     async def server(self, ctx):
-        """Displays an overview of your server's settings
+        """
+        Displays an overview of your server's settings
 
-        Descriptions of the settings are also provided here"""
+        Descriptions of the settings are also provided here
+        """
 
         server = self.bot.get_server(ctx.guild.id)
         embeds = []
@@ -91,9 +93,11 @@ class ServerSettings(neo.Addon):
     @server.command(name="set")
     @is_registered_guild()
     async def server_set(self, ctx, setting, *, new_value):
-        """Updates the value of a server setting
+        """
+        Updates the value of a server setting
 
-        More information on the available settings and their functions is in the `server` command"""
+        More information on the available settings and their functions is in the `server` command
+        """
 
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         server = self.bot.get_server(ctx.guild.id)

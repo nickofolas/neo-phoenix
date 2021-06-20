@@ -98,9 +98,11 @@ class Todos(neo.Addon):
 
     @todo.command(name="remove", aliases=["rm"])
     async def todo_remove(self, ctx, *indices):
-        """Remove 1 or more todo by index
+        """
+        Remove 1 or more todo by index
 
-        Passing `~` will remove all todos at once"""
+        Passing `~` will remove all todos at once
+        """
 
         if "~" in indices:
             todos = self.todos[ctx.author.id].copy()

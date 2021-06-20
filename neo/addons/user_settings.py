@@ -37,9 +37,11 @@ class UserSettings(neo.Addon):
 
     @commands.group(invoke_without_command=True, ignore_extra=False)
     async def settings(self, ctx):
-        """Displays an overview of your profile settings
+        """
+        Displays an overview of your profile settings
 
-        Descriptions of the settings are also provided here"""
+        Descriptions of the settings are also provided here
+        """
 
         profile = self.bot.get_profile(ctx.author.id)
         embeds = []
@@ -61,9 +63,11 @@ class UserSettings(neo.Addon):
 
     @settings.command(name="set")
     async def settings_set(self, ctx, setting, *, new_value):
-        """Updates the value of a profile setting
+        """
+        Updates the value of a profile setting
 
-        More information on the available settings and their functions is in the `settings` command"""
+        More information on the available settings and their functions is in the `settings` command
+        """
 
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         profile = self.bot.get_profile(ctx.author.id)

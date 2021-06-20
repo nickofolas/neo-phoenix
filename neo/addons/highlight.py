@@ -161,9 +161,11 @@ class Highlights(neo.Addon):
 
     @highlight.command(name="add")
     async def highlight_add(self, ctx, *, content):
-        """Add a new highlight
+        """
+        Add a new highlight
 
-        Highlights will notify you when the word/phrase you add is mentioned"""
+        Highlights will notify you when the word/phrase you add is mentioned
+        """
 
         if len(content) <= 1:
             raise ValueError("Highlights must contain more than 1 character.")
@@ -222,11 +224,13 @@ class Highlights(neo.Addon):
 
     @highlight.command(name="block")
     async def highlight_block(self, ctx, ids: commands.Greedy[int]):
-        """Manage a blocklist for highlights. Run with no arguments for a list of your blocks
+        """
+        Manage a blocklist for highlights. Run with no arguments for a list of your blocks
 
         Servers, users, and channels can all be blocked via ID
 
-        A variable number of IDs can be provided to this command"""
+        A variable number of IDs can be provided to this command
+        """
 
         profile = self.bot.get_profile(ctx.author.id)
 
@@ -251,11 +255,13 @@ class Highlights(neo.Addon):
 
     @highlight.command(name="unblock")
     async def highlight_unblock(self, ctx, ids: commands.Greedy[int]):
-        """Unblock entities from triggering your highlights
+        """
+        Unblock entities from triggering your highlights
 
         Servers, users, and channels can all be unblocked via ID
 
-        A variable number of IDs can be provided to this command"""
+        A variable number of IDs can be provided to this command
+        """
 
         profile = self.bot.get_profile(ctx.author.id)
 

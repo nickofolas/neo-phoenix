@@ -373,9 +373,12 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
     @commands.group(invoke_without_command=True)
     async def starboard(self, ctx):
-        """Displays an overview of your server's starboard settings
+        """
+        Displays an overview of your server's starboard settings
 
-        Descriptions of the settings are also provided here"""
+        Descriptions of the settings are also provided here
+        """
+
         starboard = self.starboards.get(ctx.guild.id)
         embeds = []
 
@@ -397,9 +400,11 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     @starboard.command(name="set")
     @commands.has_permissions(manage_channels=True)
     async def starboard_set(self, ctx, setting, *, new_value):
-        """Updates the value of a starboard setting
+        """
+        Updates the value of a starboard setting
 
-        More information on the available settings and their functions is in the `starboard` command"""
+        More information on the available settings and their functions is in the `starboard` command
+        """
 
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         starboard = self.starboards.get(ctx.guild.id)
