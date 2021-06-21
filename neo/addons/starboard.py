@@ -361,7 +361,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
     @commands.Cog.listener("on_server_delete")
     async def handle_deleted_server(self, server_id: int):
-        self.starboards.pop(server_id)
+        self.starboards.pop(server_id, None)
 
     # /Sect: Event Handling
     # Sect: Commands

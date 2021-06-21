@@ -83,7 +83,7 @@ class ServerSettings(neo.Addon):
                 title=f"Settings for {ctx.guild}",
                 description=f"**Setting: `{setting}`**\n\n" + description
             ).set_thumbnail(
-                url=ctx.guild.icon
+                url=ctx.guild.icon or neo.Embed.Empty
             )
             embeds.append(embed)
 

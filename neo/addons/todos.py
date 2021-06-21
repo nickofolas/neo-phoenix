@@ -153,7 +153,7 @@ class Todos(neo.Addon):
         embed = neo.Embed(
             description=todo.content
         ).add_field(
-            name=f"Created on {todo.created_at:%a, %b %d, %Y at %H:%M:%S} UTC",
+            name=f"Created on <t:{int(todo.created_at.timestamp())}>",
             value=f"[Jump to origin]({todo.jump_url})"
         ).set_author(
             name="Viewing a todo {}".format(
