@@ -20,6 +20,10 @@ accept that this information will be displayed
 publicly on your profile, along with your local
 time (which is calculated from the timezone).
 
+If at any point you want to remove this setting,
+it can be reset like any other setting with
+`settings reset`, and will remove your timezone.
+
 Expected Value Type: A valid IANA timezone [[list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)]
 Default Value: `None`
 

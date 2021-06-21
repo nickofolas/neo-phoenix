@@ -105,6 +105,25 @@ class ServerSettings(neo.Addon):
         self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
+    @server.command(name="reset")
+    @is_registered_guild()
+    async def server_reset(self, ctx, setting):
+        """
+        Resets the value of a server setting to its default
+
+        Defaults can be found in the `server` command
+        """
+
+        if not SETTINGS_MAPPING.get(setting):
+            raise commands.BadArgument(
+                "That's not a valid setting! "
+                "Try `server` for a list of settings!"
+            )
+        server = self.bot.get_server(ctx.guild.id)
+        await server.reset_attribute(setting)
+        self.bot.dispatch("server_settings_update", ctx.guild, server)
+        await ctx.send(f"Setting `{setting}` has been reset!")
+
     @server.command(name="init")
     async def server_init(self, ctx):
         """

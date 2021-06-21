@@ -75,6 +75,13 @@ class RecordContainer(metaclass=ABCMeta):
     async def update_relation(self, attribute, value):
         ...
 
+    @abstractmethod
+    async def reset_attribute(self, attribute):
+        """
+        Resets the value of an attribute to its database default.
+        """
+        ...
+
 
 class NeoUser(RecordContainer):
     __slots__ = ("user_id", "hl_blocks", "receive_highlights", "created_at", "timezone")
@@ -102,6 +109,24 @@ class NeoUser(RecordContainer):
             self.user_id
         )
 
+    async def reset_attribute(self, attribute):
+        if attribute not in self.__slots__:
+            raise ValueError("Invalid attribute provided")
+
+        value = await self.pool.fetchval(
+            f"""
+            UPDATE profiles
+            SET
+                {attribute}=DEFAULT
+            WHERE
+                user_id=$1
+            RETURNING
+                {attribute}
+            """,
+            self.user_id
+        )
+        super().__setattr__(attribute, value)
+
 
 class NeoServer(RecordContainer):
     __slots__ = ("server_id", "prefix", "starboard_enabled")
@@ -121,6 +146,24 @@ class NeoServer(RecordContainer):
             value,  # the class implements __slots__, so possible attribute names are restricted
             self.server_id
         )
+
+    async def reset_attribute(self, attribute):
+        if attribute not in self.__slots__:
+            raise ValueError("Invalid attribute provided")
+
+        value = await self.pool.fetchval(
+            f"""
+            UPDATE servers
+            SET
+                {attribute}=DEFAULT
+            WHERE
+                server_id=$1
+            RETURNING
+                {attribute}
+            """,
+            self.server_id
+        )
+        super().__setattr__(attribute, value)
 
 
 class TimedSet(set):

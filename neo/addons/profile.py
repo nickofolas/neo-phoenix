@@ -97,6 +97,25 @@ class Profile(neo.Addon):
         self.bot.dispatch("user_settings_update", ctx.author, profile)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
+    @settings.command(name="reset")
+    @is_registered_profile()
+    async def settings_reset(self, ctx, setting):
+        """
+        Resets the value of a profile setting to its default
+
+        Defaults can be found in the `settings` command
+        """
+
+        if not SETTINGS_MAPPING.get(setting):
+            raise commands.BadArgument(
+                "That's not a valid setting! "
+                "Try `settings` for a list of settings!"
+            )
+        profile = self.bot.get_profile(ctx.author.id)
+        await profile.reset_attribute(setting)
+        self.bot.dispatch("user_settings_update", ctx.author, profile)
+        await ctx.send(f"Setting `{setting}` has been reset!")
+
     @commands.group(invoke_without_command=True)
     async def profile(self, ctx, *, user: Union[int, MentionConverter] = None):
         """Displays the neo profile of yourself, or a specified user."""
