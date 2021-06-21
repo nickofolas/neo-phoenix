@@ -296,23 +296,23 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             else:
                 star.stars -= 1
 
-        if star.stars < starboard.threshold:
-            await starboard.delete_star(star.message_id)
-            await self.bot.db.execute(
-                "DELETE FROM stars WHERE message_id=$1",
-                star.message_id
-            )
-        else:
-            await starboard.edit_star(star.message_id, star.stars)
-            await self.bot.db.execute(
-                """
-                UPDATE stars
-                SET stars=$1
-                WHERE message_id=$2
-                """,
-                star.stars,
-                star.message_id
-            )
+            if star.stars < starboard.threshold:
+                await starboard.delete_star(star.message_id)
+                await self.bot.db.execute(
+                    "DELETE FROM stars WHERE message_id=$1",
+                    star.message_id
+                )
+            else:
+                await starboard.edit_star(star.message_id, star.stars)
+                await self.bot.db.execute(
+                    """
+                    UPDATE stars
+                    SET stars=$1
+                    WHERE message_id=$2
+                    """,
+                    star.stars,
+                    star.message_id
+                )
 
     @commands.Cog.listener("on_raw_reaction_clear")
     @commands.Cog.listener("on_raw_reaction_clear_emoji")
