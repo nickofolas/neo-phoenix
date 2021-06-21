@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Union
 
 import neo
@@ -106,6 +107,25 @@ class Profile(neo.Addon):
         if profile is None:
             raise AttributeError("This user doesn't have a neo profile!")
 
+        embed = neo.Embed(
+            description=(
+                f"**<@{user or ctx.author.id}>'s neo profile**\n\n"
+                f"**Created** <t:{int(profile.created_at.timestamp())}>"
+            )
+        ).set_thumbnail(
+            url=ctx.me.avatar if user else ctx.author.avatar
+        )
+        if getattr(profile, "timezone", None):
+            embed.add_field(
+                name="Time",
+                value="**Timezone** {0}\n**Local Time** {1:%B %d, %Y %H:%M}".format(
+                    profile.timezone,
+                    datetime.now(profile.timezone)
+                ),
+                inline=False
+            )
+        await ctx.send(embed=embed)
+
     @profile.command(name="init")
     async def profile_init(self, ctx):
         """Creates your neo profile!"""
@@ -132,6 +152,7 @@ class Profile(neo.Addon):
             return
 
         await self.bot.delete_profile(ctx.author.id)
+
 
 def setup(bot):
     bot.add_cog(Profile(bot))

@@ -18,7 +18,7 @@ class CodeblockConverter(commands.Converter):
 
 class MentionConverter(commands.Converter):
     async def convert(self, ctx, argument):
-        return EXTRACT_MENTION_REGEX.match(argument)[1]
+        return int(EXTRACT_MENTION_REGEX.match(argument)[1])
 
 
 class PartialEmojiStrConverter(commands.PartialEmojiConverter):
