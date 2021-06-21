@@ -2,5 +2,4 @@ discord.py
 toml
 asyncpg
 import-expression  # For convenience purposes only
-python-dateutil
 tzdata; sys_platform == "win32"  # Windows doesn't provide a native IANA database

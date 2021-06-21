@@ -2,31 +2,12 @@ from typing import Union
 
 import discord
 import neo
-from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 from neo.modules import Paginator, args, cse, dictionary
 from neo.types.converters import MentionConverter
 
 DELTA_FORMAT = "{0.months} months and {0.days} days ago"
-ACTIVITY_TYPE_MAPPING = {
-    discord.ActivityType.watching: "Watching",
-    discord.ActivityType.playing: "Playing",
-    discord.ActivityType.streaming: "Streaming",
-    discord.ActivityType.listening: "Listening to",
-    discord.ActivityType.competing: "Competing in",
-}
-ACTIVITY_MAPPING = {
-    discord.Spotify: "Listening to **{0}**",
-    discord.Game: "Playing **{0}**",
-    discord.Streaming: "Streaming **{0}**"
-}
-STATUS_ICON_MAPPING = {
-    "online": "<:online:743228917279752202>",
-    "dnd": "<:dnd:743228917619490826>",
-    "idle": "<:idle:743228917589999678>",
-    "offline": "<:offline:743228917279621221>"
-}
-BADGE_ICON_MAPPING = {
+BADGE_MAPPING = {
     "staff": "<:staff:743223905812086865>",
     "partner": "<:partner:743223905820606588>",
     "hypesquad": "<:events:743223907271573595>",
@@ -37,6 +18,11 @@ BADGE_ICON_MAPPING = {
     "bug_hunter_level_2": "<:bug2:743223907129098311>",
     "verified_bot_developer": "<:dev:743223907246407761>",
     "early_supporter": "<:early:743223907338944522>"
+}
+ICON_MAPPING = {
+    "owner": "<:serverowner:743224805855330304>",
+    "bot": "<:bot:743223907238281217>",
+    "verified_bot": "<:verified1:743228362339909665><:verified2:743228362251829339>"
 }
 
 
@@ -150,60 +136,31 @@ class Utility(neo.Addon):
 
         await ctx.send(embed=embed)
 
-    # TODO: Display bot tags and owner crowns
-    # TODO: Figure out how to make this look good without intents
-    @commands.command(name="userinfo", aliases=["ui"], enabled=False)
-    async def userinfo_command(self, ctx, *, user: Union[discord.Member, int, MentionConverter] = None):
+    @commands.command(name="userinfo", aliases=["ui"])
+    async def userinfo_command(self, ctx, *, user: Union[MentionConverter, int, discord.Member] = None):
         """Retrieves information of yourself, or a specified user"""
 
-        user = user or ctx.author
-        if not isinstance(user, discord.Member):
-            user = await self.bot.fetch_user(user)
-
-        else:
-            joined_ago = relativedelta(ctx.message.created_at, user.joined_at)
-
-        created_ago = relativedelta(ctx.message.created_at, user.created_at)
+        if isinstance(user, (int, type(None))):
+            try:
+                user = await ctx.guild.fetch_member(user or ctx.author.id)
+            except (discord.HTTPException, AttributeError):
+                user = await self.bot.fetch_user(user or ctx.author.id)
 
         embed = neo.Embed().set_thumbnail(url=user.avatar)
-
-        flags = [BADGE_ICON_MAPPING[pair[0]] for pair in user.public_flags if pair[1]]
+        flags = [BADGE_MAPPING[f.name] for f in user.public_flags.all() if BADGE_MAPPING.get(f.name)]
         title = str(user)
         description = " ".join(flags) + ("\n" if flags else "")
-        description += "**Created** " + DELTA_FORMAT.format(created_ago)
+        description += f"**Created** <t:{int(user.created_at.timestamp())}:R>"
+
+        if user.bot:
+            title = "{0} {1}".format(
+                ICON_MAPPING["verified_bot"] if user.public_flags.verified_bot else ICON_MAPPING["bot"],
+                title)
 
         if isinstance(user, discord.Member):
-            title = f"{STATUS_ICON_MAPPING[user.raw_status]} {title}"
-
-            description += "\n**Joined** " + DELTA_FORMAT.format(joined_ago)
-            # description += "\n**Join Position** {}".format(
-            #     sorted(ctx.guild.members, key=lambda m: m.joined_at).index(user) + 1
-            # )  # This is currently commented out for aesthetic reasons lmao
-
-            activities = []
-            for activity in user.activities:
-                if (act := ACTIVITY_MAPPING.get(type(activity))):
-                    activities.append(act.format(activity.name))  # For stuff like Spotify
-
-                elif isinstance(activity, discord.activity.Activity):
-                    activities.append("{0} **{1.name}**".format(
-                        ACTIVITY_TYPE_MAPPING.get(activity.type), activity)
-                    )  # For more ambiguous status types
-
-                elif isinstance(activity, discord.CustomActivity):
-                    if not activity.emoji:
-                        emoji = ""
-                    elif activity.emoji.is_unicode_emoji() or activity.emoji in self.bot.emojis:
-                        emoji = activity.emoji
-                    else:
-                        emoji = ":question:"
-                    activities.append(f"{emoji} {activity.name}")
-
-            if activities:
-                embed.add_field(
-                    name="Activities",
-                    value="\n".join(activities)
-                )
+            description += f"\n**Joined** <t:{int(user.joined_at.timestamp())}:R>"
+            if user.id == ctx.guild.owner_id:
+                title = "{0} {1}".format(ICON_MAPPING["owner"], title)
 
         embed.title = title
         embed.description = description

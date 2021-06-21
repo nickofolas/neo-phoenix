@@ -10,7 +10,6 @@ from .tools import *  # noqa: F403
 from .types import Embed, containers, help_command, context
 
 log = logging.getLogger(__name__)
-# intents = discord.Intents.all()
 
 
 class Neo(commands.Bot):
@@ -30,7 +29,6 @@ class Neo(commands.Bot):
         kwargs.setdefault("status", discord.Status[config["bot"]["status"]])
         kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
         kwargs.setdefault("help_command", help_command.NeoHelpCommand())
-        # kwargs.setdefault("intents", intents)
 
         super().__init__(**kwargs)
 
@@ -45,6 +43,15 @@ class Neo(commands.Bot):
 
         for record in await self.db.fetch("SELECT * FROM servers"):
             await self.add_server(record["server_id"], record=record)
+
+        await self.verify_servers()
+
+    async def verify_servers(self):
+        await self.wait_until_ready()
+
+        for server_id in self.servers.copy().keys():
+            if not self.get_guild(server_id):
+                await self.delete_server(server_id)
 
     def get_profile(self, user_id):
         return self.profiles.get(user_id)
@@ -69,7 +76,7 @@ class Neo(commands.Bot):
         return self.get_profile(user_id)
 
     async def delete_profile(self, user_id: int):
-        self.profiles.pop(user_id)
+        self.profiles.pop(user_id, None)
         await self.db.execute(
             """
             DELETE FROM
@@ -98,7 +105,7 @@ class Neo(commands.Bot):
         return self.get_server(server_id)
 
     async def delete_server(self, server_id: int):
-        self.servers.pop(server_id)
+        self.servers.pop(server_id, None)
         await self.db.execute(
             """
             DELETE FROM
@@ -124,11 +131,11 @@ class Neo(commands.Bot):
     async def on_ready(self):
         log.info(f"{self.user} has received ready event")
 
-    async def on_message_edit(self, before, after):
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if after.content != before.content:
             await self.process_commands(after)
 
-    async def get_prefix(self, message):
+    async def get_prefix(self, message: discord.Message) -> list[str]:
         if message.guild:
             return commands.when_mentioned_or(getattr(
                 self.get_server(message.guild.id),
@@ -143,3 +150,6 @@ class Neo(commands.Bot):
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)
+
+    async def on_guild_remove(self, guild: discord.Guild):
+        await self.delete_server(guild.id)
