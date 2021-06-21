@@ -207,6 +207,9 @@ class Highlights(neo.Addon):
         if len(self.get_user_highlights(ctx.author.id)) >= MAX_TRIGGERS:
             raise ValueError("You've used up all of your highlight slots!")
 
+        if content in [hl.content for hl in self.get_user_highlights(ctx.author.id)]:
+            raise ValueError("Cannot have multiple highlights with the same content.")
+
         result = await self.bot.db.fetchrow(
             """
             INSERT INTO highlights (

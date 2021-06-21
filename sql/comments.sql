@@ -106,6 +106,8 @@ Default Value: `7`
 
 COMMENT ON COLUMN starboards.emoji IS
 'The emoji that will be used to star messages.
+If this is set to an invalid emoji, starboard will
+cease to function.
 
 **WARNING:** Changing this will invalidate __all__ current stars.
 

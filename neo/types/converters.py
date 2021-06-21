@@ -23,7 +23,10 @@ class MentionConverter(commands.Converter):
 
 class PartialEmojiStrConverter(commands.PartialEmojiConverter):
     async def convert(self, ctx, argument):
-        emoji = await super().convert(ctx, argument)
+        try:
+            emoji = await super().convert(ctx, argument)
+        except commands.PartialEmojiConversionFailure:
+            emoji = argument
         return str(emoji)
 
 

@@ -476,9 +476,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     @starboard.command(name="unignore")
     @commands.has_permissions(manage_messages=True)
     async def starboard_unignore(self, ctx, to_ignore: Union[discord.TextChannel, discord.PartialMessage, int]):
-        """
-        Unignores a channel or message
-        """
+        """Unignores a channel or message"""
         starboard = self.starboards.get(ctx.guild.id)
         id = to_ignore.id
 
@@ -500,9 +498,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     @starboard.command(name="ignored")
     @commands.has_permissions(manage_messages=True)
     async def starboard_ignored(self, ctx):
-        """
-        Displays a list of all ignored items
-        """
+        """Displays a list of all ignored items"""
         starboard = self.starboards.get(ctx.guild.id)
 
         formatted: list[str] = []

@@ -75,6 +75,7 @@ class Paginator:
             item.set_footer(text=f"Page {self.current_page + 1}/{len(self.pages)}")
             return {"embed": item}
         elif isinstance(item, (str, tuple)):
+            item += f"\nPage {self.current_page + 1}/{len(self.pages)}"
             return {"content": item}
 
     def get_current_page(self, index):

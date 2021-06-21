@@ -3,6 +3,7 @@ from discord.ext import commands
 from neo.modules.eval import Eval, env_from_context, format_exception
 from neo.modules.paginator import Pages, Paginator
 from neo.types.converters import CodeblockConverter
+from neo.types.formatters import Table
 
 
 class Devel(neo.Addon):
@@ -71,6 +72,28 @@ class Devel(neo.Addon):
         except Exception as e:
             menu.pages.append("\n{}".format(format_exception(e)))
             await menu.start(ctx, as_reply=True)
+
+    @commands.command(name="sql")
+    async def dev_sql(self, ctx, *, query: str):
+        """Perform an SQL query"""
+
+        data = await self.bot.db.fetch(query)
+        if len(data) == 0:
+            return await ctx.send("Query executed successfully")
+
+        table = Table()
+        table.init_columns([*data[0].keys()])
+        for row in data:
+            table.add_row([*map(str, row.values())])
+
+        pages = Pages(
+            table.display(),
+            1500,
+            prefix="```py\n",
+            suffix="\n```"
+        )
+        menu = Paginator(pages)
+        await menu.start(ctx)
 
 
 def setup(bot):
