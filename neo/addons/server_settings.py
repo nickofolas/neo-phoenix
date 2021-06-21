@@ -136,7 +136,8 @@ class ServerSettings(neo.Addon):
         if self.bot.get_server(ctx.guild.id):
             raise RuntimeError("Your server already has a config entry!")
 
-        await self.bot.add_server(ctx.guild.id)
+        server = await self.bot.add_server(ctx.guild.id)
+        self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send("Successfully initialized your server's config!")
 
     @server.command(name="delete")

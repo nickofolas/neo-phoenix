@@ -8,6 +8,17 @@ Default Value: `True`
 **Current Value:** `{}`
 ';
 
+COMMENT ON COLUMN profiles.hl_timeout IS
+'Sets the amount of time (in minutes) that you must
+be inactive (send no messages) in a channel for
+highlights from that channel to be sent to you.
+
+Expected Value Type: An integer (from 1 to 5)
+Default Value: `1`
+
+**Current Value:** `{}`
+';
+
 COMMENT ON COLUMN profiles.timezone IS
 'Sets your local timezone.
 

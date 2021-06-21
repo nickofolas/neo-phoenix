@@ -5,7 +5,8 @@ import neo
 from discord.ext import commands
 from neo.modules import Paginator
 from neo.tools import convert_setting
-from neo.types.converters import MentionConverter, TimezoneConverter
+from neo.types.converters import (MentionConverter, TimezoneConverter,
+                                  timeout_converter)
 
 SETTINGS_MAPPING = {
     "receive_highlights": {
@@ -14,6 +15,10 @@ SETTINGS_MAPPING = {
     },
     "timezone": {
         "converter": TimezoneConverter(),
+        "description": None
+    },
+    "hl_timeout": {
+        "converter": timeout_converter,
         "description": None
     }
 }
@@ -152,7 +157,8 @@ class Profile(neo.Addon):
         if self.bot.get_profile(ctx.author.id):
             raise RuntimeError("You already have a profile!")
 
-        await self.bot.add_profile(ctx.author.id)
+        profile = await self.bot.add_profile(ctx.author.id)
+        self.bot.dispatch("user_settings_update", ctx.author, profile)
         await ctx.send("Successfully initialized your profile!")
 
     @profile.command(name="delete")

@@ -104,11 +104,11 @@ class Highlight:
 class Highlights(neo.Addon):
     """Commands for managing highlights"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: neo.Neo):
         self.bot = bot
 
         self.highlights = []
-        self.grace_periods = defaultdict(TimedSet)  # TODO: Configurable timeouts?
+        self.grace_periods: dict[int, TimedSet] = {}  # TODO: Configurable timeouts?
 
         self.bot.loop.create_task(self.__ainit__())
 
@@ -117,6 +117,11 @@ class Highlights(neo.Addon):
 
         for record in await self.bot.db.fetch("SELECT * FROM highlights"):
             self.highlights.append(Highlight(self.bot, **record))
+
+        for profile in self.bot.profiles.values():
+            self.grace_periods[profile.user_id] = TimedSet(
+                decay_time=profile.hl_timeout * 60
+            )
 
     def get_user_highlights(self, user_id):
         return [*filter(
@@ -142,9 +147,23 @@ class Highlights(neo.Addon):
                 **await hl.to_send_kwargs(message)
             )
 
+    @commands.Cog.listener("on_user_settings_update")
+    async def handle_update_profile(self, user, profile):
+        if self.grace_periods.get(user.id):
+            current_timeout = self.grace_periods[user.id].decay_time
+            if (profile.hl_timeout * 60) == current_timeout:
+                return
+            for item in (t_set := self.grace_periods.pop(user.id)):
+                t_set.running.pop(item).cancel()
+
+        self.grace_periods[profile.user_id] = TimedSet(
+            decay_time=profile.hl_timeout * 60
+        )
+
     # Need to dynamically account for deleted profiles
     @commands.Cog.listener("on_profile_delete")
     async def handle_deleted_profile(self, user_id: int):
+        self.grace_periods.pop(user_id, None)
         to_delete = [*filter(lambda hl: hl.user_id == user_id, self.highlights)]
         for hl in to_delete:
             self.highlights.remove(hl)

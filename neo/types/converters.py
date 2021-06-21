@@ -34,3 +34,21 @@ class TimezoneConverter(commands.Converter):
         except zoneinfo.ZoneInfoNotFoundError:
             raise ValueError("Provided timezone was invalid.")
         return str(zone)
+
+
+def timeout_converter(timeout: str) -> int:
+    if not timeout.isdigit():
+        raise ValueError
+    timeout = int(timeout)
+    if not (timeout >= 1 and timeout <= 5):
+        raise ValueError
+    return timeout
+
+
+def max_days_converter(max_days: str) -> int:
+    if not max_days.isdigit():
+        raise ValueError
+    max_days = int(max_days)
+    if not max_days > 1:
+        raise ValueError
+    return max_days

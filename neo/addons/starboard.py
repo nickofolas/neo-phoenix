@@ -10,7 +10,7 @@ from discord import utils
 from discord.ext import commands
 from neo.modules import Paginator
 from neo.tools import convert_setting
-from neo.types.converters import PartialEmojiStrConverter
+from neo.types.converters import PartialEmojiStrConverter, max_days_converter
 
 SETTINGS_MAPPING = {
     "channel": {
@@ -26,7 +26,7 @@ SETTINGS_MAPPING = {
         "description": None
     },
     "max_days": {
-        "converter": str,
+        "converter": max_days_converter,
         "description": None
     },
     "emoji": {
