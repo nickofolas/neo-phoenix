@@ -7,10 +7,12 @@ from typing import Union
 import discord
 import neo
 from discord.ext import commands
+from discord.utils import snowflake_time
 from neo.modules import Paginator
 from neo.tools.time_parse import parse_absolute, parse_relative
 
 MAX_REMINDERS = 15
+MAX_REMINDER_LEN = 1000
 
 
 @dataclass
@@ -45,7 +47,7 @@ class Reminder:
             if self.channel is not None:
                 try:
                     await self.message.reply(
-                        self.content,
+                        f"**Reminder**:\n{self.content}",
                         allowed_mentions=discord.AllowedMentions(replied_user=True)
                     )
                 except discord.HTTPException:
@@ -61,7 +63,7 @@ class Reminder:
         try:
             dest = self.channel or self.bot.get_user(self.user_id, as_partial=True)
             await dest.send(
-                "<@{0}> **Reminder** [source deleted]\n> {1}".format(
+                "<@{0}> **Reminder** [source deleted]:\n> {1}".format(
                     self.user_id,
                     self.content
                 ),
@@ -160,28 +162,67 @@ class Reminders(neo.Addon):
 
     @commands.group(invoke_without_command=True, usage="<offset> <content>")
     async def remind(self, ctx, *, input: str):
+        """
+        Schedule a reminder for a relative offset
+
+        Offsets have the following requirements:
+        - Must be one of `years`, `weeks`, `days`,
+        `hours`, `minutes`, and `seconds`
+        - Not all time units have to be used
+        - Time units have to be ordered by magnitude
+
+        **Examples**
+        `remind 5 years Hey, hello!`
+        `remind 4h30m Check what time it is`
+        `remind 3 weeks, 2 days Do something funny`
+        """
         if (len(self.reminders[ctx.author.id]) + 1) > MAX_REMINDERS:
             raise ValueError("You've used up all of your reminder slots!")
 
-        delta = parse_relative(input)
+        (delta, remainder) = parse_relative(input)
+        if len(remainder) > MAX_REMINDER_LEN:
+            raise ValueError(f"Reminders cannot be longer than {MAX_REMINDER_LEN:,} characters!")
+
         future_time: datetime = datetime.now(timezone.utc) + delta
         timestamp: int = int(future_time.timestamp())
         await self.add_reminder(
             user_id=ctx.author.id,
             message_id=ctx.message.id,
             channel_id=ctx.channel.id,
-            content=input,
+            content=remainder or "...",
             end_time=future_time
         )
         await ctx.reply(f"Your reminder will be delivered <t:{timestamp}:R> [<t:{timestamp}>]")
 
-    @remind.command(name="on", usage="<absolute time> <content>")
+    @remind.command(name="on", aliases=["at"], usage="<absolute time> <content>")
     async def remind_absolute(self, ctx, *, input: str):
+        """
+        Schedule a reminder for an absolute date/time
+
+        A select few date/time formats are supported:
+        - `month date, year`
+        Ex: `remind on Mar 2, 2022 Dance`
+        - `hour:minute`
+        Ex: `remind at 14:08 Do something obscure`
+        - `month date, year at hour:minute`
+        Ex: `remind on January 19, 2038 at 3:14 Y2k38`
+
+        All times are required to be in 24-hour format.
+
+        **Note**
+        If you have configured a timezone in your neo
+        profile, it will be used to localize date/time.
+        Otherwise, date/times will be in UTC.
+        """
         if (len(self.reminders[ctx.author.id]) + 1) > MAX_REMINDERS:
             raise ValueError("You've used up all of your reminder slots!")
 
+        (future_time, remainder) = parse_absolute(input)
+        if len(remainder) > MAX_REMINDER_LEN:
+            raise ValueError(f"Reminders cannot be longer than {MAX_REMINDER_LEN:,} characters!")
+
         profile = self.bot.get_profile(ctx.author.id)
-        future_time: datetime = parse_absolute(input).replace(
+        future_time = future_time.replace(
             tzinfo=profile.timezone or timezone.utc
         )
         timestamp: int = int(future_time.timestamp())
@@ -189,19 +230,20 @@ class Reminders(neo.Addon):
             user_id=ctx.author.id,
             message_id=ctx.message.id,
             channel_id=ctx.channel.id,
-            content=input,
+            content=remainder or "...",
             end_time=future_time
         )
         await ctx.reply(f"Your reminder will be delivered <t:{timestamp}:R> [<t:{timestamp}>]")
 
     @remind.command(name="list")
     async def remind_list(self, ctx):
+        """Lists your active reminders"""
         reminders = self.reminders[ctx.author.id].copy()
         formatted_reminders: list[str] = []
 
         for index, reminder in enumerate(reminders):
             formatted_reminders.append(
-                "`{0}` {1}\n*Delivered <t:{2}:R>*".format(
+                "`{0}` {1}\nTriggers <t:{2}:R>".format(
                     index, shorten(reminder.content, 50), int(reminder.end_time.timestamp())
                 ))
         menu = Paginator.from_iterable(
@@ -211,8 +253,32 @@ class Reminders(neo.Addon):
         )
         await menu.start(ctx)
 
+    @remind.command(name="view", aliases=["show"])
+    async def remind_view(self, ctx, index: int):
+        """View the full content of a reminder, accessed by index"""
+        try:
+            reminder = self.reminders[ctx.author.id][index]
+        except IndexError:
+            raise IndexError("Couldn't find that reminder.")
+
+        embed = neo.Embed(
+            description=reminder.content
+        ).add_field(
+            name=f"Created on <t:{int(snowflake_time(reminder.message_id).timestamp())}>",
+            value=f"Triggers on <t:{int(reminder.end_time.timestamp())}>"
+        ).set_author(
+            name="Viewing a reminder",
+            icon_url=ctx.author.avatar
+        )
+        await ctx.send(embed=embed)
+
     @remind.command(name="cancel")
     async def remind_cancel(self, ctx, *indices: Union[int, str]):
+        """
+        Cancel 1 or more reminder by index
+
+        Passing `~` will cancel all reminders at once
+        """
         if "~" in indices:
             reminders = self.reminders[ctx.author.id].copy()
         else:

@@ -58,7 +58,7 @@ CREATE TABLE reminders (
     user_id    BIGINT NOT NULL,
     message_id BIGINT NOT NULL,
     channel_id BIGINT NOT NULL,
-    content    VARCHAR(500) DEFAULT '...',
+    content    VARCHAR(1000) NOT NULL,
     end_time   TIMESTAMP WITH TIME ZONE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES profiles (user_id) ON DELETE CASCADE
 );

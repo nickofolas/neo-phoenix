@@ -10,21 +10,19 @@ from neo.tools import try_or_none
 
 CURRENT_YEAR = datetime.now().year
 ABSOLUTE_FORMATS = {  # Use a set so %H:%M doesn't get duplicated
-    "%b %d",
-    "%b %d %Y",
+    "%b %d, %Y",
     "%H:%M",
-    "%b %d at %H:%M",
-    "%b %d %Y at %H:%M"
+    "%b %d, %Y at %H:%M"
 }  # Define a very rigid set of formats that can be passed
 ABSOLUTE_FORMATS |= {i.replace("%b", "%B") for i in ABSOLUTE_FORMATS}
 RELATIVE_FORMATS = re.compile(
     r"""
-    ((?P<years>[0-9]{1,2})(?:y(ears?)?))?      # Parse years, allow 1-2 digits
-    ((?P<weeks>[0-9]{1,2})(?:w(eeks?)?))?      # Parse weeks, allow 1-2 digits
-    ((?P<days>[0-9]{1,4})(?:d(ays?)?))?        # Parse days, allow 1-4 digits
-    ((?P<hours>[0-9]{1,4})(?:h(ours?)?))?      # Parse hours, allow 1-4 digits
-    ((?P<minutes>[0-9]{1,4})(?:m(inutes?)?))?  # Parse minutes, allow 1-4 digits
-    ((?P<seconds>[0-9]{1,4})(?:s(econds?)?))?  # Parse seconds, allow 1-4 digits
+    ((?P<years>[0-9]{1,2})\s?(?:y(ears?)?,?))?         # Parse years, allow 1-2 digits
+    \s?((?P<weeks>[0-9]{1,2})\s?(?:w(eeks?)?,?))?      # Parse weeks, allow 1-2 digits
+    \s?((?P<days>[0-9]{1,4})\s?(?:d(ays?)?,?))?        # Parse days, allow 1-4 digits
+    \s?((?P<hours>[0-9]{1,4})\s?(?:h(ours?)?,?))?      # Parse hours, allow 1-4 digits
+    \s?((?P<minutes>[0-9]{1,4})\s?(?:m(inutes?)?,?))?  # Parse minutes, allow 1-4 digits
+    \s?((?P<seconds>[0-9]{1,4})\s?(?:s(econds?)?))?    # Parse seconds, allow 1-4 digits
     """,
     re.X | re.I
 )
@@ -52,8 +50,8 @@ class TimedeltaWithYears(timedelta):
         )
 
 
-def parse_absolute(string: str) -> Optional[datetime]:
-    split = string.replace(",", "").split(" ")  # Allow commas because they can be more ergonomic
+def parse_absolute(string: str) -> Optional[tuple[datetime, str]]:
+    split = string.split(" ")
     endpoint = len(split)
 
     for _ in range(len(split)):  # Check for every possible chunk size
@@ -71,17 +69,13 @@ def parse_absolute(string: str) -> Optional[datetime]:
 
     else:
         raise ValueError("An invalid date format was provided.")
-    return dt
+    return dt, " ".join(string.split(" ")[endpoint:])
 
 
-def parse_relative(string: str) -> Optional[TimedeltaWithYears]:
-    to_parse = string \
-        .replace(" ", "") \
-        .replace(",", "") \
-        .replace("and", "")  # Remove "and", commas, and whitespace to prepare for parsing
-    if any((parsed := RELATIVE_FORMATS.match(to_parse)).groups()):
+def parse_relative(string: str) -> Optional[tuple[TimedeltaWithYears, str]]:
+    if any((parsed := RELATIVE_FORMATS.match(string)).groups()):
         data = {k: float(v) for k, v in parsed.groupdict().items() if v}
-        return TimedeltaWithYears(**data)
+        return TimedeltaWithYears(**data), string.removeprefix(parsed[0]).strip()
 
     else:  # Nothing matched
         raise ValueError("Failed to find a valid offset.")
