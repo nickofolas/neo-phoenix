@@ -150,7 +150,7 @@ class Utility(neo.Addon):
         flags = [BADGE_MAPPING[f.name] for f in user.public_flags.all() if BADGE_MAPPING.get(f.name)]
         title = str(user)
         description = " ".join(flags) + ("\n" if flags else "")
-        description += f"**Created** <t:{int(user.created_at.timestamp())}:R>"
+        description += f"**Created** <t:{int(user.created_at.timestamp())}:D>"
 
         if user.bot:
             title = "{0} {1}".format(
@@ -158,7 +158,7 @@ class Utility(neo.Addon):
                 title)
 
         if isinstance(user, discord.Member):
-            description += f"\n**Joined** <t:{int(user.joined_at.timestamp())}:R>"
+            description += f"\n**Joined** <t:{int(user.joined_at.timestamp())}:D>"
             if user.id == ctx.guild.owner_id:
                 title = "{0} {1}".format(ICON_MAPPING["owner"], title)
 

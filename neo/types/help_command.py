@@ -111,7 +111,7 @@ class NeoHelpCommand(commands.HelpCommand):
                 value="\n".join(map(
                     lambda sub: f"{sub.full_parent_name} **{sub.name}**",
                     command.walk_commands()
-                ))
+                )) or "No subcommands"
             )
 
         if hasattr(command, "get_args_help"):
