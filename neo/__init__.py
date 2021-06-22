@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import discord
@@ -32,6 +33,7 @@ class Neo(commands.Bot):
 
         super().__init__(**kwargs)
 
+        self._async_ready = asyncio.Event()
         self.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
@@ -44,7 +46,12 @@ class Neo(commands.Bot):
         for record in await self.db.fetch("SELECT * FROM servers"):
             await self.add_server(record["server_id"], record=record)
 
+        self._async_ready.set()
         await self.verify_servers()
+
+    async def wait_until_ready(self):
+        await self._async_ready.wait()
+        await self._ready.wait()
 
     async def verify_servers(self):
         await self.wait_until_ready()

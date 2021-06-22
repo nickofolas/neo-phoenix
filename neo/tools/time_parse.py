@@ -10,13 +10,13 @@ from neo.tools import try_or_none
 
 CURRENT_YEAR = datetime.now().year
 ABSOLUTE_FORMATS = {  # Use a set so %H:%M doesn't get duplicated
-    "%a %b %d",
-    "%a %b %d %Y",
+    "%b %d",
+    "%b %d %Y",
     "%H:%M",
-    "%a %b %d at %H:%M",
-    "%a %b %d %Y at %H:%M"
+    "%b %d at %H:%M",
+    "%b %d %Y at %H:%M"
 }  # Define a very rigid set of formats that can be passed
-ABSOLUTE_FORMATS |= {i.replace("%a %b", "%A %B") for i in ABSOLUTE_FORMATS}
+ABSOLUTE_FORMATS |= {i.replace("%b", "%B") for i in ABSOLUTE_FORMATS}
 RELATIVE_FORMATS = re.compile(
     r"""
     ((?P<years>[0-9]{1,2})(?:y(ears?)?))?      # Parse years, allow 1-2 digits
@@ -61,8 +61,8 @@ def parse_absolute(string: str) -> Optional[datetime]:
 
         for format in ABSOLUTE_FORMATS:
             if (dt := try_or_none(datetime.strptime, " ".join(to_parse), format)):
-                if dt.year < CURRENT_YEAR:  # If a year isn't explicitly provided, add it
-                    dt = dt.replace(year=CURRENT_YEAR)
+                if dt < (date := datetime.now()):
+                    dt = date.replace(hour=dt.hour, minute=dt.minute, second=dt.second)
                 break
 
         if dt is not None:  # We got a hit

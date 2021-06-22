@@ -1,11 +1,16 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+from textwrap import shorten
 from typing import Union
 
 import discord
 import neo
 from discord.ext import commands
+from neo.modules import Paginator
+from neo.tools.time_parse import parse_absolute, parse_relative
+
+MAX_REMINDERS = 15
 
 
 @dataclass
@@ -36,18 +41,20 @@ class Reminder:
 
     async def deliver(self):
         """Deliver a reminder, falling back to a primitive format if necessary"""
-        await self.delete()  # Ensure that the database entry is always deleted
-
-        if self.channel is not None:
-            try:
-                await self.message.reply(
-                    self.content,
-                    allowed_mentions=discord.AllowedMentions(replied_user=True)
-                )
-            except discord.HTTPException:
+        try:
+            if self.channel is not None:
+                try:
+                    await self.message.reply(
+                        self.content,
+                        allowed_mentions=discord.AllowedMentions(replied_user=True)
+                    )
+                except discord.HTTPException:
+                    await self.fallback_deliver()
+            else:
                 await self.fallback_deliver()
-        else:
-            await self.fallback_deliver()
+
+        finally:  # Ensure that the database entry is always deleted
+            await self.delete()
 
     async def fallback_deliver(self) -> None:
         """Fallback to a primitive delivery format if normal deliver is impossible"""
@@ -67,7 +74,6 @@ class Reminder:
 
     async def delete(self):
         """Remove this reminder from the database"""
-        self.wait_task.cancel()
         await self.bot.db.execute(
             """
             DELETE FROM
@@ -83,6 +89,10 @@ class Reminder:
             self.content,
             self.end_time
         )
+        try:  # Need to cancel the task
+            self.wait_task.cancel()
+        finally:  # ...but need to ensure that dispatch is after cancel
+            self.bot.dispatch("reminder_removed", self.user_id)
 
 
 class Reminders(neo.Addon):
@@ -105,6 +115,117 @@ class Reminders(neo.Addon):
     async def handle_deleted_profile(self, user_id: int):
         for reminder in self.reminders.pop(user_id, []):
             await reminder.delete()
+
+    @commands.Cog.listener("on_reminder_removed")
+    async def handle_removed_reminder(self, user_id: int):
+        self.reminders[user_id] = [*filter(
+            lambda r: not r.wait_task.done(),
+            self.reminders[user_id].copy()
+        )]
+
+    async def cog_check(self, ctx):
+        if not self.bot.get_profile(ctx.author.id):
+            raise commands.CommandInvokeError(AttributeError(
+                "Looks like you don't have an existing profile! "
+                "You can fix this with the `profile init` command."
+            ))
+        return True
+
+    def cog_unload(self):
+        for reminders in self.reminders.values():
+            for reminder in reminders:
+                reminder.wait_task.cancel()
+
+    async def add_reminder(self, *, user_id, message_id, channel_id, content, end_time):
+        data = await self.bot.db.fetchrow(
+            """
+            INSERT INTO reminders (
+                user_id,
+                message_id,
+                channel_id,
+                content,
+                end_time
+            ) VALUES (
+                $1, $2, $3, $4, $5
+            ) RETURNING *
+            """,
+            user_id,
+            message_id,
+            channel_id,
+            content,
+            end_time
+        )
+        reminder = Reminder(bot=self.bot, **data)
+        self.reminders[user_id].append(reminder)
+
+    @commands.group(invoke_without_command=True, usage="<offset> <content>")
+    async def remind(self, ctx, *, input: str):
+        if (len(self.reminders[ctx.author.id]) + 1) > MAX_REMINDERS:
+            raise ValueError("You've used up all of your reminder slots!")
+
+        delta = parse_relative(input)
+        future_time: datetime = datetime.now(timezone.utc) + delta
+        timestamp: int = int(future_time.timestamp())
+        await self.add_reminder(
+            user_id=ctx.author.id,
+            message_id=ctx.message.id,
+            channel_id=ctx.channel.id,
+            content=input,
+            end_time=future_time
+        )
+        await ctx.reply(f"Your reminder will be delivered <t:{timestamp}:R> [<t:{timestamp}>]")
+
+    @remind.command(name="on", usage="<absolute time> <content>")
+    async def remind_absolute(self, ctx, *, input: str):
+        if (len(self.reminders[ctx.author.id]) + 1) > MAX_REMINDERS:
+            raise ValueError("You've used up all of your reminder slots!")
+
+        profile = self.bot.get_profile(ctx.author.id)
+        future_time: datetime = parse_absolute(input).replace(
+            tzinfo=profile.timezone or timezone.utc
+        )
+        timestamp: int = int(future_time.timestamp())
+        await self.add_reminder(
+            user_id=ctx.author.id,
+            message_id=ctx.message.id,
+            channel_id=ctx.channel.id,
+            content=input,
+            end_time=future_time
+        )
+        await ctx.reply(f"Your reminder will be delivered <t:{timestamp}:R> [<t:{timestamp}>]")
+
+    @remind.command(name="list")
+    async def remind_list(self, ctx):
+        reminders = self.reminders[ctx.author.id].copy()
+        formatted_reminders: list[str] = []
+
+        for index, reminder in enumerate(reminders):
+            formatted_reminders.append(
+                "`{0}` {1}\n*Delivered <t:{2}:R>*".format(
+                    index, shorten(reminder.content, 50), int(reminder.end_time.timestamp())
+                ))
+        menu = Paginator.from_iterable(
+            formatted_reminders or ["No reminders"],
+            per_page=5,
+            use_embed=True
+        )
+        await menu.start(ctx)
+
+    @remind.command(name="cancel")
+    async def remind_cancel(self, ctx, *indices: Union[int, str]):
+        if "~" in indices:
+            reminders = self.reminders[ctx.author.id].copy()
+        else:
+            indices = [*map(str, indices)]  # Need to cast to str to filter any non-integers
+            try:
+                reminders = [self.reminders[ctx.author.id][index] for index in map(
+                    int, filter(str.isdigit, indices))]
+            except IndexError:
+                raise IndexError("One or more of the provided indices is invalid.")
+
+        for reminder in reminders:
+            await reminder.delete()
+        await ctx.send(f"Successfully cancelled {len(reminders)} reminders!")
 
 
 def setup(bot: neo.Neo):
