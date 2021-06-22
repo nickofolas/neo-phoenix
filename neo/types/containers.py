@@ -60,6 +60,9 @@ class RecordContainer(metaclass=ABCMeta):
         return "<{0.__class__.__name__}>".format(self)
 
     def __setattr__(self, attribute, value):
+        if attribute not in self.__slots__:
+            raise AttributeError("{0.__class__.__name__!r} object has no attribute {1!r}".format(
+                self, attribute))
         if getattr(self, "ready", False):
             asyncio.create_task(self.update_relation(attribute, value))
 
@@ -118,7 +121,8 @@ class NeoUser(RecordContainer):
 
     async def reset_attribute(self, attribute):
         if attribute not in self.__slots__:
-            raise ValueError("Invalid attribute provided")
+            raise AttributeError("{0.__class__.__name__!r} object has no attribute {1!r}".format(
+                self, attribute))
 
         value = await self.pool.fetchval(
             f"""
@@ -156,7 +160,8 @@ class NeoServer(RecordContainer):
 
     async def reset_attribute(self, attribute):
         if attribute not in self.__slots__:
-            raise ValueError("Invalid attribute provided")
+            raise AttributeError("{0.__class__.__name__!r} object has no attribute {1!r}".format(
+                self, attribute))
 
         value = await self.pool.fetchval(
             f"""
