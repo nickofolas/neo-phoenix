@@ -74,7 +74,7 @@ class Devel(neo.Addon):
             await menu.start(ctx, as_reply=True)
 
     @commands.command(name="sql")
-    async def dev_sql(self, ctx, *, query: str):
+    async def dev_sql(self, ctx, *, query: CodeblockConverter):
         """Perform an SQL query"""
 
         data = await self.bot.db.fetch(query)
