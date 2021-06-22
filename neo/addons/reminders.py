@@ -129,7 +129,7 @@ class Reminders(neo.Addon):
         if not self.bot.get_profile(ctx.author.id):
             raise commands.CommandInvokeError(AttributeError(
                 "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile init` command."
+                "You can fix this with the `profile create` command."
             ))
         return True
 
@@ -243,7 +243,7 @@ class Reminders(neo.Addon):
 
         for index, reminder in enumerate(reminders):
             formatted_reminders.append(
-                "`{0}` {1}\nTriggers <t:{2}:R>".format(
+                "`{0}` {1}\n> Triggers <t:{2}:R>".format(
                     index, shorten(reminder.content, 50), int(reminder.end_time.timestamp())
                 ))
         menu = Paginator.from_iterable(

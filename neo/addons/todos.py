@@ -55,7 +55,7 @@ class Todos(neo.Addon):
         if not self.bot.get_profile(ctx.author.id):
             raise commands.CommandInvokeError(AttributeError(
                 "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile init` command."
+                "You can fix this with the `profile create` command."
             ))
         return True
 

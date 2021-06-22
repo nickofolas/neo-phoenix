@@ -1,3 +1,4 @@
+from operator import is_
 import neo
 from discord.ext import commands
 from neo.modules import Paginator
@@ -21,7 +22,7 @@ def is_registered_guild():
         if not ctx.bot.get_server(ctx.guild.id):
             raise commands.CommandInvokeError(AttributeError(
                 "Looks like this server doesn't have an existing config entry. "
-                "You can fix this with the `server init` command."
+                "You can fix this with the `server create` command."
             ))
         return True
     return commands.check(predicate)
@@ -64,14 +65,13 @@ class ServerSettings(neo.Addon):
         return True
 
     @commands.group(invoke_without_command=True, ignore_extra=False)
-    @is_registered_guild()
     async def server(self, ctx):
         """
         Displays an overview of your server's settings
 
         Descriptions of the settings are also provided here
         """
-
+        await is_registered_guild().predicate(ctx)
         server = self.bot.get_server(ctx.guild.id)
         embeds = []
 
@@ -124,8 +124,8 @@ class ServerSettings(neo.Addon):
         self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send(f"Setting `{setting}` has been reset!")
 
-    @server.command(name="init")
-    async def server_init(self, ctx):
+    @server.command(name="create")
+    async def server_create(self, ctx):
         """
         Creates a config entry for the server
 

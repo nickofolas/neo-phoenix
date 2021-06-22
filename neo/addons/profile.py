@@ -30,7 +30,7 @@ def is_registered_profile():
         if not ctx.bot.get_profile(ctx.author.id):
             raise commands.CommandInvokeError(AttributeError(
                 "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile init` command."
+                "You can fix this with the `profile create` command."
             ))
         return True
     return commands.check(predicate)
@@ -150,8 +150,8 @@ class Profile(neo.Addon):
             )
         await ctx.send(embed=embed)
 
-    @profile.command(name="init")
-    async def profile_init(self, ctx):
+    @profile.command(name="create")
+    async def profile_create(self, ctx):
         """Creates your neo profile!"""
 
         if self.bot.get_profile(ctx.author.id):
