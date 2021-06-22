@@ -1,9 +1,11 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
 import discord
 import neo
+from discord.ext import commands
 
 
 @dataclass
@@ -16,7 +18,7 @@ class Reminder:
     bot: neo.Neo
 
     def __post_init__(self):
-        self.bot.loop.create_task(self.wait())
+        self.wait_task = self.bot.loop.create_task(self.wait())
 
     @property
     def channel(self) -> Union[discord.TextChannel, discord.DMChannel]:
@@ -64,6 +66,8 @@ class Reminder:
             return
 
     async def delete(self):
+        """Remove this reminder from the database"""
+        self.wait_task.cancel()
         await self.bot.db.execute(
             """
             DELETE FROM
@@ -79,3 +83,29 @@ class Reminder:
             self.content,
             self.end_time
         )
+
+
+class Reminders(neo.Addon):
+    """Contains everything related to reminders"""
+
+    def __init__(self, bot: neo.Neo):
+        self.bot = bot
+        self.reminders: dict[int, list[Reminder]] = defaultdict(list)
+
+        bot.loop.create_task(self.__ainit__())
+
+    async def __ainit__(self):
+        await self.bot.wait_until_ready()
+
+        for record in await self.bot.db.fetch("SELECT * FROM reminders"):
+            reminder = Reminder(bot=self.bot, **record)
+            self.reminders[record["user_id"]].append(reminder)
+
+    @commands.Cog.listener("on_profile_delete")
+    async def handle_deleted_profile(self, user_id: int):
+        for reminder in self.reminders.pop(user_id, []):
+            await reminder.delete()
+
+
+def setup(bot: neo.Neo):
+    bot.add_cog(Reminders(bot))
