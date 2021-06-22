@@ -21,15 +21,6 @@ class MentionConverter(commands.Converter):
         return int(EXTRACT_MENTION_REGEX.match(argument)[1])
 
 
-class PartialEmojiStrConverter(commands.PartialEmojiConverter):
-    async def convert(self, ctx, argument):
-        try:
-            emoji = await super().convert(ctx, argument)
-        except commands.PartialEmojiConversionFailure:
-            emoji = argument
-        return str(emoji)
-
-
 class TimezoneConverter(commands.Converter):
     async def convert(self, ctx, argument: str):
         try:

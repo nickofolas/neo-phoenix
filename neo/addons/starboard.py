@@ -10,7 +10,7 @@ from discord import utils
 from discord.ext import commands
 from neo.modules import Paginator
 from neo.tools import convert_setting
-from neo.types.converters import PartialEmojiStrConverter, max_days_converter
+from neo.types.converters import max_days_converter
 
 SETTINGS_MAPPING = {
     "channel": {
@@ -30,7 +30,7 @@ SETTINGS_MAPPING = {
         "description": None
     },
     "emoji": {
-        "converter": PartialEmojiStrConverter(),
+        "converter": lambda em: str(discord.PartialEmoji.from_str(em)),
         "description": None
     }
 }
@@ -59,18 +59,16 @@ class Starboard:
     threshold: int
     star_format: str
     max_days: int
-    emoji: str
+    emoji: discord.PartialEmoji
     ignored: list[int]
 
     cached_stars: dict[int, Star] = field(init=False)
     lock: asyncio.Lock = field(init=False)
-    emoji_partial: discord.PartialEmoji = field(init=False)
     ready: bool = field(init=False)
 
     def __post_init__(self):
         self.cached_stars = {}
         self.lock = asyncio.Lock()
-        self.emoji_partial = discord.PartialEmoji.from_str(self.emoji)
         self.ready = False
 
         for star in self.stars:
@@ -202,7 +200,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             "threshold": starboard_settings["threshold"],
             "star_format": starboard_settings["star_format"],
             "max_days": starboard_settings["max_days"],
-            "emoji": starboard_settings["emoji"],
+            "emoji": discord.PartialEmoji.from_str(starboard_settings["emoji"]),
             "ignored": starboard_settings["ignored"]
         }
         return Starboard(**kwargs)
@@ -236,7 +234,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
     @staticmethod
     def reaction_check(starboard: Starboard, payload):
-        return payload.emoji == starboard.emoji_partial
+        return payload.emoji == starboard.emoji
 
     @commands.Cog.listener("on_raw_reaction_add")
     @commands.Cog.listener("on_raw_reaction_remove")
@@ -254,7 +252,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             )
             reaction_count = getattr(
                 utils.find(
-                    lambda r: str(r.emoji) == starboard.emoji,
+                    lambda r: r.emoji == starboard.emoji,
                     message.reactions
                 ),
                 "count",
