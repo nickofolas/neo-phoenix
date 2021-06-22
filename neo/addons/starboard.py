@@ -30,7 +30,7 @@ SETTINGS_MAPPING = {
         "description": None
     },
     "emoji": {
-        "converter": lambda em: str(discord.PartialEmoji.from_str(em)),
+        "converter": discord.PartialEmoji.from_str,
         "description": None
     }
 }
@@ -413,6 +413,9 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         starboard = self.starboards.get(ctx.guild.id)
         setattr(starboard, setting, value)
+
+        if setting == "emoji":
+            value = str(value)
         await self.bot.db.execute(
             f"""
             UPDATE starboards
