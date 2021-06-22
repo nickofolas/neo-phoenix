@@ -129,8 +129,9 @@ class ServerSettings(neo.Addon):
         """
         Creates a config entry for the server
 
-        Generally, this command doesn't need to be executed. If it is needed, something
-        may have gone wrong internally. Consider reporting the issue?
+        Run this command when neo phoenix first
+        joins your server, so you can start
+        configuring your server
         """
 
         if self.bot.get_server(ctx.guild.id):
