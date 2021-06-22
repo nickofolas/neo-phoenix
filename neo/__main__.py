@@ -30,6 +30,7 @@ guild = Patcher(discord.Guild)
 gateway = Patcher(discord.gateway.DiscordWebSocket)
 group = Patcher(commands.Group)
 client = Patcher(discord.Client)
+message = Patcher(discord.Message)
 
 
 @guild.attribute()
@@ -71,10 +72,21 @@ def get_user(self, id, *, as_partial=False):
     return user
 
 
+@message.attribute()
+async def add_reaction(self, emoji):
+    emoji = discord.message.convert_emoji_reaction(emoji)
+    try:
+        await self._state.http.add_reaction(self.channel.id, self.id, emoji)
+    except discord.HTTPException as e:
+        if e.code == 90001:
+            return  # Ignore errors from trying to react to blocked users
+        raise e  # If not 90001, re-raise
+
 guild.patch()
 gateway.patch()
 group.patch()
 client.patch()
+message.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot
