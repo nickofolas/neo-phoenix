@@ -4,7 +4,7 @@ import discord
 import neo
 from discord.ext import commands
 from neo.modules import Paginator, args, cse, dictionary
-from neo.types.converters import MentionConverter
+from neo.types.converters import mention_converter
 
 DELTA_FORMAT = "{0.months} months and {0.days} days ago"
 BADGE_MAPPING = {
@@ -124,7 +124,7 @@ class Utility(neo.Addon):
         await menu.start(ctx)
 
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
-    async def avatar_command(self, ctx, *, user: Union[int, MentionConverter] = None):
+    async def avatar_command(self, ctx, *, user: Union[int, mention_converter] = None):
         """Retrieves the avatar of yourself, or a specified user"""
 
         user = await self.bot.fetch_user(user) if user else ctx.author
@@ -137,7 +137,7 @@ class Utility(neo.Addon):
         await ctx.send(embed=embed)
 
     @commands.command(name="userinfo", aliases=["ui"])
-    async def userinfo_command(self, ctx, *, user: Union[MentionConverter, int, discord.Member] = None):
+    async def userinfo_command(self, ctx, *, user: Union[mention_converter, int, discord.Member] = None):
         """Retrieves information of yourself, or a specified user"""
 
         if isinstance(user, (int, type(None))):

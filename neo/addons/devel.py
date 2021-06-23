@@ -1,9 +1,9 @@
 import neo
 from discord.ext import commands
-from neo.modules.eval import Eval, env_from_context, format_exception
+from neo.modules.eval import Eval, env_from_context
 from neo.modules.paginator import Pages, Paginator
-from neo.types.converters import CodeblockConverter
-from neo.types.formatters import Table
+from neo.types.converters import codeblock_converter
+from neo.types.formatters import Table, format_exception
 
 
 class Devel(neo.Addon):
@@ -41,10 +41,10 @@ class Devel(neo.Addon):
         await ctx.send(f"Cleaned {len(purged)} message(s).", delete_after=5)
 
     @commands.command(name="eval", aliases=["e"])
-    async def dev_eval(self, ctx, *, code: CodeblockConverter):
+    async def dev_eval(self, ctx, *, code: codeblock_converter):
         """Executes some code, retaining the result"""
 
-        (environment := env_from_context(ctx)).update(**self._eval_scope | globals())
+        (environment := env_from_context(ctx)).update(**(self._eval_scope | globals()))
 
         pages = Pages(
             "\r",
@@ -69,12 +69,12 @@ class Devel(neo.Addon):
 
             await ctx.message.add_reaction("\U00002611")
 
-        except Exception as e:
+        except BaseException as e:  # Safely handle all errors
             menu.pages.append("\n{}".format(format_exception(e)))
             await menu.start(ctx, as_reply=True)
 
     @commands.command(name="sql")
-    async def dev_sql(self, ctx, *, query: CodeblockConverter):
+    async def dev_sql(self, ctx, *, query: codeblock_converter):
         """Perform an SQL query"""
 
         data = await self.bot.db.fetch(query)

@@ -1,33 +1,28 @@
 import re
 import zoneinfo
 
-from discord.ext import commands
-
 CODEBLOCK_REGEX = re.compile(r"^\w*\n", re.I)
 EXTRACT_MENTION_REGEX = re.compile(r"<@!?(\d+)>")
 
 
-class CodeblockConverter(commands.Converter):
-    async def convert(self, ctx, argument):
-        new = None
-        if all([argument.startswith("`"), argument.endswith("`")]):
-            new = argument.strip("`")
-            return re.sub(CODEBLOCK_REGEX, "", new)
-        return argument
+def codeblock_converter(codeblock: str) -> str:
+    new = None
+    if all([codeblock.startswith("`"), codeblock.endswith("`")]):
+        new = codeblock.strip("`")
+        return re.sub(CODEBLOCK_REGEX, "", new)
+    return codeblock
 
 
-class MentionConverter(commands.Converter):
-    async def convert(self, ctx, argument):
-        return int(EXTRACT_MENTION_REGEX.match(argument)[1])
+def timezone_converter(timezone: str) -> str:
+    try:
+        zone = zoneinfo.ZoneInfo(timezone)
+    except zoneinfo.ZoneInfoNotFoundError:
+        raise ValueError("Provided timezone was invalid.")
+    return str(zone)
 
 
-class TimezoneConverter(commands.Converter):
-    async def convert(self, ctx, argument: str):
-        try:
-            zone = zoneinfo.ZoneInfo(argument)
-        except zoneinfo.ZoneInfoNotFoundError:
-            raise ValueError("Provided timezone was invalid.")
-        return str(zone)
+def mention_converter(mention: str) -> int:
+    return int(EXTRACT_MENTION_REGEX.match(mention)[1])
 
 
 def timeout_converter(timeout: str) -> int:

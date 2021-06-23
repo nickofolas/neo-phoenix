@@ -5,8 +5,8 @@ import neo
 from discord.ext import commands
 from neo.modules import Paginator
 from neo.tools import convert_setting
-from neo.types.converters import (MentionConverter, TimezoneConverter,
-                                  timeout_converter)
+from neo.types.converters import (mention_converter, timeout_converter,
+                                  timezone_converter)
 
 SETTINGS_MAPPING = {
     "receive_highlights": {
@@ -14,7 +14,7 @@ SETTINGS_MAPPING = {
         "description": None
     },
     "timezone": {
-        "converter": TimezoneConverter(),
+        "converter": timezone_converter,
         "description": None
     },
     "hl_timeout": {
@@ -122,7 +122,7 @@ class Profile(neo.Addon):
         await ctx.send(f"Setting `{setting}` has been reset!")
 
     @commands.group(invoke_without_command=True)
-    async def profile(self, ctx, *, user: Union[int, MentionConverter] = None):
+    async def profile(self, ctx, *, user: Union[int, mention_converter] = None):
         """Displays the neo profile of yourself, or a specified user."""
         if user is None:
             await is_registered_profile().predicate(ctx)
