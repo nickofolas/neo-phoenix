@@ -1,4 +1,5 @@
 import logging
+import os
 
 import discord
 import toml
@@ -7,21 +8,23 @@ from discord.ext import commands
 from neo import Neo
 from neo.modules.args.commands import ArgCommand, ArgGroup
 from neo.tools import Patcher
+from neo.types.formatters import NeoLoggingFormatter
 from neo.types.partials import PartialUser
 
 # Sect: Logging
+if os.name == "nt":
+    os.system("color")  # Enable ANSI escapes on win32
 
-loggers = [logging.getLogger("discord"), logging.getLogger("neo")]
+loggers = [logging.getLogger("discord"),
+           logging.getLogger("neo")]
 
-formatter = logging.Formatter(
-    fmt="{asctime} [{levelname}/{module}] {message:<5}",
-    datefmt="%d/%m/%Y %H:%M:%S",
-    style="{",
-)
+formatter = NeoLoggingFormatter(
+    fmt="[{asctime}] [{levelname} {name} {funcName}] {message}")
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 
-[(logger.setLevel(logging.INFO), logger.addHandler(handler)) for logger in loggers]
+[(logger.setLevel(logging.INFO),
+  logger.addHandler(handler)) for logger in loggers]
 
 # /Sect: Logging
 # Sect: Monkeypatches

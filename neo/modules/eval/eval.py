@@ -6,10 +6,6 @@ import import_expression
 from .compiler import compile_all
 
 
-def format_exception(error):
-    return "".join(traceback.format_exception(type(error), error, error.__traceback__))
-
-
 def env_from_context(ctx):
     return {
         "ctx": ctx,

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 
 import discord
 from aiohttp import ClientSession
@@ -8,14 +9,13 @@ from discord.ext import commands
 
 from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
-from .types import Embed, containers, help_command, context
+from .types import Embed, containers, context, formatters, help_command
 
 log = logging.getLogger(__name__)
 
 
 class Neo(commands.Bot):
     def __init__(self, config, **kwargs):
-
         self.cfg = config
         self.session = None
         self.profiles: dict[int, containers.NeoUser] = {}
@@ -152,8 +152,12 @@ class Neo(commands.Bot):
 
         return commands.when_mentioned_or(self.cfg["bot"]["prefix"])(self, message)
 
+    async def on_error(self, error):
+        log.error("\n" + formatters.format_exception(sys.exc_info()))
+
     async def on_command_error(self, ctx, error):
         await ctx.send(repr(getattr(error, "original", error)))
+        log.error("\n" + formatters.format_exception(error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)
