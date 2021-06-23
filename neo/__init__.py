@@ -156,7 +156,7 @@ class Neo(commands.Bot):
         log.error("\n" + formatters.format_exception(sys.exc_info()))
 
     async def on_command_error(self, ctx, error):
-        await ctx.send(repr(getattr(error, "original", error)))
+        await ctx.send(getattr(error, "original", error))
         log.error("\n" + formatters.format_exception(error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
