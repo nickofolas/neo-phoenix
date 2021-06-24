@@ -36,7 +36,7 @@ class Neo(commands.Bot):
         self._async_ready = asyncio.Event()
         self.loop.create_task(self.__ainit__())
 
-    async def __ainit__(self):
+    async def __ainit__(self) -> None:
         self.session = ClientSession()
         self.db = await create_pool(**self.cfg["database"])
 
@@ -53,17 +53,17 @@ class Neo(commands.Bot):
         await self._async_ready.wait()
         await self._ready.wait()
 
-    async def verify_servers(self):
+    async def verify_servers(self) -> None:
         await self.wait_until_ready()
 
         for server_id in self.servers.copy().keys():
             if not self.get_guild(server_id):
                 await self.delete_server(server_id)
 
-    def get_profile(self, user_id):
+    def get_profile(self, user_id) -> containers.NeoUser:
         return self.profiles.get(user_id)
 
-    def get_server(self, server_id):
+    def get_server(self, server_id) -> containers.NeoServer:
         return self.servers.get(server_id)
 
     async def add_profile(self, user_id, *, record=None):
@@ -78,7 +78,6 @@ class Neo(commands.Bot):
                 """,
                 user_id
             )
-
         self.profiles[user_id] = containers.NeoUser(pool=self.db, **record)
         return self.get_profile(user_id)
 
@@ -107,7 +106,6 @@ class Neo(commands.Bot):
                 """,
                 server_id
             )
-
         self.servers[server_id] = containers.NeoServer(pool=self.db, **record)
         return self.get_server(server_id)
 
@@ -127,7 +125,6 @@ class Neo(commands.Bot):
     def run(self):
         for addon in self.cfg["addons"]:
             self.load_extension(addon)
-
         super().run(self.cfg["bot"]["token"])
 
     async def close(self):
@@ -156,7 +153,11 @@ class Neo(commands.Bot):
         log.error("\n" + formatters.format_exception(sys.exc_info()))
 
     async def on_command_error(self, ctx, error):
-        await ctx.send(getattr(error, "original", error))
+        real_error = getattr(error, "original", error)
+        if real_error.__class__.__name__ in self.cfg["bot"]["ignored_exceptions"]:
+            return  # Ignore exceptions specified in config
+
+        await ctx.send(real_error)
         log.error("\n" + formatters.format_exception(error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):

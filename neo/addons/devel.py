@@ -15,7 +15,9 @@ class Devel(neo.Addon):
         self._last_eval_result = None
 
     async def cog_check(self, ctx):
-        return await self.bot.is_owner(ctx.author)
+        if not await self.bot.is_owner(ctx.author):
+            raise commands.NotOwner("You do not own this bot.")
+        return True
 
     @commands.guild_only()
     @commands.command(name="cleanup", aliases=["clean"])
@@ -45,7 +47,6 @@ class Devel(neo.Addon):
         """Executes some code, retaining the result"""
 
         (environment := env_from_context(ctx)).update(**(self._eval_scope | globals()))
-
         pages = Pages(
             "\r",
             1500,

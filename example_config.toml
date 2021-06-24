@@ -21,6 +21,11 @@ prefix = "str"
 activity_name = "str"
 activity_type = "str"
 status = "str"
+ignored_exceptions = [
+    "str",
+    "str",
+    "str"
+]
 
 [database]
 user = "str"
