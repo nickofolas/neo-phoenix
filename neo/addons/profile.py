@@ -38,7 +38,6 @@ def is_registered_profile():
 
 class Profile(neo.Addon):
     """Contains everything needed for managing your neo profile"""
-
     def __init__(self, bot: neo.Neo):
         self.bot = bot
 
@@ -68,7 +67,6 @@ class Profile(neo.Addon):
 
         Descriptions of the settings are also provided here
         """
-
         profile = self.bot.get_profile(ctx.author.id)
         embeds = []
 
@@ -95,7 +93,6 @@ class Profile(neo.Addon):
 
         More information on the available settings and their functions is in the `settings` command
         """
-
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         profile = self.bot.get_profile(ctx.author.id)
         setattr(profile, setting, value)
@@ -110,7 +107,6 @@ class Profile(neo.Addon):
 
         Defaults can be found in the `settings` command
         """
-
         if not SETTINGS_MAPPING.get(setting):
             raise commands.BadArgument(
                 "That's not a valid setting! "
@@ -153,7 +149,6 @@ class Profile(neo.Addon):
     @profile.command(name="create")
     async def profile_create(self, ctx):
         """Creates your neo profile!"""
-
         if self.bot.get_profile(ctx.author.id):
             raise RuntimeError("You already have a profile!")
 
@@ -165,7 +160,6 @@ class Profile(neo.Addon):
     @is_registered_profile()
     async def profile_delete(self, ctx):
         """__Permanently__ deletes your neo profile"""
-
         if await ctx.prompt_user(
             "Are you sure you want to delete your profile?"
             "\nThis will delete your profile and all associated "

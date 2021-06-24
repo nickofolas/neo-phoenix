@@ -23,7 +23,6 @@ class Paginator:
     from_embeds(iterable, **kwargs)
         Creates a Paginator object from a list of Embeds
     """
-
     def __init__(self, pages):
         self.pages = pages
 

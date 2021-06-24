@@ -139,12 +139,13 @@ class Starboard:
 
 
 class StarboardAddon(neo.Addon, name="Starboard"):
-    """Manages your server's starboard
+    """
+    Manages your server's starboard
 
     If `starboard_enabled` is set to False in server
     settings, none of the commands from this category
-    will be accessible"""
-
+    will be accessible
+    """
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.ready = False
@@ -382,7 +383,6 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
         Descriptions of the settings are also provided here
         """
-
         starboard = self.starboards.get(ctx.guild.id)
         embeds = []
 
@@ -409,7 +409,6 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
         More information on the available settings and their functions is in the `starboard` command
         """
-
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         starboard = self.starboards.get(ctx.guild.id)
         setattr(starboard, setting, value)

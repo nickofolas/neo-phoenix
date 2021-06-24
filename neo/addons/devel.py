@@ -23,7 +23,6 @@ class Devel(neo.Addon):
     @commands.command(name="cleanup", aliases=["clean"])
     async def dev_cleanup(self, ctx, amount: int = 5):
         """Cleanup the bot's messages from a channel"""
-
         can_manage = ctx.channel.permissions_for(ctx.me).manage_messages
         if can_manage:
             def check(message):
@@ -45,7 +44,6 @@ class Devel(neo.Addon):
     @commands.command(name="eval", aliases=["e"])
     async def dev_eval(self, ctx, *, code: codeblock_converter):
         """Executes some code, retaining the result"""
-
         (environment := env_from_context(ctx)).update(**(self._eval_scope | globals()))
         pages = Pages(
             "\r",
@@ -77,7 +75,6 @@ class Devel(neo.Addon):
     @commands.command(name="sql")
     async def dev_sql(self, ctx, *, query: codeblock_converter):
         """Perform an SQL query"""
-
         data = await self.bot.db.fetch(query)
         if len(data) == 0:
             return await ctx.send("Query executed successfully")

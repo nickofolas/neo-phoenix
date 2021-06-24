@@ -4,7 +4,6 @@ class Patcher:
 
     Initialise class with a target, which can be a module, or a class, etc
     """
-
     def __init__(self, target):
         self.target = target
         self._patches = {}

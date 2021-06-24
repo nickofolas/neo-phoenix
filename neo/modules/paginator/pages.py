@@ -30,7 +30,6 @@ class Pages:
     pages
         Returns all pages
     """
-
     def __init__(
         self,
         items,
@@ -116,7 +115,6 @@ class EmbedPages(Pages):
     """
     A subclass of Pages that takes an iterable of Embeds as its input.
     """
-
     def __init__(self, items):
         super().__init__(items, 1)
 

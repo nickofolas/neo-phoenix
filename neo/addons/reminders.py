@@ -99,7 +99,6 @@ class Reminder:
 
 class Reminders(neo.Addon):
     """Contains everything related to reminders"""
-
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.reminders: dict[int, list[Reminder]] = defaultdict(list)

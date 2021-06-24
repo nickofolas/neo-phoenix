@@ -103,7 +103,6 @@ class Highlight:
 
 class Highlights(neo.Addon):
     """Commands for managing highlights"""
-
     def __init__(self, bot: neo.Neo):
         self.bot = bot
 
@@ -179,7 +178,6 @@ class Highlights(neo.Addon):
     @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
         """List your highlights"""
-
         description = ""
         user_highlights = self.get_user_highlights(ctx.author.id)
 
@@ -200,7 +198,6 @@ class Highlights(neo.Addon):
 
         Highlights will notify you when the word/phrase you add is mentioned
         """
-
         if len(content) <= 1:
             raise ValueError("Highlights must contain more than 1 character.")
 
@@ -228,7 +225,6 @@ class Highlights(neo.Addon):
     @highlight.command(name="remove", aliases=["rm"])
     async def highlight_remove(self, ctx, hl_index: int):
         """Remove a **single** highlight by its index"""
-
         to_remove = [*filter(
             lambda hl: hl.user_id == ctx.author.id,
             self.highlights
@@ -268,7 +264,6 @@ class Highlights(neo.Addon):
 
         A variable number of IDs can be provided to this command
         """
-
         profile = self.bot.get_profile(ctx.author.id)
 
         if not ids:
@@ -299,7 +294,6 @@ class Highlights(neo.Addon):
 
         A variable number of IDs can be provided to this command
         """
-
         profile = self.bot.get_profile(ctx.author.id)
 
         self.perform_blocklist_action(profile=profile, ids=ids, action="unblock")

@@ -54,7 +54,6 @@ class NeoHelpCommand(commands.HelpCommand):
         to read the explanation for the argument at the bottom of the command's
         help page.
         """
-
         super().__init__(command_attrs={"help": description})
 
     async def send_bot_help(self, mapping):

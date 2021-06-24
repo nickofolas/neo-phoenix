@@ -33,7 +33,6 @@ class TodoItem:
 
 class Todos(neo.Addon):
     """Commands for managing a todo list"""
-
     def __init__(self, bot):
         self.bot = bot
         self.todos = defaultdict(list)
@@ -62,7 +61,6 @@ class Todos(neo.Addon):
     @commands.group(invoke_without_command=True)
     async def todo(self, ctx):
         """List your todos"""
-
         formatted_todos = []
 
         for index, todo in enumerate(self.todos[ctx.author.id]):
@@ -80,7 +78,6 @@ class Todos(neo.Addon):
     @todo.command(name="add")
     async def todo_add(self, ctx, *, content: str):
         """Add a new todo"""
-
         data = {
             "user_id": ctx.author.id,
             "content": content,
@@ -116,7 +113,6 @@ class Todos(neo.Addon):
 
         Passing `~` will remove all todos at once
         """
-
         if "~" in indices:
             todos = self.todos[ctx.author.id].copy()
             self.todos[ctx.author.id].clear()
@@ -144,7 +140,6 @@ class Todos(neo.Addon):
     @todo.command(name="view", aliases=["show"])
     async def todo_view(self, ctx, index: int):
         """View a todo by its listed index"""
-
         try:
             todo: TodoItem = self.todos[ctx.author.id][index]
         except IndexError:
@@ -167,7 +162,6 @@ class Todos(neo.Addon):
     @todo.command(name="edit")
     async def todo_edit(self, ctx, index: int, *, new_content: str):
         """Edit the content of a todo"""
-
         try:
             todo: TodoItem = self.todos[ctx.author.id][index]
         except IndexError:

@@ -30,7 +30,6 @@ def is_registered_guild():
 
 class ServerSettings(neo.Addon):
     """Contains everything needed for managing your server's settings"""
-
     def __init__(self, bot: neo.Neo):
         self.bot = bot
 
@@ -98,7 +97,6 @@ class ServerSettings(neo.Addon):
 
         More information on the available settings and their functions is in the `server` command
         """
-
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         server = self.bot.get_server(ctx.guild.id)
         setattr(server, setting, value)
@@ -113,7 +111,6 @@ class ServerSettings(neo.Addon):
 
         Defaults can be found in the `server` command
         """
-
         if not SETTINGS_MAPPING.get(setting):
             raise commands.BadArgument(
                 "That's not a valid setting! "
@@ -133,7 +130,6 @@ class ServerSettings(neo.Addon):
         joins your server, so you can start
         configuring your server
         """
-
         if self.bot.get_server(ctx.guild.id):
             raise RuntimeError("Your server already has a config entry!")
 
@@ -145,7 +141,6 @@ class ServerSettings(neo.Addon):
     @is_registered_guild()
     async def server_delete(self, ctx):
         """__Permanently__ deletes this server's config"""
-
         if await ctx.prompt_user(
             "Are you sure you want to delete the config?"
             "\nThis will delete your config and all associated "

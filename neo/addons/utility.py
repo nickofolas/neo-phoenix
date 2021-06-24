@@ -53,7 +53,6 @@ def _definitions_to_embed(word):
 
 class Utility(neo.Addon):
     """Various utility commands"""
-
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.bot.loop.create_task(self.__ainit__())
@@ -82,7 +81,6 @@ class Utility(neo.Addon):
     @args.command(name="google", aliases=["g"])
     async def google_command(self, ctx, *, query):
         """Search Google for a query"""
-
         resp = await self.google.search(
             " ".join(query.query),
             image=query.image)
@@ -116,7 +114,6 @@ class Utility(neo.Addon):
     @args.command(name="define")
     async def dictionary_command(self, ctx, *, query):
         """Search the dictionary for a word's definition"""
-
         resp = await self.dictionary.define(
             " ".join(query.word),
             lang_code=query.lang_code
@@ -134,7 +131,6 @@ class Utility(neo.Addon):
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
     async def avatar_command(self, ctx, *, user: Union[int, mention_converter] = None):
         """Retrieves the avatar of yourself, or a specified user"""
-
         user = await self.bot.fetch_user(user) if user else ctx.author
         url = user.avatar
 
@@ -147,7 +143,6 @@ class Utility(neo.Addon):
     @commands.command(name="userinfo", aliases=["ui"])
     async def userinfo_command(self, ctx, *, user: Union[mention_converter, int, discord.Member] = None):
         """Retrieves information of yourself, or a specified user"""
-
         if isinstance(user, (int, type(None))):
             try:
                 user = await ctx.guild.fetch_member(user or ctx.author.id)
