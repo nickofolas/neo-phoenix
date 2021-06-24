@@ -8,6 +8,9 @@ addons = [
     "str",
     "str"
 ]
+upstream_url = "str"
+invite_url = "str"
+privacy_info = "str"
 
 [bot]
 token = "str"

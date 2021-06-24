@@ -1,5 +1,4 @@
 import re
-from collections import defaultdict
 from functools import cached_property
 from operator import attrgetter
 
@@ -107,7 +106,7 @@ class Highlights(neo.Addon):
         self.bot = bot
 
         self.highlights = []
-        self.grace_periods: dict[int, TimedSet] = {}  # TODO: Configurable timeouts?
+        self.grace_periods: dict[int, TimedSet] = {}
 
         self.bot.loop.create_task(self.__ainit__())
 

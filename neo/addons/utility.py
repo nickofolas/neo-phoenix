@@ -1,3 +1,4 @@
+from sys import version as py_version
 from types import SimpleNamespace
 from typing import Union
 
@@ -51,10 +52,27 @@ def _definitions_to_embed(word):
             yield embed
 
 
+class InfoButtons(discord.ui.View):
+    def __init__(self, privacy_embed: neo.Embed):
+        self.privacy_embed = privacy_embed
+        super().__init__(timeout=60)
+
+    @discord.ui.button(label="View Privacy information", row=1)
+    async def callback(self, button, interaction: discord.Interaction):
+        await interaction.response.defer()
+        await interaction.followup.send(
+            embed=self.privacy_embed, ephemeral=True
+        )
+
+
 class Utility(neo.Addon):
     """Various utility commands"""
     def __init__(self, bot: neo.Neo):
         self.bot = bot
+        self.privacy_embed = neo.Embed(
+            title="Privacy Information",
+            description=bot.cfg["privacy_info"]
+        )
         self.bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
@@ -67,6 +85,7 @@ class Utility(neo.Addon):
             session=self.bot.session
         )
         self.dictionary = dictionary.Define(self.bot.session)
+        self.appinfo = await self.bot.application_info()
 
     @args.add_arg(
         "query",
@@ -141,7 +160,7 @@ class Utility(neo.Addon):
         await ctx.send(embed=embed)
 
     @commands.command(name="userinfo", aliases=["ui"])
-    async def userinfo_command(self, ctx, *, user: Union[mention_converter, int, discord.Member] = None):
+    async def user_info_command(self, ctx, *, user: Union[mention_converter, int, discord.Member] = None):
         """Retrieves information of yourself, or a specified user"""
         if isinstance(user, (int, type(None))):
             try:
@@ -169,6 +188,44 @@ class Utility(neo.Addon):
         embed.description = description
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="info", aliases=["about"])
+    async def neo_info_command(self, ctx):
+        """Show information about neo phoenix"""
+        embed = neo.Embed(
+            description=(
+                "**neo Version** {0}"
+                "\n**Server Count** {1}"
+                "\n**Startup Time** <t:{2}>"
+                "\n\n**Python Version** {3}"
+                "\n**Discord.py Version** {4}"
+            ).format(
+                neo.__version__,
+                len(self.bot.guilds),
+                self.bot.boot_time,
+                py_version.split(" ", 1)[0],
+                discord.__version__
+            )
+        )
+        embed.set_thumbnail(url=self.bot.user.avatar)
+        embed.set_author(
+            name=f"Developed by {self.appinfo.owner}",
+            icon_url=self.appinfo.owner.avatar
+        )
+
+        buttons = InfoButtons(self.privacy_embed)
+        buttons.add_item(discord.ui.Button(
+            url=self.bot.cfg["invite_url"],
+            label="Invite neo phoenix",
+            style=discord.ButtonStyle.secondary,
+            disabled=True
+        ))
+        buttons.add_item(discord.ui.Button(
+            url=self.bot.cfg["upstream_url"],
+            label="Source Code",
+            style=discord.ButtonStyle.secondary
+        ))
+        await ctx.send(embed=embed, view=buttons)
 
 
 def setup(bot):

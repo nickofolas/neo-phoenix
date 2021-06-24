@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import sys
+from time import time
 
 import discord
 from aiohttp import ClientSession
@@ -11,12 +12,15 @@ from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import Embed, containers, context, formatters, help_command
 
+__version__ = "0.5.0"
+
 log = logging.getLogger(__name__)
 
 
 class Neo(commands.Bot):
     def __init__(self, config, **kwargs):
         self.cfg = config
+        self.boot_time = int(time())
         self.session = None
         self.profiles: dict[int, containers.NeoUser] = {}
         self.servers: dict[int, containers.NeoServer] = {}
