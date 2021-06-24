@@ -8,7 +8,6 @@ from typing import Optional
 
 from neo.tools import try_or_none
 
-CURRENT_YEAR = datetime.now().year
 ABSOLUTE_FORMATS = {  # Use a set so %H:%M doesn't get duplicated
     "%b %d, %Y",
     "%H:%M",
