@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from typing import Union
 
 import discord
@@ -53,9 +54,8 @@ def _definitions_to_embed(word):
 class Utility(neo.Addon):
     """Various utility commands"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: neo.Neo):
         self.bot = bot
-
         self.bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
@@ -93,6 +93,14 @@ class Utility(neo.Addon):
 
         menu = Paginator.from_embeds(embeds)
         await menu.start(ctx)
+
+    @commands.command(name="image", aliases=["i"])
+    async def google_image_shortcut(self, ctx, *, query):
+        """A shortcut for `google --image <query>`"""
+        await self.google_command(
+            ctx, query=SimpleNamespace(
+                query=query, image=True
+            ))
 
     @args.add_arg(
         "word",
