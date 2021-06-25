@@ -1,3 +1,4 @@
+import shlex
 from inspect import isawaitable
 
 import discord
@@ -8,7 +9,7 @@ from .parser import Parser
 
 class ArgCommand(commands.Command):
 
-    def __init__(self, *args, split_method=str, **kwargs):
+    def __init__(self, *args, split_method=shlex, **kwargs):
         self.split_method = split_method
 
         super().__init__(*args, **kwargs)
@@ -19,7 +20,6 @@ class ArgCommand(commands.Command):
             return self.usage
 
         args = []
-
         for arg in reversed(self.callback.parser._actions):
             argname = f"--{arg.dest}" if arg.option_strings else arg.dest
 
@@ -36,7 +36,6 @@ class ArgCommand(commands.Command):
         return " ".join(args)
 
     def get_args_help(self):
-
         for action in reversed(self.callback.parser._actions):
             if not hasattr(action, "dest"):  # Logically this shouldn't happen
                 continue
@@ -44,7 +43,6 @@ class ArgCommand(commands.Command):
             yield (action.dest, getattr(action, "help", None))
 
     async def _parse_arguments(self, ctx):
-
         self.callback.parser.ctx = ctx
 
         ctx.args = [ctx] if self.cog is None else [self.cog, ctx]
@@ -81,36 +79,33 @@ class ArgCommand(commands.Command):
                 try:
                     to_parse = self.split_method.split(to_parse, " ")
                     parsed = self.callback.parser.parse_args(to_parse)
-                except Exception as e:
+                except Exception:
                     kwargs[name] = None
-                    await self.dispatch_error(ctx, e)
-                    return
-                else:
-                    for k, v in vars(parsed).items():
+                    raise
 
-                        if not isinstance(v, list):
-                            if isawaitable(v):
-                                try:
-                                    vars(parsed)[k] = await v
-                                except Exception as e:
-                                    await self.dispatch_error(ctx, e)
-                            continue
+                for k, v in vars(parsed).items():
+                    if not isinstance(v, list):
+                        if isawaitable(v):
+                            try:
+                                vars(parsed)[k] = await v
+                            except Exception as e:
+                                await self.dispatch_error(ctx, e)
+                        continue
 
-                        values = []
-                        for result in v:
+                    values = []
+                    for result in v:
+                        if isawaitable(result):
+                            try:
+                                values.append(await result)
+                                continue
+                            except Exception as e:
+                                await self.dispatch_error(ctx, e)
+                                return
 
-                            if isawaitable(result):
-                                try:
-                                    values.append(await result)
-                                    continue
-                                except Exception as e:
-                                    await self.dispatch_error(ctx, e)
-                                    return
+                        values.append(result)
+                    vars(parsed)[k] = values
 
-                            values.append(result)
-                        vars(parsed)[k] = values
-
-                    kwargs[name] = parsed
+                kwargs[name] = parsed
 
             except StopIteration:
                 raise discord.ClientException(fmt.format(self))

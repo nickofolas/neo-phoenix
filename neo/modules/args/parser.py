@@ -1,6 +1,13 @@
 from argparse import ArgumentError, ArgumentParser
 
-from discord.ext.commands import Converter
+from discord.ext.commands import (CommandError, Converter,
+                                  MissingRequiredArgument)
+
+
+class MockParam(str):
+    @property
+    def name(self):
+        return str(self)
 
 
 class Parser(ArgumentParser):
@@ -9,7 +16,10 @@ class Parser(ArgumentParser):
         kwargs.setdefault("add_help", False)
         super().__init__(*args, **kwargs)
 
-    def error(self, message, _error=RuntimeError):
+    def error(self, message, _error=CommandError):
+        if message.startswith("the following arguments are required"):
+            _error = MissingRequiredArgument
+            message = MockParam(message.split(": ")[-1])
         raise _error(message)
 
     def _get_value(self, action, arg_string):
@@ -27,6 +37,6 @@ class Parser(ArgumentParser):
                 result = converter(arg_string)
 
         except Exception as e:
-            raise e
+            self.error(str(e))
 
         return result

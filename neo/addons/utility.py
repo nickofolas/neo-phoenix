@@ -89,8 +89,8 @@ class Utility(neo.Addon):
 
     @args.add_arg(
         "query",
-        nargs="*",
-        help="The query which will searched for on Google"
+        nargs="+",
+        help="The query which will searched for on Google",
     )
     @args.add_arg(
         "-i", "--image",
@@ -121,12 +121,11 @@ class Utility(neo.Addon):
 
     @args.add_arg(
         "word",
-        nargs="*",
+        nargs="+",
         help="The word to search a dictionary for"
     )
     @args.add_arg(
         "-lc", "--lang_code",
-        nargs="?",
         default="en",
         help="The language code of the dictionary to search"
     )

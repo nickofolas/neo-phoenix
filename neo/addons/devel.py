@@ -1,5 +1,3 @@
-import shlex
-
 import neo
 from discord.ext import commands
 from neo.modules import args
@@ -102,8 +100,8 @@ class Devel(neo.Addon):
         default="reload",
         help="Controls the action to perform"
     )
-    @args.add_arg("addons", nargs="*", default="~", help="Addons to action")
-    @args.command(name="addon", split_method=shlex)
+    @args.add_arg("addons", nargs="+", help="Addons to action, `~ = all`")
+    @args.command(name="addon")
     async def dev_addon(self, ctx, *, args):
         """
         Manage addons
@@ -111,13 +109,19 @@ class Devel(neo.Addon):
         It's not a great idea to unload everything
         """
         action = getattr(self.bot, f"{args.action}_extension")
-        if args.addons == "~":
+        failed = []
+        if "~" in args.addons:
             args.addons = self.bot.extensions.copy().keys()
         for addon in args.addons:
             try:
                 action(addon)
             except BaseException as e:
-                await ctx.send(format_exception(e))
+                failed.append("```py\n" + format_exception(e) + "\n```")
+
+        if failed:
+            menu = Paginator.from_iterable(failed, use_embed=True)
+            await menu.start(ctx)
+            return
         await ctx.message.add_reaction("\U00002611")
 
 

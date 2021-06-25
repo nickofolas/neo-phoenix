@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 
@@ -34,6 +35,8 @@ gateway = Patcher(discord.gateway.DiscordWebSocket)
 group = Patcher(commands.Group)
 client = Patcher(discord.Client)
 message = Patcher(discord.Message)
+missing_required = Patcher(commands.MissingRequiredArgument)
+argument_error = Patcher(argparse.ArgumentError)
 
 
 @guild.attribute()
@@ -85,11 +88,30 @@ async def add_reaction(self, emoji):
             return  # Ignore errors from trying to react to blocked users
         raise e  # If not 90001, re-raise
 
+
+@missing_required.attribute()
+def __init__(self, param):
+    self.param = param
+    super(commands.MissingRequiredArgument, self) \
+        .__init__(f'Missing required argument(s): `{param.name}`')
+
+
+@argument_error.attribute()
+def __str__(self):
+    if self.argument_name is None:
+        format = "{.message}"
+    else:
+        format = "Argument `{0.argument_name}`: {0.message}"
+    return format.format(self)
+
+
 guild.patch()
 gateway.patch()
 group.patch()
 client.patch()
 message.patch()
+missing_required.patch()
+argument_error.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot

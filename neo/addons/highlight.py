@@ -1,9 +1,7 @@
-import asyncio
 import re
 from collections import defaultdict
 from functools import cached_property
 from operator import attrgetter
-from typing import Optional
 
 import neo
 from discord import NotFound
