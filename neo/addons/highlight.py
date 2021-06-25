@@ -1,14 +1,24 @@
+import asyncio
 import re
+from collections import defaultdict
 from functools import cached_property
 from operator import attrgetter
+from typing import Optional
 
 import neo
 from discord import NotFound
 from discord.ext import commands
 from neo.modules import paginator
 from neo.types.containers import TimedSet
+from neo.types.timer import periodic
 
-DEFAULT_AVATARS = ["🔵", "⚫", "🟢", "🟠", "🔴"]
+DEFAULT_AVATARS = [
+    "<:def0:842552954389266442>",
+    "<:def1:842552984369496084>",
+    "<:def2:842553028581130260>",
+    "<:def3:842553081681543169>",
+    "<:def4:842553168105570304>"
+]
 MAX_TRIGGERS = 10
 
 
@@ -30,9 +40,8 @@ def format_hl_context(message, is_trigger=False):
 
 
 class Highlight:
-    def __init__(self, bot, *, content, user_id):
+    def __init__(self, bot: neo.Neo, *, content, user_id):
         self.bot = bot
-
         self.content = content
         self.user_id = user_id
 
@@ -50,7 +59,6 @@ class Highlight:
         if any([message.author.id == self.user_id,
                 message.author.bot]):
             return
-
         if self.bot.get_profile(self.user_id).receive_highlights is False:
             return  # Don't highlight users who have disabled highlight receipt
 
@@ -59,15 +67,12 @@ class Highlight:
                 "id", "guild.id", "channel.id", "author.id")
                ):
             return
-
         try:  # This lets us update the channel members and make sure the user exists
             member = await message.guild.fetch_member(self.user_id, cache=True)
         except NotFound:
             return
-
         if member not in message.channel.members:
             return
-
         if member in message.mentions:
             return  # Don't highlight users with messages they are mentioned in
 
@@ -75,22 +80,18 @@ class Highlight:
 
     async def to_send_kwargs(self, message):
         content = ""
-
-        for m in reversed(await message.channel.history(limit=5).flatten()):
-
-            formatted = format_hl_context(m, m.id == message.id)
-            if len(content + formatted) > 1500:  # Don't exceed embed limits
-                formatted = "{0.author.display_name}: *[Omitted due to length]*".format(m)
-
-            content += "{}\n".format(formatted)
+        for m in await message.channel.history(limit=5).flatten():
+            if len(content + m.content) > 1500:  # Don't exceed embed limits
+                m.content = "*[Omitted due to length]*"
+            formatted = format_hl_context(
+                m, self.matches(m.content) and m.id >= message.id)
+            content = f"{formatted}\n{content}"
 
         content += f"[Jump]({message.jump_url})"
-
         embed = neo.Embed(
             title="In {0.guild.name}/#{0.channel.name}".format(message),
             description=content
         )
-
         return {
             "content": "{0.author}: {0.content}".format(message)[:1500],
             "embed": embed
@@ -102,12 +103,12 @@ class Highlight:
 
 class Highlights(neo.Addon):
     """Commands for managing highlights"""
+
     def __init__(self, bot: neo.Neo):
         self.bot = bot
-
         self.highlights = []
         self.grace_periods: dict[int, TimedSet] = {}
-
+        self.queued_highlights: dict[int, dict] = defaultdict(dict)
         self.bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
@@ -121,6 +122,11 @@ class Highlights(neo.Addon):
                 decay_time=profile.hl_timeout * 60
             )
 
+        self.send_queued_highlights.start()
+
+    def cog_unload(self):
+        self.send_queued_highlights.shutdown()
+
     def get_user_highlights(self, user_id):
         return [*filter(
             lambda hl: hl.user_id == user_id,
@@ -132,15 +138,21 @@ class Highlights(neo.Addon):
         if message.author.id in {hl.user_id for hl in self.highlights}:
             self.grace_periods[message.author.id].add(message.channel.id)
 
-        to_deliver = {}  # Collect all highlights so only one message is sent per user
         for hl in filter(lambda hl: hl.matches(message.content), self.highlights):
+            if message.channel.id in self.grace_periods[hl.user_id]:
+                continue
+            if not await hl.predicate(message):
+                continue
+            if not self.queued_highlights[message.channel.id] \
+                    .get(hl.user_id):
+                self.queued_highlights[message.channel.id][hl.user_id] = \
+                    (hl, message)
 
-            if await hl.predicate(message):
-                if message.channel.id in self.grace_periods[hl.user_id]:
-                    continue
-                to_deliver[hl.user_id] = (hl, message)
-
-        for hl, message in to_deliver.values():
+    @periodic(5)
+    async def send_queued_highlights(self):
+        queue = self.queued_highlights.copy()
+        self.queued_highlights.clear()
+        for hl, message in [pair for nested in queue.values() for pair in nested.values()]:
             await self.bot.get_user(hl.user_id, as_partial=True).send(
                 **await hl.to_send_kwargs(message)
             )
