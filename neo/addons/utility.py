@@ -218,7 +218,7 @@ class Utility(neo.Addon):
             url=self.bot.cfg["invite_url"],
             label="Invite neo phoenix",
             style=discord.ButtonStyle.secondary,
-            disabled=True
+            disabled=not self.appinfo.bot_public
         ))
         buttons.add_item(discord.ui.Button(
             url=self.bot.cfg["upstream_url"],

@@ -1,5 +1,8 @@
+import shlex
+
 import neo
 from discord.ext import commands
+from neo.modules import args
 from neo.modules.eval import Eval, env_from_context
 from neo.modules.paginator import Pages, Paginator
 from neo.types.converters import codeblock_converter
@@ -9,7 +12,7 @@ from neo.types.formatters import Table, format_exception
 class Devel(neo.Addon):
     """Developer-only utility commands"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: neo.Neo):
         self.bot = bot
         self._eval_scope = {}
         self._last_eval_result = None
@@ -92,6 +95,30 @@ class Devel(neo.Addon):
         )
         menu = Paginator(pages)
         await menu.start(ctx)
+
+    @args.add_arg(
+        "-a", "--action",
+        choices=["reload", "load", "unload"],
+        default="reload",
+        help="Controls the action to perform"
+    )
+    @args.add_arg("addons", nargs="*", default="~", help="Addons to action")
+    @args.command(name="addon", split_method=shlex)
+    async def dev_addon(self, ctx, *, args):
+        """
+        Manage addons
+
+        It's not a great idea to unload everything
+        """
+        action = getattr(self.bot, f"{args.action}_extension")
+        if args.addons == "~":
+            args.addons = self.bot.extensions.copy().keys()
+        for addon in args.addons:
+            try:
+                action(addon)
+            except BaseException as e:
+                await ctx.send(format_exception(e))
+        await ctx.message.add_reaction("\U00002611")
 
 
 def setup(bot):

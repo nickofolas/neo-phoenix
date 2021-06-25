@@ -24,7 +24,7 @@ class ArgCommand(commands.Command):
             argname = f"--{arg.dest}" if arg.option_strings else arg.dest
 
             if arg.choices:
-                argname += " [{}]".format("|".join(args.choices))
+                argname += " [{}]".format("|".join(arg.choices))
 
             if arg.required:
                 argname = f"<{argname}>"
