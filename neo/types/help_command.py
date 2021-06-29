@@ -69,7 +69,7 @@ class NeoHelpCommand(commands.HelpCommand):
             embeds.append(
                 neo.Embed(
                     title=cog_name,
-                    description=getattr(cog, "description", "No description")
+                    description=getattr(cog, "description", "")
                 ).add_field(
                     name="Commands",
                     value="\n".join(map(

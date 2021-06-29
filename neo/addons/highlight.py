@@ -4,7 +4,7 @@ from functools import cached_property
 from operator import attrgetter
 
 import neo
-from discord import NotFound
+import discord
 from discord.ext import commands
 from neo.modules import paginator
 from neo.types.containers import TimedSet
@@ -67,9 +67,15 @@ class Highlight:
             return
         try:  # This lets us update the channel members and make sure the user exists
             member = await message.guild.fetch_member(self.user_id, cache=True)
-        except NotFound:
+        except discord.NotFound:
             return
-        if member not in message.channel.members:
+        if isinstance(message.channel, discord.Thread):
+            if message.channel.is_private():  # Ignore private threads
+                return
+            members = message.channel.parent.members
+        else:
+            members = message.channel.members
+        if member not in members:  # Check channel membership
             return
         if member in message.mentions:
             return  # Don't highlight users with messages they are mentioned in
@@ -206,6 +212,9 @@ class Highlights(neo.Addon):
         Add a new highlight
 
         Highlights will notify you when the word/phrase you add is mentioned
+
+        **Note**
+        Highlights will __never__ be triggered from private threads.
         """
         if len(content) <= 1:
             raise ValueError("Highlights must contain more than 1 character.")
