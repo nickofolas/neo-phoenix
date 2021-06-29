@@ -12,7 +12,7 @@ from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import Embed, containers, context, formatters, help_command
 
-__version__ = "0.6.0"
+__version__ = "0.7.0a"
 
 log = logging.getLogger(__name__)
 
@@ -64,10 +64,10 @@ class Neo(commands.Bot):
             if not self.get_guild(server_id):
                 await self.delete_server(server_id)
 
-    def get_profile(self, user_id) -> containers.NeoUser:
+    def get_profile(self, user_id: int) -> containers.NeoUser:
         return self.profiles.get(user_id)
 
-    def get_server(self, server_id) -> containers.NeoServer:
+    def get_server(self, server_id: int) -> containers.NeoServer:
         return self.servers.get(server_id)
 
     async def add_profile(self, user_id, *, record=None):

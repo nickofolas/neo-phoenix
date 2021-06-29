@@ -142,7 +142,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     """
     Manages your server's starboard
 
-    If `starboard_enabled` is set to False in server
+    If `starboard` is set to False in server
     settings, none of the commands from this category
     will be accessible
     """
@@ -221,7 +221,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             return False
         checks = [
             not getattr(starboard, "ready", False),
-            not self.bot.get_server(starboard.channel.guild.id).starboard_enabled,
+            not self.bot.get_server(starboard.channel.guild.id).starboard,
             payload.channel_id == starboard.channel.id,
             (datetime.utcnow() - discord.Object(payload.message_id)
              .created_at.replace(tzinfo=None)).days > starboard.max_days
@@ -338,7 +338,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
     @commands.Cog.listener("on_server_settings_update")
     async def handle_starboard_setting(self, guild, settings):
-        if settings.starboard_enabled is True:
+        if settings.starboard is True:
             if self.starboards.get(guild.id):
                 return
 
@@ -370,7 +370,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             raise commands.NoPrivateMessage()
 
         server = self.bot.get_server(ctx.guild.id)
-        if not getattr(server, "starboard_enabled", False):
+        if not getattr(server, "starboard", False):
             raise commands.CommandInvokeError(AttributeError(
                 "Starboard is not enabled for this server!"
             ))

@@ -8,7 +8,7 @@ SETTINGS_MAPPING = {
         "converter": str,
         "description": None
     },
-    "starboard_enabled": {
+    "starboard": {
         "converter": commands.converter._convert_to_bool,
         "description": None
     }

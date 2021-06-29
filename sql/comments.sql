@@ -52,7 +52,7 @@ Default Value: `n!`
 **Current Value:** `{}`
 ';
 
-COMMENT ON COLUMN servers.starboard_enabled IS
+COMMENT ON COLUMN servers.starboard IS
 'Dictates whether the server''s starboard is enabled.
 
 Expected Value Type: A boolean-like (`yes`/`no`) value

@@ -57,10 +57,9 @@ class InfoButtons(discord.ui.View):
         self.privacy_embed = privacy_embed
         super().__init__(timeout=60)
 
-    @discord.ui.button(label="View Privacy information", row=1)
+    @discord.ui.button(label="Privacy information", row=1)
     async def callback(self, button, interaction: discord.Interaction):
-        await interaction.response.defer()
-        await interaction.followup.send(
+        await interaction.response.send_message(
             embed=self.privacy_embed, ephemeral=True
         )
 

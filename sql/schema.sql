@@ -10,7 +10,7 @@ CREATE TABLE profiles (
 CREATE TABLE servers (
     server_id         BIGINT PRIMARY KEY,
     prefix            TEXT DEFAULT 'n!',
-    starboard_enabled BOOLEAN DEFAULT FALSE
+    starboard         BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE highlights (
