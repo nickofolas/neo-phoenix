@@ -11,7 +11,7 @@ from sys import argv
 import toml
 
 INPUT_FILE = next(iter(argv[1:]), "config.toml")
-OUTPUT_FILE = next(iter(argv[2:]), "example_config.toml")
+OUTPUT_FILE = next(iter(argv[2:]), "config.example.toml")
 
 ORIGINAL = toml.load("config.toml")
 
