@@ -240,7 +240,7 @@ class Reminders(neo.Addon):
         reminders = self.reminders[ctx.author.id].copy()
         formatted_reminders: list[str] = []
 
-        for index, reminder in enumerate(reminders):
+        for index, reminder in enumerate(reminders, 1):
             formatted_reminders.append(
                 "`{0}` {1}\n> Triggers <t:{2}:R>".format(
                     index, shorten(reminder.content, 50), int(reminder.end_time.timestamp())
@@ -256,7 +256,7 @@ class Reminders(neo.Addon):
     async def remind_view(self, ctx, index: int):
         """View the full content of a reminder, accessed by index"""
         try:
-            reminder = self.reminders[ctx.author.id][index]
+            reminder = self.reminders[ctx.author.id][index - 1]
         except IndexError:
             raise IndexError("Couldn't find that reminder.")
 
@@ -283,14 +283,14 @@ class Reminders(neo.Addon):
         else:
             indices = [*map(str, indices)]  # Need to cast to str to filter any non-integers
             try:
-                reminders = [self.reminders[ctx.author.id][index] for index in map(
+                reminders = [self.reminders[ctx.author.id].pop(index - 1) for index in map(
                     int, filter(str.isdigit, indices))]
             except IndexError:
                 raise IndexError("One or more of the provided indices is invalid.")
 
         for reminder in reminders:
             await reminder.delete()
-        await ctx.send(f"Successfully cancelled {len(reminders)} reminders!")
+        await ctx.message.add_reaction("\U00002611")
 
 
 def setup(bot: neo.Neo):

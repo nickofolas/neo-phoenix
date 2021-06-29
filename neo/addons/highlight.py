@@ -3,8 +3,8 @@ from collections import defaultdict
 from functools import cached_property
 from operator import attrgetter
 
-import neo
 import discord
+import neo
 from discord.ext import commands
 from neo.modules import paginator
 from neo.types.containers import TimedSet
@@ -65,10 +65,15 @@ class Highlight:
                 "id", "guild.id", "channel.id", "author.id")
                ):
             return
+
+        if self.user_id in [m.id for m in message.mentions]:
+            return  # Don't highlight users with messages they are mentioned in
+
         try:  # This lets us update the channel members and make sure the user exists
             member = await message.guild.fetch_member(self.user_id, cache=True)
         except discord.NotFound:
             return
+
         if isinstance(message.channel, discord.Thread):
             if message.channel.is_private():  # Ignore private threads
                 return
@@ -77,8 +82,6 @@ class Highlight:
             members = message.channel.members
         if member not in members:  # Check channel membership
             return
-        if member in message.mentions:
-            return  # Don't highlight users with messages they are mentioned in
 
         return True
 
@@ -110,16 +113,16 @@ class Highlights(neo.Addon):
 
     def __init__(self, bot: neo.Neo):
         self.bot = bot
-        self.highlights = []
+        self.highlights: defaultdict[str, list[Highlight]] = defaultdict(list)
         self.grace_periods: dict[int, TimedSet] = {}
-        self.queued_highlights: dict[int, dict] = defaultdict(dict)
+        self.queued_highlights: defaultdict[int, dict] = defaultdict(dict)
         self.bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
         await self.bot.wait_until_ready()
 
         for record in await self.bot.db.fetch("SELECT * FROM highlights"):
-            self.highlights.append(Highlight(self.bot, **record))
+            self.highlights[record["user_id"]].append(Highlight(self.bot, **record))
 
         for profile in self.bot.profiles.values():
             self.grace_periods[profile.user_id] = TimedSet(
@@ -132,17 +135,18 @@ class Highlights(neo.Addon):
         self.send_queued_highlights.shutdown()
 
     def get_user_highlights(self, user_id):
-        return [*filter(
-            lambda hl: hl.user_id == user_id,
-            self.highlights
-        )]
+        return self.highlights.get(user_id, [])
+
+    @cached_property  # Cache this so it isn't re-computed after every message
+    def flat_highlights(self):
+        return [hl for hl_list in self.highlights.values() for hl in hl_list]
 
     @commands.Cog.listener("on_message")
     async def listen_for_highlights(self, message):
-        if message.author.id in {hl.user_id for hl in self.highlights}:
+        if message.author.id in {hl.user_id for hl in self.flat_highlights}:
             self.grace_periods[message.author.id].add(message.channel.id)
 
-        for hl in filter(lambda hl: hl.matches(message.content), self.highlights):
+        for hl in filter(lambda hl: hl.matches(message.content), self.flat_highlights):
             if message.channel.id in self.grace_periods[hl.user_id]:
                 continue
             if not await hl.predicate(message):
@@ -178,9 +182,8 @@ class Highlights(neo.Addon):
     @commands.Cog.listener("on_profile_delete")
     async def handle_deleted_profile(self, user_id: int):
         self.grace_periods.pop(user_id, None)
-        to_delete = [*filter(lambda hl: hl.user_id == user_id, self.highlights)]
-        for hl in to_delete:
-            self.highlights.remove(hl)
+        self.highlights.pop(user_id, None)
+        delattr(self, "flat_highlights")
 
     async def cog_check(self, ctx):
         if not self.bot.get_profile(ctx.author.id):
@@ -196,7 +199,7 @@ class Highlights(neo.Addon):
         description = ""
         user_highlights = self.get_user_highlights(ctx.author.id)
 
-        for index, hl in enumerate(user_highlights):
+        for index, hl in enumerate(user_highlights, 1):
             description += "`{0}` `{1}`\n".format(
                 index,
                 hl.content
@@ -236,17 +239,29 @@ class Highlights(neo.Addon):
             ctx.author.id,
             content
         )
-        self.highlights.append(Highlight(self.bot, **result))
+        self.highlights[ctx.author.id].append(Highlight(self.bot, **result))
+        delattr(self, "flat_highlights")
         await ctx.message.add_reaction("\U00002611")
 
-    # TODO: This needs to support index chaining.
     @highlight.command(name="remove", aliases=["rm"])
-    async def highlight_remove(self, ctx, hl_index: int):
-        """Remove a **single** highlight by its index"""
-        to_remove = [*filter(
-            lambda hl: hl.user_id == ctx.author.id,
-            self.highlights
-        )][hl_index]
+    async def highlight_remove(self, ctx, *indices):
+        """
+        Remove 1 or more highlight by index
+
+        Passing `~` will remove all highlights at once
+        """
+        if "~" in indices:
+            highlights = self.get_user_highlights(ctx.author.id).copy()
+            self.highlights.pop(ctx.author.id, None)
+
+        else:
+            (indices := [*map(str, indices)]).sort(reverse=True)  # Pop in an way that preserves the list's original order
+            try:
+                highlights = [self.highlights[ctx.author.id].pop(index - 1) for index in map(
+                    int, filter(str.isdigit, indices))
+                ]
+            except IndexError:
+                raise IndexError("One or more of the provided indices is invalid.")
 
         await self.bot.db.execute(
             """
@@ -254,12 +269,12 @@ class Highlights(neo.Addon):
                 highlights
             WHERE
                 user_id = $1 AND
-                content = $2
+                content = ANY($2::TEXT[])
             """,
-            to_remove.user_id,
-            to_remove.content
+            ctx.author.id,
+            [*map(attrgetter("content"), highlights)]
         )
-        self.highlights.remove(to_remove)
+        delattr(self, "flat_highlights")
         await ctx.message.add_reaction("\U00002611")
 
     def perform_blocklist_action(self, *, profile, ids, action="block"):

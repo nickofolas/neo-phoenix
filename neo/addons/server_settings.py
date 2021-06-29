@@ -1,4 +1,3 @@
-from operator import is_
 import neo
 from discord.ext import commands
 from neo.modules import Paginator

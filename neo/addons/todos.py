@@ -63,7 +63,7 @@ class Todos(neo.Addon):
         """List your todos"""
         formatted_todos = []
 
-        for index, todo in enumerate(self.todos[ctx.author.id]):
+        for index, todo in enumerate(self.todos[ctx.author.id], 1):
             formatted_todos.append("`{0}` {1}".format(
                 index, escape_markdown(shorten(todo.content, width=75))
             ))
@@ -120,7 +120,7 @@ class Todos(neo.Addon):
         else:
             (indices := [*map(str, indices)]).sort(reverse=True)  # Pop in an way that preserves the list's original order
             try:
-                todos = [self.todos[ctx.author.id].pop(index) for index in map(
+                todos = [self.todos[ctx.author.id].pop(index - 1) for index in map(
                     int, filter(str.isdigit, indices))
                 ]
             except IndexError:
@@ -141,7 +141,7 @@ class Todos(neo.Addon):
     async def todo_view(self, ctx, index: int):
         """View a todo by its listed index"""
         try:
-            todo: TodoItem = self.todos[ctx.author.id][index]
+            todo: TodoItem = self.todos[ctx.author.id][index - 1]
         except IndexError:
             raise IndexError("Couldn't find that todo.")
 
@@ -163,7 +163,7 @@ class Todos(neo.Addon):
     async def todo_edit(self, ctx, index: int, *, new_content: str):
         """Edit the content of a todo"""
         try:
-            todo: TodoItem = self.todos[ctx.author.id][index]
+            todo: TodoItem = self.todos[ctx.author.id][index - 1]
         except IndexError:
             raise IndexError("Couldn't find that todo.")
 
