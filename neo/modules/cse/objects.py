@@ -1,5 +1,6 @@
 from functools import cached_property
 
+
 class SearchResult:
     __slots__ = (
         "_data",
@@ -29,6 +30,7 @@ class SearchResult:
 
     def __repr__(self):
         return "<{0.__class__.__name__} title={0.title!r} url={0.url!r}>".format(self)
+
 
 class GoogleResponse:
     __slots__ = ("_data", "__dict__")

@@ -3,6 +3,7 @@ from discord import Object, abc, User
 
 class PartialUser(abc.Messageable, Object):
     """Represents a "partial" Discord user"""
+
     def __init__(self, *, state, id):
         self._state = state
         self.id = id

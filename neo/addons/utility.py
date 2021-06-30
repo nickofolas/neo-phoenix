@@ -66,6 +66,7 @@ class InfoButtons(discord.ui.View):
 
 class Utility(neo.Addon):
     """Various utility commands"""
+
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.privacy_embed = neo.Embed(

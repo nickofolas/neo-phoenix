@@ -146,6 +146,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     settings, none of the commands from this category
     will be accessible
     """
+
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.ready = False
