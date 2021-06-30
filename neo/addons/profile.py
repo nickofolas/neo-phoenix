@@ -4,7 +4,7 @@ from typing import Union
 import neo
 from discord.ext import commands
 from neo.modules import Paginator
-from neo.tools import convert_setting
+from neo.tools import convert_setting, is_registered_profile
 from neo.types.converters import (mention_converter, timeout_converter,
                                   timezone_converter)
 
@@ -24,20 +24,9 @@ SETTINGS_MAPPING = {
 }
 
 
-def is_registered_profile():
-    """Verify the registration status of a user profile"""
-    def predicate(ctx):
-        if not ctx.bot.get_profile(ctx.author.id):
-            raise commands.CommandInvokeError(AttributeError(
-                "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile create` command."
-            ))
-        return True
-    return commands.check(predicate)
-
-
 class Profile(neo.Addon):
     """Contains everything needed for managing your neo profile"""
+
     def __init__(self, bot: neo.Neo):
         self.bot = bot
 

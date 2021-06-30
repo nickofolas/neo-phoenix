@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+from .checks import is_registered_guild, is_registered_profile
 from .patcher import Patcher
 
 

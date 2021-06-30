@@ -37,6 +37,10 @@ class Neo(commands.Bot):
 
         super().__init__(**kwargs)
 
+        self.cooldown = commands.CooldownMapping.from_cooldown(
+            1, 2.5, commands.BucketType.user)
+        self.check(self.global_cooldown)  # Register global cooldown
+
         self._async_ready = asyncio.Event()
         self.loop.create_task(self.__ainit__())
 
@@ -169,3 +173,12 @@ class Neo(commands.Bot):
 
     async def on_guild_remove(self, guild: discord.Guild):
         await self.delete_server(guild.id)
+
+    async def global_cooldown(self, ctx: context.NeoContext):
+        if await self.is_owner(ctx.author):
+            return True
+
+        retry_after = self.cooldown.update_rate_limit(ctx.message)
+        if retry_after:
+            raise commands.CommandOnCooldown(self.cooldown, retry_after)
+        return True

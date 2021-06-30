@@ -8,6 +8,7 @@ import neo
 from discord.ext import commands
 from discord.utils import escape_markdown
 from neo.modules import Paginator
+from neo.tools import is_registered_profile
 
 
 @dataclass
@@ -33,6 +34,7 @@ class TodoItem:
 
 class Todos(neo.Addon):
     """Commands for managing a todo list"""
+
     def __init__(self, bot):
         self.bot = bot
         self.todos = defaultdict(list)
@@ -51,12 +53,7 @@ class Todos(neo.Addon):
         self.todos.pop(user_id, None)
 
     async def cog_check(self, ctx):
-        if not self.bot.get_profile(ctx.author.id):
-            raise commands.CommandInvokeError(AttributeError(
-                "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile create` command."
-            ))
-        return True
+        return await is_registered_profile().predicate(ctx)
 
     @commands.group(invoke_without_command=True)
     async def todo(self, ctx):

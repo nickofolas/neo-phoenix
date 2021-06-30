@@ -10,6 +10,7 @@ from discord.ext import commands
 from discord.utils import snowflake_time
 from neo.modules import Paginator
 from neo.tools.time_parse import parse_absolute, parse_relative
+from neo.tools import is_registered_profile
 
 MAX_REMINDERS = 15
 MAX_REMINDER_LEN = 1000
@@ -99,6 +100,7 @@ class Reminder:
 
 class Reminders(neo.Addon):
     """Contains everything related to reminders"""
+
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.reminders: dict[int, list[Reminder]] = defaultdict(list)
@@ -125,12 +127,7 @@ class Reminders(neo.Addon):
         )]
 
     async def cog_check(self, ctx):
-        if not self.bot.get_profile(ctx.author.id):
-            raise commands.CommandInvokeError(AttributeError(
-                "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile create` command."
-            ))
-        return True
+        return await is_registered_profile().predicate(ctx)
 
     def cog_unload(self):
         for reminders in self.reminders.values():

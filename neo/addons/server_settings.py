@@ -1,7 +1,7 @@
 import neo
 from discord.ext import commands
 from neo.modules import Paginator
-from neo.tools import convert_setting
+from neo.tools import convert_setting, is_registered_guild
 
 SETTINGS_MAPPING = {
     "prefix": {
@@ -15,20 +15,9 @@ SETTINGS_MAPPING = {
 }
 
 
-def is_registered_guild():
-    """Verify the registration status of a guild"""
-    def predicate(ctx):
-        if not ctx.bot.get_server(ctx.guild.id):
-            raise commands.CommandInvokeError(AttributeError(
-                "Looks like this server doesn't have an existing config entry. "
-                "You can fix this with the `server create` command."
-            ))
-        return True
-    return commands.check(predicate)
-
-
 class ServerSettings(neo.Addon):
     """Contains everything needed for managing your server's settings"""
+
     def __init__(self, bot: neo.Neo):
         self.bot = bot
 

@@ -7,6 +7,7 @@ import discord
 import neo
 from discord.ext import commands
 from neo.modules import paginator
+from neo.tools import is_registered_profile
 from neo.types.containers import TimedSet
 from neo.types.timer import periodic
 
@@ -183,15 +184,10 @@ class Highlights(neo.Addon):
     async def handle_deleted_profile(self, user_id: int):
         self.grace_periods.pop(user_id, None)
         self.highlights.pop(user_id, None)
-        delattr(self, "flat_highlights")
+        del self.flat_highlights
 
     async def cog_check(self, ctx):
-        if not self.bot.get_profile(ctx.author.id):
-            raise commands.CommandInvokeError(AttributeError(
-                "Looks like you don't have an existing profile! "
-                "You can fix this with the `profile create` command."
-            ))
-        return True
+        return await is_registered_profile().predicate(ctx)
 
     @commands.group(aliases=["hl"], invoke_without_command=True)
     async def highlight(self, ctx):
@@ -240,7 +236,7 @@ class Highlights(neo.Addon):
             content
         )
         self.highlights[ctx.author.id].append(Highlight(self.bot, **result))
-        delattr(self, "flat_highlights")
+        del self.flat_highlights
         await ctx.message.add_reaction("\U00002611")
 
     @highlight.command(name="remove", aliases=["rm"])
@@ -274,7 +270,7 @@ class Highlights(neo.Addon):
             ctx.author.id,
             [*map(attrgetter("content"), highlights)]
         )
-        delattr(self, "flat_highlights")
+        del self.flat_highlights
         await ctx.message.add_reaction("\U00002611")
 
     def perform_blocklist_action(self, *, profile, ids, action="block"):
