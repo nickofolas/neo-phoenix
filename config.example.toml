@@ -27,6 +27,7 @@ status = "str"
 ignored_exceptions = [
     "str",
     "str",
+    "str",
     "str"
 ]
 

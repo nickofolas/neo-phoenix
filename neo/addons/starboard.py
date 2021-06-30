@@ -6,7 +6,6 @@ from typing import Union
 
 import discord
 import neo
-from discord import utils
 from discord.ext import commands
 from neo.modules import Paginator
 from neo.tools import convert_setting
@@ -105,7 +104,8 @@ class Starboard:
                 if not embed.image:
                     embed.set_image(url=attachment.url)
                 embed.add_field(
-                    name=utils.escape_markdown(getattr(attachment, "filename", "Embed")),
+                    name=discord.utils.escape_markdown(
+                        getattr(attachment, "filename", "Embed")),
                     value=f"[View]({attachment.url})"
                 )
 
@@ -253,10 +253,10 @@ class StarboardAddon(neo.Addon, name="Starboard"):
                 payload.message_id
             )
             reaction_count = getattr(
-                utils.find(
+                next(filter(
                     lambda r: r.emoji == starboard.emoji,
                     message.reactions
-                ),
+                ), None),
                 "count",
                 0
             )
