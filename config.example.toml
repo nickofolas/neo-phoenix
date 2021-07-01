@@ -10,7 +10,6 @@ addons = [
     "str"
 ]
 upstream_url = "str"
-invite_url = "str"
 privacy_info = "str"
 [[invite_presets]]
 name = "str"
@@ -31,6 +30,10 @@ value = "str"
 name = "str"
 desc = "str"
 value = "str"
+
+[support]
+url = "str"
+disabled = "bool"
 
 [bot]
 token = "str"

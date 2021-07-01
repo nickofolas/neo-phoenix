@@ -3,3 +3,4 @@ toml
 asyncpg
 import-expression  # For convenience purposes only
 tzdata; sys_platform == "win32"  # Windows doesn't provide a native IANA database
+uvloop; sys_platform == "linux"  # Windows doesn't support uvloop

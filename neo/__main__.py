@@ -6,6 +6,12 @@ import discord
 import toml
 from discord.ext import commands
 
+try:
+    import uvloop  # type: ignore
+    uvloop.install()
+except ImportError:
+    pass
+
 from neo import Neo
 from neo.modules.args.commands import ArgCommand, ArgGroup
 from neo.tools import Patcher

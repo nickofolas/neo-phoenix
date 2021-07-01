@@ -64,6 +64,13 @@ class Utility(neo.Addon):
             label="Source Code",
             style=discord.ButtonStyle.secondary
         ))
+        self.info_buttons.add_item(discord.ui.Button(
+            url=self.bot.cfg["support"]["url"],
+            label="Support Server",
+            style=discord.ButtonStyle.secondary,
+            disabled=self.bot.cfg["support"]["disabled"],
+            row=1
+        ))
         self.bot.add_view(self.info_buttons)
 
     @args.add_arg(
