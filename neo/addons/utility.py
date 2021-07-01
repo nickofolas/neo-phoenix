@@ -8,6 +8,9 @@ from discord.ext import commands
 from neo.modules import Paginator, args, cse, dictionary
 from neo.types.converters import mention_converter
 
+from .auxiliary.utility import (InfoButtons, InviteMenu, _definitions_to_embed,
+                                _result_to_embed)
+
 DELTA_FORMAT = "{0.months} months and {0.days} days ago"
 BADGE_MAPPING = {
     "staff": "<:staff:743223905812086865>",
@@ -26,42 +29,6 @@ ICON_MAPPING = {
     "bot": "<:bot:743223907238281217>",
     "verified_bot": "<:verified1:743228362339909665><:verified2:743228362251829339>"
 }
-
-
-def _result_to_embed(result):
-    embed = neo.Embed(
-        title=result.title,
-        description=result.snippet,
-        url=result.url
-    )
-    embed.set_image(url=result.image_url or "")
-    return embed
-
-
-def _definitions_to_embed(word):
-    for meaning in word.meanings:
-        for definition in meaning.definitions:
-            embed = neo.Embed(
-                description=definition.definition
-            ).set_author(
-                name=f"{word.word}: {meaning.part_of_speech}"
-            ).add_field(
-                name="Synonyms",
-                value=", ".join((definition.synonyms or ["No synonyms"])[:5])
-            )
-            yield embed
-
-
-class InfoButtons(discord.ui.View):
-    def __init__(self, privacy_embed: neo.Embed):
-        self.privacy_embed = privacy_embed
-        super().__init__(timeout=60)
-
-    @discord.ui.button(label="Privacy information", row=1)
-    async def callback(self, button, interaction: discord.Interaction):
-        await interaction.response.send_message(
-            embed=self.privacy_embed, ephemeral=True
-        )
 
 
 class Utility(neo.Addon):
@@ -86,6 +53,18 @@ class Utility(neo.Addon):
         )
         self.dictionary = dictionary.Define(self.bot.session)
         self.appinfo = await self.bot.application_info()
+        invite_menu = InviteMenu(self.bot.cfg["invite_presets"], self.bot.user.id)
+        self.info_buttons = InfoButtons(
+            self.privacy_embed,
+            not self.appinfo.bot_public,
+            invite_menu
+        )
+        self.info_buttons.add_item(discord.ui.Button(
+            url=self.bot.cfg["upstream_url"],
+            label="Source Code",
+            style=discord.ButtonStyle.secondary
+        ))
+        self.bot.add_view(self.info_buttons)
 
     @args.add_arg(
         "query",
@@ -211,20 +190,7 @@ class Utility(neo.Addon):
             name=f"Developed by {self.appinfo.owner}",
             icon_url=self.appinfo.owner.avatar
         )
-
-        buttons = InfoButtons(self.privacy_embed)
-        buttons.add_item(discord.ui.Button(
-            url=self.bot.cfg["invite_url"],
-            label="Invite neo phoenix",
-            style=discord.ButtonStyle.secondary,
-            disabled=not self.appinfo.bot_public
-        ))
-        buttons.add_item(discord.ui.Button(
-            url=self.bot.cfg["upstream_url"],
-            label="Source Code",
-            style=discord.ButtonStyle.secondary
-        ))
-        await ctx.send(embed=embed, view=buttons)
+        await ctx.send(embed=embed, view=self.info_buttons)
 
 
 def setup(bot):
