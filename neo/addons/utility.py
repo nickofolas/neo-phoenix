@@ -133,9 +133,10 @@ class Utility(neo.Addon):
         await menu.start(ctx)
 
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
-    async def avatar_command(self, ctx, *, user: Union[int, mention_converter] = None):
+    async def avatar_command(self, ctx, *, user: Union[int, mention_converter, discord.Member] = None):
         """Retrieves the avatar of yourself, or a specified user"""
-        user = await self.bot.fetch_user(user) if user else ctx.author
+        if isinstance(user, (int, type(None))):
+            user = await self.bot.fetch_user(user) if user else ctx.author
         url = user.avatar
 
         embed = neo.Embed(
