@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2021 nickofolas
 import neo
 from discord.ext import commands
 from neo.modules.paginator import Paginator

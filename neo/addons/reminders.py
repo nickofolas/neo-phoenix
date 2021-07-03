@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2021 nickofolas
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone

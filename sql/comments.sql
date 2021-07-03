@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: AGPL-3.0-or-later
+-- Copyright (C) 2021 nickofolas
 -- Table: profiles | Documentation for settings --
 COMMENT ON COLUMN profiles.receive_highlights IS
 'Dictates whether you''ll receive highlights from neo.

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2021 nickofolas
 """
 Implements an extremely simple mechanism for parsing a datetime object out of
 a string of text.

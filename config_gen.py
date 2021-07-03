@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2021 nickofolas
+
 # Generates a file from an existing config file.
 #
 # The file to be read as input is sys.argv[1], or "config.toml" if that doesn't exist.
