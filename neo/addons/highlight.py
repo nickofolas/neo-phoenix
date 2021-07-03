@@ -31,6 +31,8 @@ def format_hl_context(message, is_trigger=False):
         message.content += " *[Attachment x{}]*".format(len(message.attachments))
     if message.embeds:
         message.content += " *[Embed x{}]*".format(len(message.embeds))
+    if message.stickers:
+        message.content += " *[Sticker x{}]*".format(len(message.stickers))
 
     return fmt.format(
         DEFAULT_AVATARS[int(message.author.default_avatar.key)],
