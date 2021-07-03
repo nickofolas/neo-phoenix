@@ -1,16 +1,16 @@
 CREATE TABLE profiles (
     user_id            BIGINT PRIMARY KEY,
+    created_at         TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC'),
     hl_blocks          BIGINT[] DEFAULT ARRAY[]::BIGINT[],
     receive_highlights BOOLEAN  DEFAULT TRUE,
-    hl_timeout         BIGINT CHECK (hl_timeout >= 1 AND hl_timeout <= 5) DEFAULT 1,
-    created_at         TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    timezone           TEXT DEFAULT NULL
+    timezone           TEXT DEFAULT NULL,
+    hl_timeout         BIGINT CHECK (hl_timeout >= 1 AND hl_timeout <= 5) DEFAULT 1
 );
 
 CREATE TABLE servers (
-    server_id         BIGINT PRIMARY KEY,
-    prefix            TEXT DEFAULT 'n!',
-    starboard         BOOLEAN DEFAULT FALSE
+    server_id BIGINT PRIMARY KEY,
+    prefix    TEXT DEFAULT 'n!',
+    starboard BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE highlights (
