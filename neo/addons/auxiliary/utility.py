@@ -5,7 +5,7 @@ import discord
 import neo
 
 
-def _result_to_embed(result):
+def result_to_embed(result):
     embed = neo.Embed(
         title=result.title,
         description=result.snippet,
@@ -15,7 +15,7 @@ def _result_to_embed(result):
     return embed
 
 
-def _definitions_to_embed(word):
+def definitions_to_embed(word):
     for meaning in word.meanings:
         for definition in meaning.definitions:
             embed = neo.Embed(

@@ -8,8 +8,8 @@ from discord.ext import commands
 from neo.modules import Paginator, args, cse, dictionary
 from neo.types.converters import mention_converter
 
-from .auxiliary.utility import (InfoButtons, InviteMenu, _definitions_to_embed,
-                                _result_to_embed)
+from .auxiliary.utility import (InfoButtons, InviteMenu, definitions_to_embed,
+                                result_to_embed)
 
 DELTA_FORMAT = "{0.months} months and {0.days} days ago"
 BADGE_MAPPING = {
@@ -90,7 +90,7 @@ class Utility(neo.Addon):
             " ".join(query.query),
             image=query.image)
 
-        embeds = [*map(_result_to_embed, resp)]
+        embeds = [*map(result_to_embed, resp)]
         if not embeds:
             raise RuntimeError("Search returned no results")
 
@@ -125,7 +125,7 @@ class Utility(neo.Addon):
 
         embeds = []
         for word in resp.words:
-            embeds.extend(_definitions_to_embed(word))
+            embeds.extend(definitions_to_embed(word))
         if not embeds:
             raise RuntimeError("No definition found")
 
