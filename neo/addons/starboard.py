@@ -262,8 +262,10 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         return not any(checks)
 
     @staticmethod
-    def reaction_check(starboard: Starboard, payload):
-        return payload.emoji == starboard.emoji
+    def reaction_check(starboard: Starboard, emoji):
+        if isinstance(emoji, str):
+            emoji = discord.PartialEmoji.from_str(emoji)
+        return emoji == starboard.emoji
 
     @commands.Cog.listener("on_raw_reaction_add")
     @commands.Cog.listener("on_raw_reaction_remove")
@@ -281,7 +283,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             )
             reaction_count = getattr(
                 next(filter(
-                    lambda r: r.emoji == starboard.emoji,
+                    lambda r: self.reaction_check(starboard, r.emoji),
                     message.reactions
                 ), None),
                 "count",
@@ -314,7 +316,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             )
 
         else:
-            if not self.reaction_check(starboard, payload):
+            if not self.reaction_check(starboard, payload.emoji):
                 return
 
             # Eventually replace this with a patma
@@ -351,7 +353,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             return
 
         if isinstance(payload, discord.RawReactionClearEmojiEvent):
-            if not self.reaction_check(payload):
+            if not self.reaction_check(payload.emoji):
                 return
 
         star = starboard.cached_stars.get(payload.message_id)
