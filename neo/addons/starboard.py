@@ -21,7 +21,7 @@ SETTINGS_MAPPING = {
         "converter": int,
         "description": None
     },
-    "star_format": {
+    "format": {
         "converter": str,
         "description": None
     },
@@ -65,7 +65,7 @@ class Starboard:
         "channel",
         "stars",
         "threshold",
-        "star_format",
+        "format",
         "max_days",
         "emoji",
         "ignored",
@@ -80,7 +80,7 @@ class Starboard:
         channel: discord.TextChannel,
         stars: list,
         threshold: int,
-        star_format: str,
+        format: str,
         max_days: int,
         emoji: discord.PartialEmoji,
         ignored: list[str]
@@ -88,7 +88,7 @@ class Starboard:
         self.channel = channel
         self.stars = stars
         self.threshold = threshold
-        self.star_format = star_format
+        self.format = format
         self.max_days = max_days
         self.emoji = emoji
         self.ignored = ignored
@@ -137,7 +137,7 @@ class Starboard:
                 )
 
             kwargs["starboard_message"] = await self.channel.send(
-                self.star_format.format(stars=stars),
+                self.format.format(stars=stars),
                 embed=embed
             )
             star = Star(**kwargs)
@@ -161,7 +161,7 @@ class Starboard:
         star = self.cached_stars.get(id)
         star.stars = stars
 
-        await star.edit(content=self.star_format.format(stars=star.stars))
+        await star.edit(content=self.format.format(stars=star.stars))
         return star
 
 
@@ -227,7 +227,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             "channel": self.bot.get_channel(starboard_settings["channel"]),
             "stars": star_records,
             "threshold": starboard_settings["threshold"],
-            "star_format": starboard_settings["star_format"],
+            "format": starboard_settings["format"],
             "max_days": starboard_settings["max_days"],
             "emoji": discord.PartialEmoji.from_str(starboard_settings["emoji"]),
             "ignored": starboard_settings["ignored"]

@@ -85,7 +85,7 @@ Default Value: `5`
 **Current Value:** `{}`
 ';
 
-COMMENT ON COLUMN starboards.star_format IS
+COMMENT ON COLUMN starboards.format IS
 'The format that starred messages will follow.
 
 Expected Value Type: A string of text

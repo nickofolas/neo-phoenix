@@ -38,7 +38,7 @@ CREATE TABLE starboards (
     server_id   BIGINT PRIMARY KEY,
     channel     BIGINT,
     threshold   BIGINT DEFAULT 5,
-    star_format VARCHAR(200) DEFAULT '⭐ **{stars}**',
+    format      VARCHAR(200) DEFAULT '⭐ **{stars}**',
     max_days    BIGINT CHECK (max_days > 1) DEFAULT 7,
     emoji       TEXT DEFAULT '⭐',
     ignored     BIGINT[] DEFAULT ARRAY[]::BIGINT[],
