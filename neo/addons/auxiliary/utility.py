@@ -63,7 +63,7 @@ class InviteMenu(discord.ui.View):
 
 class InviteButton(discord.ui.Button):
     def __init__(self, *args, **kwargs):
-        kwargs["style"] = discord.ButtonStyle.grey
+        kwargs["style"] = discord.ButtonStyle.primary
         kwargs["label"] = "Invite neo phoenix"
         kwargs["custom_id"] = "neo phoenix:invite button"
         super().__init__(*args, **kwargs)

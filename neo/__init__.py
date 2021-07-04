@@ -14,7 +14,7 @@ from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import Embed, containers, context, formatters, help_command
 
-__version__ = "0.7.0"
+__version__ = "0.8.0a"
 
 log = logging.getLogger(__name__)
 

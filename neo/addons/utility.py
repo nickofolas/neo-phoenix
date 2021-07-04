@@ -62,15 +62,13 @@ class Utility(neo.Addon):
             invite_menu
         )
         self.info_buttons.add_item(discord.ui.Button(
-            url=self.bot.cfg["upstream_url"],
-            label="Source Code",
-            style=discord.ButtonStyle.secondary
-        ))
-        self.info_buttons.add_item(discord.ui.Button(
             url=self.bot.cfg["support"]["url"],
             label="Support Server",
-            style=discord.ButtonStyle.secondary,
             disabled=self.bot.cfg["support"]["disabled"],
+        ))
+        self.info_buttons.add_item(discord.ui.Button(
+            url=self.bot.cfg["upstream_url"],
+            label="Source Code",
             row=1
         ))
         self.bot.add_view(self.info_buttons)
@@ -177,7 +175,7 @@ class Utility(neo.Addon):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="info", aliases=["about"])
+    @commands.command(name="info", aliases=["about", "invite"])
     async def neo_info_command(self, ctx):
         """Show information about neo phoenix"""
         embed = neo.Embed(

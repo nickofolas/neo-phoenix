@@ -28,6 +28,9 @@ class Pages:
     suffix: str
         A string that all pages will be suffixed with
         Default: None
+    template_embed: discord.Embed
+        An embed that will be used as a template for all pages
+        (if `use_embed`) is `True`.
 
     Attributes
     ----------
