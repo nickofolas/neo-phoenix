@@ -11,6 +11,8 @@ from discord.utils import escape_markdown
 from neo.modules import Paginator
 from neo.tools import is_registered_profile
 
+MAX_TODOS = 100
+
 
 class TodoItem:
     __slots__ = ("user_id", "content", "guild_id", "channel_id", "message_id", "edited")
@@ -91,6 +93,9 @@ class Todos(neo.Addon):
     @todo.command(name="add")
     async def todo_add(self, ctx, *, content: str):
         """Add a new todo"""
+        if len(self.todos[ctx.author.id]) >= MAX_TODOS:
+            raise ValueError("You've used up all your todo slots!")
+
         data = {
             "user_id": ctx.author.id,
             "content": content,

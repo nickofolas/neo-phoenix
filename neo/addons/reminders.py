@@ -191,7 +191,7 @@ class Reminders(neo.Addon):
         `remind 4h30m Check what time it is`
         `remind 3 weeks, 2 days Do something funny`
         """
-        if (len(self.reminders[ctx.author.id]) + 1) > MAX_REMINDERS:
+        if len(self.reminders[ctx.author.id]) >= MAX_REMINDERS:
             raise ValueError("You've used up all of your reminder slots!")
 
         (delta, remainder) = parse_relative(input)
@@ -229,7 +229,7 @@ class Reminders(neo.Addon):
         profile, it will be used to localize date/time.
         Otherwise, date/times will be in UTC.
         """
-        if (len(self.reminders[ctx.author.id]) + 1) > MAX_REMINDERS:
+        if len(self.reminders[ctx.author.id]) >= MAX_REMINDERS:
             raise ValueError("You've used up all of your reminder slots!")
 
         (future_time, remainder) = parse_absolute(input)
