@@ -186,7 +186,7 @@ class Utility(neo.Addon):
                 "\n**Server Count** {1}"
                 "\n**Startup Time** <t:{2}>"
                 "\n\n**Python Version** {3}"
-                "\n**Discord.py Version** {4}"
+                "\n**discord.py Version** {4}"
             ).format(
                 neo.__version__,
                 len(self.bot.guilds),

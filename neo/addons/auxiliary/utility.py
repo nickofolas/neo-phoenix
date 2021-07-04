@@ -98,7 +98,7 @@ class InfoButtons(discord.ui.View):
 
     @discord.ui.button(
         custom_id="neo phoenix:privacy info",
-        label="Privacy information",
+        label="Privacy Information",
         row=1
     )
     async def callback(self, button, interaction: discord.Interaction):
