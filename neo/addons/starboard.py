@@ -110,7 +110,7 @@ class Starboard:
     async def create_star(self, message: discord.Message, stars: int):
         if any([
             not self.ready,
-            self.cached_stars.get(message.id) is not None,
+            message.id in self.cached_stars,
             self.lock.locked()
         ]):
             return
@@ -367,7 +367,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     @commands.Cog.listener("on_server_settings_update")
     async def handle_starboard_setting(self, guild, settings):
         if settings.starboard is True:
-            if self.starboards.get(guild.id):
+            if guild.id in self.starboards:
                 return
 
             # Create a new starboard if one doesn't exist
@@ -411,7 +411,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
 
         Descriptions of the settings are also provided here
         """
-        starboard = self.starboards.get(ctx.guild.id)
+        starboard = self.starboards[ctx.guild.id]
         embeds = []
 
         for setting, setting_info in SETTINGS_MAPPING.items():
@@ -438,7 +438,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         More information on the available settings and their functions is in the `starboard` command
         """
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
-        starboard = self.starboards.get(ctx.guild.id)
+        starboard = self.starboards[ctx.guild.id]
         setattr(starboard, setting, value)
 
         if setting == "emoji":
@@ -475,7 +475,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         Note: If an already starred message is ignored, the
         star will be deleted, *and* the message will be ignored
         """
-        starboard = self.starboards.get(ctx.guild.id)
+        starboard = self.starboards[ctx.guild.id]
         id = to_ignore.id
 
         starboard.ignored.append(id)
@@ -505,7 +505,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     @commands.has_permissions(manage_messages=True)
     async def starboard_unignore(self, ctx, to_ignore: Union[discord.TextChannel, discord.PartialMessage, int]):
         """Unignores a channel or message"""
-        starboard = self.starboards.get(ctx.guild.id)
+        starboard = self.starboards[ctx.guild.id]
         id = to_ignore.id
 
         starboard.ignored.remove(id)
@@ -527,7 +527,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     @commands.has_permissions(manage_messages=True)
     async def starboard_ignored(self, ctx):
         """Displays a list of all ignored items"""
-        starboard = self.starboards.get(ctx.guild.id)
+        starboard = self.starboards[ctx.guild.id]
 
         formatted: list[str] = []
         for id in starboard.ignored:

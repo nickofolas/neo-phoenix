@@ -64,15 +64,16 @@ class Reminder:
     async def deliver(self):
         """Deliver a reminder, falling back to a primitive format if necessary"""
         try:
+            sent = None
             if self.channel is not None:
                 try:
-                    await self.message.reply(
+                    sent = await self.message.reply(
                         f"**Reminder**:\n{self.content}",
                         allowed_mentions=discord.AllowedMentions(replied_user=True)
                     )
                 except discord.HTTPException:
-                    await self.fallback_deliver()
-            else:
+                    pass
+            if sent is None:
                 await self.fallback_deliver()
 
         finally:  # Ensure that the database entry is always deleted
