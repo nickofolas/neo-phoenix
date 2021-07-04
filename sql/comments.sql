@@ -43,8 +43,8 @@ Default Value: `None`
 **Current Value:** `{}`
 ';
 
--- Table: servers | Documentation for settings --
-COMMENT ON COLUMN servers.prefix IS
+-- Table: guild_configs | Documentation for settings --
+COMMENT ON COLUMN guild_configs.prefix IS
 'Sets the bot''s prefix for the server.
 Pinging the bot is always an alternative prefix.
 
@@ -54,7 +54,7 @@ Default Value: `n!`
 **Current Value:** `{}`
 ';
 
-COMMENT ON COLUMN servers.starboard IS
+COMMENT ON COLUMN guild_configs.starboard IS
 'Dictates whether the server''s starboard is enabled.
 
 Expected Value Type: A boolean-like (`yes`/`no`) value

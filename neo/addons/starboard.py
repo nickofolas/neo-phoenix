@@ -186,15 +186,15 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         # Setup starboards
         starboard_settings = {}
         for record in await self.bot.db.fetch("SELECT * FROM starboards"):
-            starboard_settings[record["server_id"]] = record
+            starboard_settings[record["guild_id"]] = record
 
-        for server_id in self.bot.servers.keys():
-            if server_id not in [*starboard_settings.keys()]:
+        for guild_id in self.bot.configs.keys():
+            if guild_id not in [*starboard_settings.keys()]:
                 continue
 
-            settings = starboard_settings[server_id]
-            self.starboards[server_id] = await self.create_starboard(
-                server_id,
+            settings = starboard_settings[guild_id]
+            self.starboards[guild_id] = await self.create_starboard(
+                guild_id,
                 settings
             )
         self.ready = True
@@ -212,7 +212,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             )
             SETTINGS_MAPPING[col_name]["description"] = col_desc
 
-    async def create_starboard(self, server_id, starboard_settings):
+    async def create_starboard(self, guild_id, starboard_settings):
         star_records = await self.bot.db.fetch(
             """
             SELECT
@@ -220,8 +220,8 @@ class StarboardAddon(neo.Addon, name="Starboard"):
                 stars,
                 starboard_message_id
             FROM stars
-            WHERE server_id=$1
-            """, server_id
+            WHERE guild_id=$1
+            """, guild_id
         )
         kwargs = {
             "channel": self.bot.get_channel(starboard_settings["channel"]),
@@ -249,7 +249,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             return False
         checks = [
             not getattr(starboard, "ready", False),
-            not self.bot.servers[starboard.channel.guild.id].starboard,
+            not self.bot.configs[starboard.channel.guild.id].starboard,
             payload.channel_id == starboard.channel.id,
             (datetime.now(timezone.utc) - discord.Object(payload.message_id)
              .created_at).days > starboard.max_days
@@ -297,7 +297,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             await self.bot.db.execute(
                 """
                 INSERT INTO stars (
-                    server_id,
+                    guild_id,
                     message_id,
                     channel_id,
                     stars,
@@ -364,7 +364,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             star.message_id
         )
 
-    @commands.Cog.listener("on_server_settings_update")
+    @commands.Cog.listener("on_config_update")
     async def handle_starboard_setting(self, guild, settings):
         if settings.starboard is True:
             if guild.id in self.starboards:
@@ -374,7 +374,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             starboard_data = await self.bot.db.fetchrow(
                 """
                 INSERT INTO starboards (
-                    server_id
+                    guild_id
                 ) VALUES ($1)
                 RETURNING *
                 """,
@@ -386,9 +386,9 @@ class StarboardAddon(neo.Addon, name="Starboard"):
                 starboard_data
             )
 
-    @commands.Cog.listener("on_server_delete")
-    async def handle_deleted_server(self, server_id: int):
-        self.starboards.pop(server_id, None)
+    @commands.Cog.listener("on_config_delete")
+    async def handle_deleted_config(self, guild_id: int):
+        self.starboards.pop(guild_id, None)
 
     # /Sect: Event Handling
     # Sect: Commands
@@ -397,8 +397,8 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         if not ctx.guild:
             raise commands.NoPrivateMessage()
 
-        server = self.bot.servers.get(ctx.guild.id)
-        if not getattr(server, "starboard", False):
+        config = self.bot.configs.get(ctx.guild.id)
+        if not getattr(config, "starboard", False):
             raise commands.CommandInvokeError(AttributeError(
                 "Starboard is not enabled for this server!"
             ))
@@ -449,7 +449,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             SET
                 {setting}=$1
             WHERE
-                server_id=$2
+                guild_id=$2
             """,
             getattr(value, "id", value),
             ctx.guild.id
@@ -457,7 +457,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         # ^ Using string formatting in SQL is safe here because
         # the setting is thoroughly validated
         if setting in ["channel", "emoji"]:
-            await self.bot.db.execute("DELETE FROM stars WHERE server_id=$1", ctx.guild.id)
+            await self.bot.db.execute("DELETE FROM stars WHERE guild_id=$1", ctx.guild.id)
             starboard.cached_stars.clear()
             starboard.stars.clear()
 
@@ -485,7 +485,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             SET
                 ignored=array_append(ignored, $1)
             WHERE
-                server_id=$2
+                guild_id=$2
             """,
             id,
             ctx.guild.id
@@ -515,7 +515,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             SET
                 ignored=array_remove(ignored, $1)
             WHERE
-                server_id=$2
+                guild_id=$2
             """,
             id,
             ctx.guild.id

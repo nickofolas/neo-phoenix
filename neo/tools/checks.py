@@ -18,7 +18,7 @@ def is_registered_profile():
 def is_registered_guild():
     """Verify the registration status of a guild"""
     def predicate(ctx):
-        if ctx.guild.id not in ctx.bot.servers:
+        if ctx.guild.id not in ctx.bot.configs:
             raise commands.CommandInvokeError(AttributeError(
                 "Looks like this server doesn't have an existing config entry. "
                 "You can fix this with the `server create` command."

@@ -32,7 +32,7 @@ class ServerSettings(neo.Addon):
             col_desc = await self.bot.db.fetchval(
                 """
                 SELECT get_column_description(
-                    $1, 'servers', $2
+                    $1, 'guild_configs', $2
                 )
                 """,
                 self.bot.cfg["database"]["database"],
@@ -61,12 +61,12 @@ class ServerSettings(neo.Addon):
         Descriptions of the settings are also provided here
         """
         await is_registered_guild().predicate(ctx)
-        server = self.bot.servers[ctx.guild.id]
+        config = self.bot.configs[ctx.guild.id]
         embeds = []
 
         for setting, setting_info in SETTINGS_MAPPING.items():
             description = setting_info["description"].format(
-                getattr(server, setting)
+                getattr(config, setting)
             )
             embed = neo.Embed(
                 title=f"Settings for {ctx.guild}",
@@ -88,9 +88,9 @@ class ServerSettings(neo.Addon):
         More information on the available settings and their functions is in the `server` command
         """
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
-        server = self.bot.servers[ctx.guild.id]
-        setattr(server, setting, value)
-        self.bot.dispatch("server_settings_update", ctx.guild, server)
+        config = self.bot.configs[ctx.guild.id]
+        setattr(config, setting, value)
+        self.bot.dispatch("config_update", ctx.guild, config)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
     @server.command(name="reset")
@@ -106,9 +106,9 @@ class ServerSettings(neo.Addon):
                 "That's not a valid setting! "
                 "Try `server` for a list of settings!"
             )
-        server = self.bot.servers[ctx.guild.id]
-        await server.reset_attribute(setting)
-        self.bot.dispatch("server_settings_update", ctx.guild, server)
+        config = self.bot.configs[ctx.guild.id]
+        await config.reset_attribute(setting)
+        self.bot.dispatch("config_update", ctx.guild, config)
         await ctx.send(f"Setting `{setting}` has been reset!")
 
     @server.command(name="create")
@@ -120,11 +120,11 @@ class ServerSettings(neo.Addon):
         joins your server, so you can start
         configuring your server
         """
-        if ctx.guild.id in self.bot.servers:
+        if ctx.guild.id in self.bot.configs:
             raise RuntimeError("Your server already has a config entry!")
 
-        server = await self.bot.add_server(ctx.guild.id)
-        self.bot.dispatch("server_settings_update", ctx.guild, server)
+        config = await self.bot.add_config(ctx.guild.id)
+        self.bot.dispatch("config_update", ctx.guild, config)
         await ctx.send("Successfully initialized your server's config!")
 
     @server.command(name="delete")
@@ -141,7 +141,7 @@ class ServerSettings(neo.Addon):
         ) is False:
             return
 
-        await self.bot.delete_server(ctx.guild.id)
+        await self.bot.delete_config(ctx.guild.id)
 
 
 def setup(bot):

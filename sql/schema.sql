@@ -9,8 +9,8 @@ CREATE TABLE profiles (
     hl_timeout         BIGINT CHECK (hl_timeout >= 1 AND hl_timeout <= 5) DEFAULT 1
 );
 
-CREATE TABLE servers (
-    server_id BIGINT PRIMARY KEY,
+CREATE TABLE guild_configs (
+    guild_id  BIGINT PRIMARY KEY,
     prefix    TEXT DEFAULT 'n!',
     starboard BOOLEAN DEFAULT FALSE
 );
@@ -32,28 +32,28 @@ CREATE TABLE todos (
     FOREIGN KEY (user_id) REFERENCES profiles (user_id) ON DELETE CASCADE
 );
 
--- Use foreign keys so that, if a server is deleted from the servers
+-- Use foreign keys so that, if a config is deleted from the guild_configs
 -- table, all related entries in starboard tables are also deleted
 CREATE TABLE starboards (
-    server_id   BIGINT PRIMARY KEY,
+    guild_id    BIGINT PRIMARY KEY,
     channel     BIGINT,
     threshold   BIGINT DEFAULT 5,
     format      VARCHAR(200) DEFAULT '⭐ **{stars}**',
     max_days    BIGINT CHECK (max_days > 1) DEFAULT 7,
     emoji       TEXT DEFAULT '⭐',
     ignored     BIGINT[] DEFAULT ARRAY[]::BIGINT[],
-    FOREIGN KEY (server_id) REFERENCES servers (server_id) ON DELETE CASCADE
+    FOREIGN KEY (guild_id) REFERENCES guild_configs (guild_id) ON DELETE CASCADE
 );
 
 -- Same as above with foreign keys
 CREATE TABLE stars (
-    server_id            BIGINT NOT NULL,
+    guild_id             BIGINT NOT NULL,
     message_id           BIGINT NOT NULL,
     channel_id           BIGINT NOT NULL,
     stars                BIGINT NOT NULL,
     starboard_message_id BIGINT NOT NULL,
-    PRIMARY KEY (server_id, message_id, channel_id),
-    FOREIGN KEY (server_id) REFERENCES starboards (server_id) ON DELETE CASCADE
+    PRIMARY KEY (guild_id, message_id, channel_id),
+    FOREIGN KEY (guild_id) REFERENCES starboards (guild_id) ON DELETE CASCADE
 );
 
 CREATE TABLE reminders (

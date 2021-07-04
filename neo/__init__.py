@@ -27,7 +27,7 @@ class Neo(commands.Bot):
         self.boot_time = int(time())
         self.session = None
         self.profiles: dict[int, containers.NeoUser] = {}
-        self.servers: dict[int, containers.NeoServer] = {}
+        self.configs: dict[int, containers.NeoGuildConfig] = {}
 
         kwargs["command_prefix"] = self.get_prefix
         kwargs["activity"] = discord.Activity(
@@ -56,22 +56,22 @@ class Neo(commands.Bot):
         for record in await self.db.fetch("SELECT * FROM profiles"):
             await self.add_profile(record["user_id"], record=record)
 
-        for record in await self.db.fetch("SELECT * FROM servers"):
-            await self.add_server(record["server_id"], record=record)
+        for record in await self.db.fetch("SELECT * FROM guild_configs"):
+            await self.add_config(record["guild_id"], record=record)
 
         self._async_ready.set()
-        await self.verify_servers()
+        await self.verify_configs()
 
     async def wait_until_ready(self):
         await self._async_ready.wait()
         await self._ready.wait()
 
-    async def verify_servers(self) -> None:
+    async def verify_configs(self) -> None:
         await self.wait_until_ready()
 
-        for server_id in self.servers.copy().keys():
-            if not self.get_guild(server_id):
-                await self.delete_server(server_id)
+        for guild_id in self.configs.copy():
+            if not self.get_guild(guild_id):
+                await self.delete_config(guild_id)
 
     async def add_profile(self, user_id, *, record=None):
         if not record:
@@ -102,34 +102,34 @@ class Neo(commands.Bot):
         )
         self.dispatch("profile_delete", user_id)
 
-    async def add_server(self, server_id: int, *, record=None):
+    async def add_config(self, guild_id: int, *, record=None):
         if not record:
             record = await self.db.fetchrow(
                 """
-                INSERT INTO servers (
-                    server_id
+                INSERT INTO guild_configs (
+                    guild_id
                 ) VALUES (
                     $1
                 ) RETURNING *
                 """,
-                server_id
+                guild_id
             )
-        server = containers.NeoServer(pool=self.db, **record)
-        self.servers[server_id] = server
-        return server
+        config = containers.NeoGuildConfig(pool=self.db, **record)
+        self.configs[guild_id] = config
+        return config
 
-    async def delete_server(self, server_id: int):
-        self.servers.pop(server_id, None)
+    async def delete_config(self, guild_id: int):
+        self.configs.pop(guild_id, None)
         await self.db.execute(
             """
             DELETE FROM
-                servers
+                guild_configs
             WHERE
-                server_id=$1
+                guild_id=$1
             """,
-            server_id
+            guild_id
         )
-        self.dispatch("server_delete", server_id)
+        self.dispatch("config_delete", guild_id)
 
     def run(self):
         for addon in self.cfg["addons"]:
@@ -151,7 +151,7 @@ class Neo(commands.Bot):
     async def get_prefix(self, message: discord.Message) -> list[str]:
         if message.guild:
             return commands.when_mentioned_or(getattr(
-                self.servers.get(message.guild.id),
+                self.configs.get(message.guild.id),
                 "prefix",
                 self.cfg["bot"]["prefix"]
             ))(self, message)
@@ -173,7 +173,7 @@ class Neo(commands.Bot):
         return await super().get_context(message, cls=cls)
 
     async def on_guild_remove(self, guild: discord.Guild):
-        await self.delete_server(guild.id)
+        await self.delete_config(guild.id)
 
     async def global_cooldown(self, ctx: context.NeoContext):
         if await self.is_owner(ctx.author):

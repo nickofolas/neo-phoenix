@@ -141,23 +141,23 @@ class NeoUser(RecordContainer):
         super().__setattr__(attribute, value)
 
 
-class NeoServer(RecordContainer):
-    __slots__ = ("server_id", "prefix", "starboard")
+class NeoGuildConfig(RecordContainer):
+    __slots__ = ("guild_id", "prefix", "starboard")
 
     def __repr__(self):
-        return "<{0.__class__.__name__} server_id={0.server_id}>".format(self)
+        return "<{0.__class__.__name__} guild_id={0.guild_id}>".format(self)
 
     async def update_relation(self, attribute, value):
         await self.pool.execute(
             f"""
-            UPDATE servers
+            UPDATE guild_configs
             SET
                 {attribute}=$1
             WHERE
-                server_id=$2
+                guild_id=$2
             """,    # While it isn't ideal to use string formatting with SQL,
             value,  # the class implements __slots__, so possible attribute names are restricted
-            self.server_id
+            self.guild_id
         )
 
     async def reset_attribute(self, attribute):
@@ -167,15 +167,15 @@ class NeoServer(RecordContainer):
 
         value = await self.pool.fetchval(
             f"""
-            UPDATE servers
+            UPDATE guild_configs
             SET
                 {attribute}=DEFAULT
             WHERE
-                server_id=$1
+                guild_id=$1
             RETURNING
                 {attribute}
             """,
-            self.server_id
+            self.guild_id
         )
         super().__setattr__(attribute, value)
 
