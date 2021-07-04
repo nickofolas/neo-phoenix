@@ -14,7 +14,15 @@ def try_or_none(func, *args, **kwargs):
 
 
 async def convert_setting(ctx, mapping, setting, new_value):
-    if not (valid_setting := mapping.get(setting)):
+    # Use try/except here because, if the __getitem__ succeeds,
+    # it's roughly 30% faster than using dict.get. Because of the
+    # subsequent operations on success, optimizing speed on success
+    # is preferable. __getitem__ is slower than dict.get on failure,
+    # but since failure leads straight to a `raise`, the difference is
+    # negligible.
+    try:
+        valid_setting = mapping[setting]
+    except KeyError:
         raise commands.BadArgument(
             "That's not a valid setting! "
             "Try `settings` for a list of settings!"

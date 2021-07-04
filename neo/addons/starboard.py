@@ -2,7 +2,7 @@
 # Copyright (C) 2021 nickofolas
 import asyncio
 import textwrap
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Union
 
 import discord
@@ -249,10 +249,10 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             return False
         checks = [
             not getattr(starboard, "ready", False),
-            not self.bot.get_server(starboard.channel.guild.id).starboard,
+            not self.bot.servers[starboard.channel.guild.id].starboard,
             payload.channel_id == starboard.channel.id,
-            (datetime.utcnow() - discord.Object(payload.message_id)
-             .created_at.replace(tzinfo=None)).days > starboard.max_days
+            (datetime.now(timezone.utc) - discord.Object(payload.message_id)
+             .created_at).days > starboard.max_days
         ]
         check_ignored = [  # Ensure the channel/message isn't ignored
             payload.message_id in starboard.ignored,
@@ -397,7 +397,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         if not ctx.guild:
             raise commands.NoPrivateMessage()
 
-        server = self.bot.get_server(ctx.guild.id)
+        server = self.bot.servers.get(ctx.guild.id)
         if not getattr(server, "starboard", False):
             raise commands.CommandInvokeError(AttributeError(
                 "Starboard is not enabled for this server!"

@@ -21,6 +21,7 @@ DEFAULT_AVATARS = [
     "<:def4:842553168105570304>"
 ]
 MAX_TRIGGERS = 10
+MAX_TRIGGER_LEN = 100
 
 
 def format_hl_context(message: discord.Message, is_trigger=False):
@@ -43,20 +44,17 @@ def format_hl_context(message: discord.Message, is_trigger=False):
 
 
 class Highlight:
-    __slots__ = ("bot", "content", "user_id", "__dict__")
+    __slots__ = ("bot", "content", "user_id", "pattern")
 
     def __init__(self, bot: neo.Neo, *, content, user_id):
         self.bot = bot
         self.content = content
         self.user_id = user_id
+        self.pattern = re.compile(fr"\b{self.content}\b")
 
     def __repr__(self):
         return ("<{0.__class__.__name__} user_id={0.user_id!r} "
                 "content={0.content!r}>").format(self)
-
-    @cached_property
-    def pattern(self):
-        return re.compile(fr"\b{self.content}\b")
 
     async def predicate(self, message):
         if not message.guild:
@@ -64,10 +62,10 @@ class Highlight:
         if any([message.author.id == self.user_id,
                 message.author.bot]):
             return
-        if self.bot.get_profile(self.user_id).receive_highlights is False:
+        if self.bot.profiles[self.user_id].receive_highlights is False:
             return  # Don't highlight users who have disabled highlight receipt
 
-        blacklist = self.bot.get_profile(self.user_id).hl_blocks
+        blacklist = self.bot.profiles[self.user_id].hl_blocks
         if any(attrgetter(attr)(message) in blacklist for attr in (
                 "id", "guild.id", "channel.id", "author.id")
                ):
@@ -148,6 +146,11 @@ class Highlights(neo.Addon):
     def flat_highlights(self):
         return [hl for hl_list in self.highlights.values() for hl in hl_list]
 
+    def recompute_flattened(self):
+        if hasattr(self, "flat_highlights"):
+            del self.flat_highlights
+        self.flat_highlights
+
     @commands.Cog.listener("on_message")
     async def listen_for_highlights(self, message):
         if message.author.id in {hl.user_id for hl in self.flat_highlights}:
@@ -190,7 +193,7 @@ class Highlights(neo.Addon):
     async def handle_deleted_profile(self, user_id: int):
         self.grace_periods.pop(user_id, None)
         self.highlights.pop(user_id, None)
-        del self.flat_highlights
+        self.recompute_flattened()
 
     async def cog_check(self, ctx):
         return await is_registered_profile().predicate(ctx)
@@ -224,6 +227,9 @@ class Highlights(neo.Addon):
         """
         if len(content) <= 1:
             raise ValueError("Highlights must contain more than 1 character.")
+        elif len(content) >= MAX_TRIGGER_LEN:
+            raise ValueError(
+                f"Highlights cannot be longer than {MAX_TRIGGER_LEN:,} characters!")
 
         if len(self.get_user_highlights(ctx.author.id)) >= MAX_TRIGGERS:
             raise ValueError("You've used up all of your highlight slots!")
@@ -243,7 +249,7 @@ class Highlights(neo.Addon):
             content
         )
         self.highlights[ctx.author.id].append(Highlight(self.bot, **result))
-        del self.flat_highlights
+        self.recompute_flattened()
         await ctx.message.add_reaction("\U00002611")
 
     @highlight.command(name="remove", aliases=["rm"])
@@ -277,7 +283,7 @@ class Highlights(neo.Addon):
             ctx.author.id,
             [*map(attrgetter("content"), highlights)]
         )
-        del self.flat_highlights
+        self.recompute_flattened()
         await ctx.message.add_reaction("\U00002611")
 
     def perform_blocklist_action(self, *, profile, ids, action="block"):
@@ -300,7 +306,7 @@ class Highlights(neo.Addon):
 
         A variable number of IDs can be provided to this command
         """
-        profile = self.bot.get_profile(ctx.author.id)
+        profile = self.bot.profiles[ctx.author.id]
 
         if not ids:
 
@@ -330,7 +336,7 @@ class Highlights(neo.Addon):
 
         A variable number of IDs can be provided to this command
         """
-        profile = self.bot.get_profile(ctx.author.id)
+        profile = self.bot.profiles[ctx.author.id]
 
         self.perform_blocklist_action(profile=profile, ids=ids, action="unblock")
         await ctx.message.add_reaction("\U00002611")

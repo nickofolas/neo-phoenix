@@ -61,7 +61,7 @@ class ServerSettings(neo.Addon):
         Descriptions of the settings are also provided here
         """
         await is_registered_guild().predicate(ctx)
-        server = self.bot.get_server(ctx.guild.id)
+        server = self.bot.servers[ctx.guild.id]
         embeds = []
 
         for setting, setting_info in SETTINGS_MAPPING.items():
@@ -88,7 +88,7 @@ class ServerSettings(neo.Addon):
         More information on the available settings and their functions is in the `server` command
         """
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
-        server = self.bot.get_server(ctx.guild.id)
+        server = self.bot.servers[ctx.guild.id]
         setattr(server, setting, value)
         self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send(f"Setting `{setting}` has been changed!")
@@ -106,7 +106,7 @@ class ServerSettings(neo.Addon):
                 "That's not a valid setting! "
                 "Try `server` for a list of settings!"
             )
-        server = self.bot.get_server(ctx.guild.id)
+        server = self.bot.servers[ctx.guild.id]
         await server.reset_attribute(setting)
         self.bot.dispatch("server_settings_update", ctx.guild, server)
         await ctx.send(f"Setting `{setting}` has been reset!")
@@ -120,7 +120,7 @@ class ServerSettings(neo.Addon):
         joins your server, so you can start
         configuring your server
         """
-        if self.bot.get_server(ctx.guild.id):
+        if ctx.guild.id in self.bot.servers:
             raise RuntimeError("Your server already has a config entry!")
 
         server = await self.bot.add_server(ctx.guild.id)

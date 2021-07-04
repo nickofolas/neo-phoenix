@@ -236,7 +236,7 @@ class Reminders(neo.Addon):
         if len(remainder) > MAX_REMINDER_LEN:
             raise ValueError(f"Reminders cannot be longer than {MAX_REMINDER_LEN:,} characters!")
 
-        profile = self.bot.get_profile(ctx.author.id)
+        profile = self.bot.profiles[ctx.author.id]
         future_time = future_time.replace(
             tzinfo=profile.timezone or timezone.utc
         )

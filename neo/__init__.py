@@ -17,6 +17,8 @@ from .types import Embed, containers, context, formatters, help_command
 __version__ = "0.8.0a"
 
 log = logging.getLogger(__name__)
+intents = discord.Intents(
+    **dict.fromkeys(["messages", "guilds", "guild_reactions"], True))
 
 
 class Neo(commands.Bot):
@@ -27,21 +29,22 @@ class Neo(commands.Bot):
         self.profiles: dict[int, containers.NeoUser] = {}
         self.servers: dict[int, containers.NeoServer] = {}
 
-        kwargs.setdefault("command_prefix", self.get_prefix)
-        kwargs.setdefault("activity", discord.Activity(
+        kwargs["command_prefix"] = self.get_prefix
+        kwargs["activity"] = discord.Activity(
             name=config["bot"]["activity_name"],
             type=discord.ActivityType[config["bot"]["activity_type"]],
             url="https://twitch.tv/#"  # for spoofing Discord when activity type is streaming
-        ))
-        kwargs.setdefault("status", discord.Status[config["bot"]["status"]])
-        kwargs.setdefault("allowed_mentions", discord.AllowedMentions.none())
-        kwargs.setdefault("help_command", help_command.NeoHelpCommand())
+        )
+        kwargs["status"] = discord.Status[config["bot"]["status"]]
+        kwargs["allowed_mentions"] = discord.AllowedMentions.none()
+        kwargs["help_command"] = help_command.NeoHelpCommand()
+        kwargs["intents"] = intents
 
         super().__init__(**kwargs)
 
         self.cooldown = commands.CooldownMapping.from_cooldown(
-            1, 2.5, commands.BucketType.user)
-        self.check(self.global_cooldown)  # Register global cooldown
+            2, 4, commands.BucketType.user)
+        self.add_check(self.global_cooldown, call_once=True)  # Register global cooldown
 
         self._async_ready = asyncio.Event()
         self.loop.create_task(self.__ainit__())
@@ -70,12 +73,6 @@ class Neo(commands.Bot):
             if not self.get_guild(server_id):
                 await self.delete_server(server_id)
 
-    def get_profile(self, user_id: int) -> containers.NeoUser:
-        return self.profiles.get(user_id)
-
-    def get_server(self, server_id: int) -> containers.NeoServer:
-        return self.servers.get(server_id)
-
     async def add_profile(self, user_id, *, record=None):
         if not record:
             record = await self.db.fetchrow(
@@ -88,8 +85,9 @@ class Neo(commands.Bot):
                 """,
                 user_id
             )
-        self.profiles[user_id] = containers.NeoUser(pool=self.db, **record)
-        return self.get_profile(user_id)
+        profile = containers.NeoUser(pool=self.db, **record)
+        self.profiles[user_id] = profile
+        return profile
 
     async def delete_profile(self, user_id: int):
         self.profiles.pop(user_id, None)
@@ -116,8 +114,9 @@ class Neo(commands.Bot):
                 """,
                 server_id
             )
-        self.servers[server_id] = containers.NeoServer(pool=self.db, **record)
-        return self.get_server(server_id)
+        server = containers.NeoServer(pool=self.db, **record)
+        self.servers[server_id] = server
+        return server
 
     async def delete_server(self, server_id: int):
         self.servers.pop(server_id, None)
@@ -152,7 +151,7 @@ class Neo(commands.Bot):
     async def get_prefix(self, message: discord.Message) -> list[str]:
         if message.guild:
             return commands.when_mentioned_or(getattr(
-                self.get_server(message.guild.id),
+                self.servers.get(message.guild.id),
                 "prefix",
                 self.cfg["bot"]["prefix"]
             ))(self, message)
@@ -182,5 +181,6 @@ class Neo(commands.Bot):
 
         retry_after = self.cooldown.update_rate_limit(ctx.message)
         if retry_after:
-            raise commands.CommandOnCooldown(self.cooldown, retry_after)
+            raise commands.CommandOnCooldown(
+                self.cooldown, retry_after, commands.BucketType.user)
         return True
