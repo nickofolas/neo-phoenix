@@ -51,6 +51,7 @@ class Devel(neo.Addon):
         pages = Pages(
             "\r",
             1500,
+            joiner="",
             prefix="```py\n",
             suffix="\n```",
             use_embed=True
@@ -90,6 +91,7 @@ class Devel(neo.Addon):
         pages = Pages(
             table.display(),
             1500,
+            joiner="",
             prefix="```py\n",
             suffix="\n```"
         )
