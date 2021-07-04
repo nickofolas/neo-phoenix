@@ -106,18 +106,26 @@ class NeoHelpCommand(commands.HelpCommand):
             description="{}\n".format(command.help or "No description")
         )
 
+        if hasattr(command, "get_args_help"):
+            args_help = ""
+            for dest, help in command.get_args_help():
+                args_help += f"\n**{dest}** {help}"
+            embed.add_field(name="Flag Arguments", value=args_help, inline=False)
+
+        if command.aliases:
+            aliases = ", ".join(
+                f"**{alias}**" for alias in [command.name, *command.aliases])
+            embed.add_field(name="Aliases", value=aliases, inline=False)
+
         if isinstance(command, commands.Group):
             embed.add_field(
                 name="Subcommands",
                 value="\n".join(map(
                     lambda sub: f"{sub.full_parent_name} **{sub.name}**",
                     command.walk_commands()
-                )) or "No subcommands"
+                )) or "No subcommands",
+                inline=False
             )
-
-        if hasattr(command, "get_args_help"):
-            for dest, help in command.get_args_help():
-                embed.description += f"\n**{dest}** {help}"
 
         await self.context.send(embed=embed)
 
