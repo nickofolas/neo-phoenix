@@ -17,6 +17,8 @@ def format_exception(exc: Union[BaseException, tuple]) -> Optional[str]:
 
 
 class Table:
+    __slots__ = ("columns", "rows", "widths", "border")
+
     def __init__(self):
         self.columns: list[str] = []
         self.rows: list[list[str]] = []

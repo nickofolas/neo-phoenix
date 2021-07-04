@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2021 nickofolas
 from collections import defaultdict
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from textwrap import shorten
 from typing import Union
@@ -11,24 +10,42 @@ import neo
 from discord.ext import commands
 from discord.utils import snowflake_time
 from neo.modules import Paginator
-from neo.tools.time_parse import parse_absolute, parse_relative
 from neo.tools import is_registered_profile
+from neo.tools.time_parse import parse_absolute, parse_relative
 
 MAX_REMINDERS = 15
 MAX_REMINDER_LEN = 1000
 
 
-@dataclass
 class Reminder:
-    user_id: int
-    message_id: int
-    channel_id: int
-    content: str
-    end_time: datetime
-    bot: neo.Neo
+    __slots__ = (
+        "user_id",
+        "message_id",
+        "channel_id",
+        "content",
+        "end_time",
+        "bot",
+        "wait_task"
+    )
 
-    def __post_init__(self):
-        self.wait_task = self.bot.loop.create_task(self.wait())
+    def __init__(
+        self,
+        *,
+        user_id: int,
+        message_id: int,
+        channel_id: int,
+        content: str,
+        end_time: datetime,
+        bot: neo.Neo
+    ):
+        self.user_id = user_id
+        self.message_id = message_id
+        self.channel_id = channel_id
+        self.content = content
+        self.end_time = end_time
+        self.bot = bot
+
+        self.wait_task = bot.loop.create_task(self.wait())
 
     @property
     def channel(self) -> Union[discord.TextChannel, discord.DMChannel]:

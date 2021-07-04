@@ -35,6 +35,18 @@ class Pages:
         Returns all pages
     """
 
+    __slots__ = (
+        "items",
+        "joiner",
+        "per_page",
+        "use_embed",
+        "prefix",
+        "suffix",
+        "template_embed",
+        "paginator",
+        "_old_page_count"
+    )
+
     def __init__(
         self,
         items,
@@ -42,7 +54,7 @@ class Pages:
         per_page: int = 1,
         *,
         use_embed: bool = False,
-        joiner: str = "",
+        joiner: str = "\n",
         prefix: str = None,
         suffix: str = None,
         template_embed: Optional[Embed] = None

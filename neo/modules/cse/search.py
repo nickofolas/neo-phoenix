@@ -16,6 +16,8 @@ def _safe(_input):
 
 
 class Search:
+    __slots__ = ("key", "engine_id", "session")
+
     def __init__(self, *, key, engine_id, session: ClientSession = None):
         self.key = key
         self.engine_id = engine_id

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2021 nickofolas
 from collections import defaultdict
-from dataclasses import dataclass
 from operator import attrgetter
 from textwrap import shorten
 
@@ -13,14 +12,25 @@ from neo.modules import Paginator
 from neo.tools import is_registered_profile
 
 
-@dataclass
 class TodoItem:
-    user_id: int
-    content: str
-    guild_id: str
-    channel_id: int
-    message_id: int
-    edited: bool
+    __slots__ = ("user_id", "content", "guild_id", "channel_id", "message_id", "edited")
+
+    def __init__(
+        self,
+        *,
+        user_id: int,
+        content: str,
+        guild_id: str,
+        channel_id: int,
+        message_id: int,
+        edited: bool
+    ):
+        self.user_id = user_id
+        self.content = content
+        self.guild_id = guild_id
+        self.channel_id = channel_id
+        self.message_id = message_id
+        self.edited = edited
 
     def __repr__(self):
         return "<{0.__class__.__name__} user_id={0.user_id} message_id={0.message_id}>".format(self)

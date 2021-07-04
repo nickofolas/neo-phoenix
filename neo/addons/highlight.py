@@ -23,7 +23,7 @@ DEFAULT_AVATARS = [
 MAX_TRIGGERS = 10
 
 
-def format_hl_context(message, is_trigger=False):
+def format_hl_context(message: discord.Message, is_trigger=False):
     fmt = (
         "[{0} **{1.author.display_name}**]({1.jump_url}) {1.content}"
         if is_trigger else
@@ -43,6 +43,8 @@ def format_hl_context(message, is_trigger=False):
 
 
 class Highlight:
+    __slots__ = ("bot", "content", "user_id", "__dict__")
+
     def __init__(self, bot: neo.Neo, *, content, user_id):
         self.bot = bot
         self.content = content

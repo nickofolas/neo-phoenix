@@ -21,6 +21,8 @@ def env_from_context(ctx):
 
 
 class Eval:
+    __slots__ = ("compiled", "environment", "output")
+
     def __init__(self, code_input, environment={}, output={}):
         self.compiled = compile_all(code_input)
         self.environment = environment

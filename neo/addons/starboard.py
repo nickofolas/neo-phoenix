@@ -2,7 +2,6 @@
 # Copyright (C) 2021 nickofolas
 import asyncio
 import textwrap
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Union
 
@@ -37,11 +36,19 @@ SETTINGS_MAPPING = {
 }
 
 
-@dataclass
 class Star:
-    message_id: int
-    starboard_message: discord.PartialMessage
-    stars: int
+    __slots__ = ("message_id", "starboard_message", "stars")
+
+    def __init__(
+        self,
+        *,
+        message_id: int,
+        starboard_message: discord.PartialMessage,
+        stars: int
+    ):
+        self.message_id = message_id
+        self.starboard_message = starboard_message
+        self.stars = stars
 
     def __repr__(self):
         return (
@@ -53,21 +60,39 @@ class Star:
         await self.starboard_message.edit(**kwargs)
 
 
-@dataclass
 class Starboard:
-    channel: discord.TextChannel
-    stars: list
-    threshold: int
-    star_format: str
-    max_days: int
-    emoji: discord.PartialEmoji
-    ignored: list[int]
+    __slots__ = (
+        "channel",
+        "stars",
+        "threshold",
+        "star_format",
+        "max_days",
+        "emoji",
+        "ignored",
+        "cached_stars",
+        "lock",
+        "ready"
+    )
 
-    cached_stars: dict[int, Star] = field(init=False)
-    lock: asyncio.Lock = field(init=False)
-    ready: bool = field(init=False)
+    def __init__(
+        self,
+        *,
+        channel: discord.TextChannel,
+        stars: list,
+        threshold: int,
+        star_format: str,
+        max_days: int,
+        emoji: discord.PartialEmoji,
+        ignored: list[str]
+    ):
+        self.channel = channel
+        self.stars = stars
+        self.threshold = threshold
+        self.star_format = star_format
+        self.max_days = max_days
+        self.emoji = emoji
+        self.ignored = ignored
 
-    def __post_init__(self):
         self.cached_stars = {}
         self.lock = asyncio.Lock()
         self.ready = False

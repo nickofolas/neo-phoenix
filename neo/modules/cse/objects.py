@@ -5,7 +5,6 @@ from functools import cached_property
 
 class SearchResult:
     __slots__ = (
-        "_data",
         "title",
         "title_html",
         "url",
@@ -15,8 +14,6 @@ class SearchResult:
     )
 
     def __init__(self, result_data):
-        self._data = result_data
-
         self.title = result_data.get("title")
         self.snippet = result_data.get("snippet")
 
@@ -35,30 +32,18 @@ class SearchResult:
 
 
 class GoogleResponse:
-    __slots__ = ("_data", "__dict__")
+    __slots__ = ("request", "next_page", "search_info", "results")
 
     def __init__(self, response_data):
-        self._data = response_data
+        self.request = response_data["queries"]["request"]
+        self.next_page = response_data["queries"]["nextPage"]
+        self.search_info = response_data["searchInformation"]
+
+        _results = response_data.get("items", [])
+        self.results = [*map(SearchResult, _results)]
 
     def __repr__(self):
         return "<{0.__class__.__name__} result_count={1!r}>".format(self, len(self.results))
-
-    @cached_property
-    def request(self):
-        return self._data["queries"]["request"]
-
-    @cached_property
-    def next_page(self):
-        return self._data["queries"]["nextPage"]
-
-    @cached_property
-    def search_info(self):
-        return self._data["searchInformation"]
-
-    @cached_property
-    def results(self):
-        _results = self._data.get("items", [])
-        return [*map(SearchResult, _results)]
 
     def __iter__(self):
         return iter(self.results)

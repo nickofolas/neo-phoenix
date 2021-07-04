@@ -10,6 +10,8 @@ DefinitionError = type("DefinitionError", (Exception,), {})
 
 
 class Define:
+    __slots__ = ("session",)
+
     def __init__(self, session: ClientSession = None):
         self.session = session or ClientSession()
 

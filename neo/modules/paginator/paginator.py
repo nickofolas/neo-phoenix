@@ -26,6 +26,18 @@ class Paginator:
         Creates a Paginator object from a list of Embeds
     """
 
+    __slots__ = (
+        "pages",
+        "message",
+        "ctx",
+        "current_page",
+        "running",
+        "update_lock",
+        "buttons",
+        "bot",
+        "author"
+    )
+
     def __init__(self, pages):
         self.pages = pages
 
