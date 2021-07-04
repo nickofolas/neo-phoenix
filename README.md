@@ -12,6 +12,15 @@ neo phoenix is an in-development rewrite of the `neo` Discord bot.
 * Maximize efficiency where possible
 * Provide a familiar and straightforward user experience, minimizing the possibility for confusion
 
+## Roadmap
+
+* [x] Implement basic functionality
+* [x] Add large features
+* [ ] `1.0.0` stable release
+* [ ] Deploy and publicize
+* [ ] Deprecate legacy `neo`
+* [ ] ???
+
 ## License
 
 neo phoenix is licensed under the GNU Affero General Public License v3.0 (AGPLv3).
