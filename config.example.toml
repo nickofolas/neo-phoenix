@@ -10,7 +10,7 @@ addons = [
     "str"
 ]
 upstream_url = "str"
-privacy_info = "str"
+privacy_policy_path = "str"
 [[invite_presets]]
 name = "str"
 desc = "str"

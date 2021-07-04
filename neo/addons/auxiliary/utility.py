@@ -97,8 +97,8 @@ class InfoButtons(discord.ui.View):
         self.add_item(InviteButton(disabled=invite_disabled))
 
     @discord.ui.button(
-        custom_id="neo phoenix:privacy info",
-        label="Privacy Information",
+        custom_id="neo phoenix:privacy policy",
+        label="Privacy Policy",
         row=1
     )
     async def callback(self, button, interaction: discord.Interaction):

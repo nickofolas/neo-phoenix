@@ -38,10 +38,10 @@ class Utility(neo.Addon):
 
     def __init__(self, bot: neo.Neo):
         self.bot = bot
-        self.privacy_embed = neo.Embed(
-            title="Privacy Information",
-            description=bot.cfg["privacy_info"]
-        )
+        with open(bot.cfg["privacy_policy_path"]) as policy:
+            header, body = policy.read().split("\n", 1)
+            header = header.lstrip("# ")
+        self.privacy_embed = neo.Embed(title=header, description=body)
         self.bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
