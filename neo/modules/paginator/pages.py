@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2021 nickofolas
-from ...types.embed import Embed
+from typing import Optional
+
+from ...types import Embed
 
 
 class Pages:
@@ -42,7 +44,8 @@ class Pages:
         use_embed: bool = False,
         joiner: str = "",
         prefix: str = None,
-        suffix: str = None
+        suffix: str = None,
+        template_embed: Optional[Embed] = None
     ):
         self.items = items
         self.joiner = joiner
@@ -56,6 +59,9 @@ class Pages:
             )
         self.prefix = prefix
         self.suffix = suffix
+        self.template_embed = {}
+        if template_embed is not None:
+            self.template_embed = template_embed.to_dict()
 
     def __repr__(self):
         return "<{0.__class__.__name__} pages={1}>".format(self, len(self.pages))
@@ -87,7 +93,7 @@ class Pages:
     def __getitem__(self, index):
         content = self.joiner.join(self.pages[index])
         if self.use_embed:
-            return Embed(description=content)
+            return Embed.from_dict(self.template_embed | {"description": content})
         return content
 
     def append(self, new):

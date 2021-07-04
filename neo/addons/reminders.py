@@ -247,7 +247,11 @@ class Reminders(neo.Addon):
         menu = Paginator.from_iterable(
             formatted_reminders or ["No reminders"],
             per_page=5,
-            use_embed=True
+            use_embed=True,
+            template_embed=neo.Embed().set_author(
+                name=f"{ctx.author}'s reminders",
+                icon_url=ctx.author.avatar
+            )
         )
         await menu.start(ctx)
 

@@ -25,9 +25,9 @@ MAX_TRIGGERS = 10
 
 def format_hl_context(message, is_trigger=False):
     fmt = (
-        "{0} **__{1.author.display_name}:__** {1.content}"
+        "[{0} **{1.author.display_name}**]({1.jump_url}) {1.content}"
         if is_trigger else
-        "{0} **{1.author.display_name}:** {1.content}"
+        "{0} **{1.author.display_name}** {1.content}"
     )
     if message.attachments:
         message.content += " *[Attachment x{}]*".format(len(message.attachments))
@@ -99,10 +99,10 @@ class Highlight:
                 m, self.matches(m.content) and m.id >= message.id)
             content = f"{formatted}\n{content}"
 
-        content += f"[Jump]({message.jump_url})"
         embed = neo.Embed(
             title="In {0.guild.name}/#{0.channel.name}".format(message),
-            description=content
+            description=content,
+            timestamp=message.created_at
         )
         return {
             "content": "{0.author}: {0.content}".format(message)[:1500],
@@ -205,8 +205,9 @@ class Highlights(neo.Addon):
                 hl.content
             )
 
-        embed = neo.Embed(description=description or "You have no highlights")
-        embed.set_footer(text=f"{len(user_highlights)}/{MAX_TRIGGERS} slots used")
+        embed = neo.Embed(description=description or "You have no highlights") \
+            .set_footer(text=f"{len(user_highlights)}/{MAX_TRIGGERS} slots used") \
+            .set_author(name=f"{ctx.author}'s highlights", icon_url=ctx.author.avatar)
         await ctx.send(embed=embed)
 
     @highlight.command(name="add")

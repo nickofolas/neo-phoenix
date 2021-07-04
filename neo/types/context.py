@@ -39,8 +39,7 @@ class PromptActions(discord.ui.View):
         self.value = None
 
     async def interaction_check(self, interaction):
-        predicates = []
-        predicates.append(interaction.user.id in (
+        (predicates := []).append(interaction.user.id in (
             self.ctx.author.id,
             *self.ctx.bot.owner_ids,
             self.ctx.bot.owner_id)

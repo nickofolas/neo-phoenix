@@ -38,15 +38,9 @@ class Paginator:
         self.pages.link(self)
 
     @classmethod
-    def from_iterable(
-            cls,
-            iterable,
-            *, per_page=1,
-            use_embed=False,
-            joiner="\n",
-            **kwargs):
-        _pages = Pages(iterable, per_page, use_embed=use_embed, joiner=joiner)
-        return cls(_pages, **kwargs)
+    def from_iterable(cls, iterable, *, per_page=1, **kwargs):
+        _pages = Pages(iterable, per_page, **kwargs)
+        return cls(_pages)
 
     @classmethod
     def from_embeds(cls, iterable, **kwargs):
