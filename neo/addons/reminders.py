@@ -301,7 +301,7 @@ class Reminders(neo.Addon):
         if "~" in indices:
             reminders = self.reminders[ctx.author.id].copy()
         else:
-            indices = [*map(str, indices)]  # Need to cast to str to filter any non-integers
+            (indices := [*map(str, indices)]).sort(reverse=True)
             try:
                 reminders = [self.reminders[ctx.author.id].pop(index - 1) for index in map(
                     int, filter(str.isdigit, indices))]
