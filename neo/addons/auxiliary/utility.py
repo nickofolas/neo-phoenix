@@ -21,9 +21,8 @@ def definitions_to_embed(word):
     for meaning in word.meanings:
         for definition in meaning.definitions:
             embed = neo.Embed(
-                description=definition.definition
-            ).set_author(
-                name=f"{word.word}: {meaning.part_of_speech}"
+                description=definition.definition,
+                title=f"{word.word}: {meaning.part_of_speech}"
             ).add_field(
                 name="Synonyms",
                 value=", ".join((definition.synonyms or ["No synonyms"])[:5])

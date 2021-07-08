@@ -2,7 +2,7 @@
 # Copyright (C) 2021 nickofolas
 import neo
 from discord.ext import commands
-from neo.modules.paginator import Paginator
+from neo.modules import DropdownMenu, EmbedPages
 
 
 def format_command(command):
@@ -80,7 +80,9 @@ class NeoHelpCommand(commands.HelpCommand):
                     ))
                 ))
 
-        menu = Paginator.from_embeds(embeds)
+        pages = EmbedPages(embeds)
+        menu = DropdownMenu.from_pages(
+            pages, embed_auto_label=True, embed_auto_desc=True)
         await menu.start(self.context)
 
     async def send_cog_help(self, cog):

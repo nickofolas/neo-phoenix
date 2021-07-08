@@ -2,7 +2,7 @@
 # Copyright (C) 2021 nickofolas
 from typing import Optional
 
-from ...types import Embed
+from neo.types import Embed
 
 
 class Pages:
@@ -46,7 +46,7 @@ class Pages:
         "prefix",
         "suffix",
         "template_embed",
-        "paginator",
+        "menu",
         "_old_page_count"
     )
 
@@ -66,7 +66,7 @@ class Pages:
         self.joiner = joiner
         self.per_page = per_page
         self.use_embed = use_embed
-        self.paginator = None
+        self.menu = None
 
         if (prefix or suffix) and not isinstance(items, str):
             raise TypeError(
@@ -81,8 +81,8 @@ class Pages:
     def __repr__(self):
         return "<{0.__class__.__name__} pages={1}>".format(self, len(self.pages))
 
-    def link(self, paginator):
-        self.paginator = paginator
+    def link(self, menu):
+        self.menu = menu
 
     def _split_pages(self):
         _items = self.items
@@ -92,10 +92,10 @@ class Pages:
             if self.suffix or self.prefix:
                 prefix = (self.prefix if isinstance(_items, str) else [self.prefix])
                 suffix = (self.suffix if isinstance(_items, str) else [self.suffix])
-                to_append = prefix + _items[: self.per_page] + suffix
+                to_append = prefix + _items[:self.per_page] + suffix
 
             else:
-                to_append = _items[: self.per_page]
+                to_append = _items[:self.per_page]
             _pages.append(to_append)
             _items = _items[self.per_page:]
 
@@ -118,8 +118,8 @@ class Pages:
         else:
             self.items.append(new)
 
-        if getattr(self.paginator, "bot", None):
-            self.paginator.dispatch_update()
+        if getattr(self.menu, "bot", None):
+            self.menu.dispatch_update()
 
     def prepend(self, new):
         self._old_page_count = len(self.pages)
@@ -128,8 +128,8 @@ class Pages:
         else:
             self.items.insert(0, new)
 
-        if getattr(self.paginator, "bot", None):
-            self.paginator.dispatch_update()
+        if getattr(self.menu, "bot", None):
+            self.menu.dispatch_update()
 
     def __len__(self):
         return len(self.pages)

@@ -20,15 +20,15 @@ ORIGINAL = toml.load("config.toml")
 
 
 class PrettyListEncoder(toml.TomlEncoder):  # Dump lists with newlines
-    def dump_list(self, v):
+    def dump_list(self, value):
         retval = "["
-        endpoint = len(v)
-        for i in range(endpoint):
-            u = v[i]
+        endpoint = len(value)
+        for index in range(endpoint):
+            item = value[index]
             lineterm = ","
-            if (i + 1) == endpoint:
+            if (index + 1) == endpoint:
                 lineterm = ""
-            retval += "\n    " + str(self.dump_value(u)) + lineterm
+            retval += "\n    " + str(self.dump_value(item)) + lineterm
         retval += "\n]"
         return retval
 

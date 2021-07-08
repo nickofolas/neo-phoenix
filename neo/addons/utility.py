@@ -7,7 +7,7 @@ from typing import Union
 import discord
 import neo
 from discord.ext import commands
-from neo.modules import Paginator, args, cse, dictionary
+from neo.modules import DropdownMenu, EmbedPages, args, cse, dictionary
 from neo.types.converters import mention_converter
 
 from .auxiliary.utility import (InfoButtons, InviteMenu, definitions_to_embed,
@@ -94,7 +94,9 @@ class Utility(neo.Addon):
         if not embeds:
             raise RuntimeError("Search returned no results")
 
-        menu = Paginator.from_embeds(embeds)
+        pages = EmbedPages(embeds)
+        menu = DropdownMenu.from_pages(
+            pages, embed_auto_label=True, embed_auto_desc=True)
         await menu.start(ctx)
 
     @commands.command(name="image", aliases=["i"])
@@ -129,7 +131,9 @@ class Utility(neo.Addon):
         if not embeds:
             raise RuntimeError("No definition found")
 
-        menu = Paginator.from_embeds(embeds)
+        pages = EmbedPages(embeds)
+        menu = DropdownMenu.from_pages(
+            pages, embed_auto_label=True, embed_auto_desc=True)
         await menu.start(ctx)
 
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])

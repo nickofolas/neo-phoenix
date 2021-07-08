@@ -2,9 +2,8 @@
 # Copyright (C) 2021 nickofolas
 import neo
 from discord.ext import commands
-from neo.modules import args
+from neo.modules import Pages, ButtonsMenu, args
 from neo.modules.eval import Eval, env_from_context
-from neo.modules.paginator import Pages, Paginator
 from neo.types.converters import codeblock_converter
 from neo.types.formatters import Table, format_exception
 
@@ -56,7 +55,7 @@ class Devel(neo.Addon):
             suffix="\n```",
             use_embed=True
         )
-        menu = Paginator(pages)
+        menu = ButtonsMenu(pages)
 
         try:
             async for res in Eval(code, environment, self._eval_scope):
@@ -95,7 +94,7 @@ class Devel(neo.Addon):
             prefix="```py\n",
             suffix="\n```"
         )
-        menu = Paginator(pages)
+        menu = ButtonsMenu(pages)
         await menu.start(ctx)
 
     @args.add_arg(
@@ -123,7 +122,7 @@ class Devel(neo.Addon):
                 failed.append("```py\n" + format_exception(e) + "\n```")
 
         if failed:
-            menu = Paginator.from_iterable(failed, use_embed=True)
+            menu = ButtonsMenu.from_iterable(failed, use_embed=True)
             await menu.start(ctx)
             return
         await ctx.message.add_reaction("\U00002611")

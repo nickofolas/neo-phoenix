@@ -2,15 +2,14 @@
 # Copyright (C) 2021 nickofolas
 from collections import defaultdict
 from datetime import datetime, timezone
-from textwrap import shorten
 from typing import Union
 
 import discord
 import neo
 from discord.ext import commands
 from discord.utils import snowflake_time
-from neo.modules import Paginator
-from neo.tools import is_registered_profile
+from neo.modules import ButtonsMenu
+from neo.tools import is_registered_profile, shorten
 from neo.tools.time_parse import parse_absolute, parse_relative
 
 MAX_REMINDERS = 15
@@ -262,7 +261,7 @@ class Reminders(neo.Addon):
                 "`{0}` {1}\n> Triggers <t:{2}:R>".format(
                     index, shorten(reminder.content, 50), int(reminder.end_time.timestamp())
                 ))
-        menu = Paginator.from_iterable(
+        menu = ButtonsMenu.from_iterable(
             formatted_reminders or ["No reminders"],
             per_page=5,
             use_embed=True,

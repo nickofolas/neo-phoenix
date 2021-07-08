@@ -8,7 +8,7 @@ from operator import attrgetter
 import discord
 import neo
 from discord.ext import commands
-from neo.modules import paginator
+from neo.modules import ButtonsMenu
 from neo.tools import is_registered_profile
 from neo.types.containers import TimedSet
 from neo.types.timer import periodic
@@ -316,7 +316,7 @@ class Highlights(neo.Addon):
                                           f"<@{id}>"))  # Yes, this could lead to fake user mentions
                 return "`{0}` [{1}]".format(id, mention)
 
-            menu = paginator.Paginator.from_iterable(
+            menu = ButtonsMenu.from_iterable(
                 [*map(transform_mention, profile.hl_blocks)] or ["No highlight blocks"],
                 per_page=10,
                 use_embed=True

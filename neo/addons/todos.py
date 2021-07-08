@@ -2,14 +2,13 @@
 # Copyright (C) 2021 nickofolas
 from collections import defaultdict
 from operator import attrgetter
-from textwrap import shorten
 
 import discord
 import neo
 from discord.ext import commands
 from discord.utils import escape_markdown
-from neo.modules import Paginator
-from neo.tools import is_registered_profile
+from neo.modules import ButtonsMenu
+from neo.tools import is_registered_profile, shorten
 
 MAX_TODOS = 100
 
@@ -79,7 +78,7 @@ class Todos(neo.Addon):
                 index, escape_markdown(shorten(todo.content, width=75))
             ))
 
-        menu = Paginator.from_iterable(
+        menu = ButtonsMenu.from_iterable(
             formatted_todos or ["No todos"],
             per_page=10,
             use_embed=True,

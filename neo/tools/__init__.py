@@ -6,6 +6,12 @@ from .checks import is_registered_guild, is_registered_profile
 from .patcher import Patcher
 
 
+def shorten(text: str, width: int) -> str:
+    if len(text) > width:
+        text = text[:width - 3] + "..."
+    return text
+
+
 def try_or_none(func, *args, **kwargs):
     try:
         return func(*args, **kwargs)

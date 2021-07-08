@@ -1,15 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2021 nickofolas
 import asyncio
-import textwrap
 from datetime import datetime, timezone
 from typing import Union
 
 import discord
 import neo
 from discord.ext import commands
-from neo.modules import Paginator
-from neo.tools import convert_setting
+from neo.modules import ButtonsMenu
+from neo.tools import convert_setting, shorten
 from neo.types.converters import max_days_converter
 
 SETTINGS_MAPPING = {
@@ -124,7 +123,7 @@ class Starboard:
             )
 
             if message.content:
-                embed.description = textwrap.shorten(message.content, 1900) + "\n\n"
+                embed.description = shorten(message.content, 1900) + "\n\n"
             embed.description += f"[Jump]({message.jump_url})"
 
             for attachment in (*message.attachments, *message.embeds):
@@ -428,7 +427,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             )
             embeds.append(embed)
 
-        menu = Paginator.from_embeds(embeds)
+        menu = ButtonsMenu.from_embeds(embeds)
         await menu.start(ctx)
 
     @starboard.command(name="set")
@@ -538,7 +537,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             else:
                 formatted.append(f"Message: {id}")
 
-        menu = Paginator.from_iterable(
+        menu = ButtonsMenu.from_iterable(
             formatted or ["No ignored items"],
             per_page=10,
             use_embed=True

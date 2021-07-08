@@ -167,7 +167,8 @@ class Neo(commands.Bot):
             return  # Ignore exceptions specified in config
 
         await ctx.send(real_error)
-        log.error("\n" + formatters.format_exception(error))
+        log.error(f"In command invocation: {ctx.message.content}\n" + formatters
+                  .format_exception(real_error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)
