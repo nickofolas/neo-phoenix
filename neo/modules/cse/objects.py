@@ -36,7 +36,7 @@ class GoogleResponse:
 
     def __init__(self, response_data):
         self.request = response_data["queries"]["request"]
-        self.next_page = response_data["queries"]["nextPage"]
+        self.next_page = response_data["queries"].get("nextPage")
         self.search_info = response_data["searchInformation"]
 
         _results = response_data.get("items", [])
