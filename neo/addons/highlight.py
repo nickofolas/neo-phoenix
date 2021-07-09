@@ -139,9 +139,6 @@ class Highlights(neo.Addon):
     def cog_unload(self):
         self.send_queued_highlights.shutdown()
 
-    def get_user_highlights(self, user_id):
-        return self.highlights.get(user_id, [])
-
     @cached_property  # Cache this so it isn't re-computed after every message
     def flat_highlights(self):
         return [hl for hl_list in self.highlights.values() for hl in hl_list]
@@ -205,7 +202,7 @@ class Highlights(neo.Addon):
     async def highlight(self, ctx):
         """List your highlights"""
         description = ""
-        user_highlights = self.get_user_highlights(ctx.author.id)
+        user_highlights = self.highlights.get(ctx.author.id, [])
 
         for index, hl in enumerate(user_highlights, 1):
             description += "`{0}` `{1}`\n".format(
@@ -234,10 +231,10 @@ class Highlights(neo.Addon):
             raise ValueError(
                 f"Highlights cannot be longer than {MAX_TRIGGER_LEN:,} characters!")
 
-        if len(self.get_user_highlights(ctx.author.id)) >= MAX_TRIGGERS:
+        if len(self.highlights.get(ctx.author.id, [])) >= MAX_TRIGGERS:
             raise ValueError("You've used up all of your highlight slots!")
 
-        if content in [hl.content for hl in self.get_user_highlights(ctx.author.id)]:
+        if content in [hl.content for hl in self.highlights.get(ctx.author.id, [])]:
             raise ValueError("Cannot have multiple highlights with the same content.")
 
         result = await self.bot.db.fetchrow(
@@ -263,7 +260,7 @@ class Highlights(neo.Addon):
         Passing `~` will remove all highlights at once
         """
         if "~" in indices:
-            highlights = self.get_user_highlights(ctx.author.id).copy()
+            highlights = self.highlights.get(ctx.author.id, []).copy()
             self.highlights.pop(ctx.author.id, None)
 
         else:
