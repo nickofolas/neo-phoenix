@@ -58,7 +58,7 @@ class Profile(neo.Addon):
 
         Descriptions of the settings are also provided here
         """
-        profile = self.bot.profiles.get(ctx.author.id)
+        profile = self.bot.profiles[ctx.author.id]
         embeds = []
 
         for setting, setting_info in SETTINGS_MAPPING.items():
@@ -85,7 +85,7 @@ class Profile(neo.Addon):
         More information on the available settings and their functions is in the `settings` command
         """
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
-        profile = self.bot.profiles.get(ctx.author.id)
+        profile = self.bot.profiles[ctx.author.id]
         setattr(profile, setting, value)
         self.bot.dispatch("user_settings_update", ctx.author, profile)
         await ctx.send(f"Setting `{setting}` has been changed!")
@@ -103,7 +103,7 @@ class Profile(neo.Addon):
                 "That's not a valid setting! "
                 "Try `settings` for a list of settings!"
             )
-        profile = self.bot.profiles.get(ctx.author.id)
+        profile = self.bot.profiles[ctx.author.id]
         await profile.reset_attribute(setting)
         self.bot.dispatch("user_settings_update", ctx.author, profile)
         await ctx.send(f"Setting `{setting}` has been reset!")
@@ -140,7 +140,7 @@ class Profile(neo.Addon):
     @profile.command(name="create")
     async def profile_create(self, ctx):
         """Creates your neo profile!"""
-        if self.bot.profiles.get(ctx.author.id):
+        if ctx.author.id in self.bot.profiles:
             raise RuntimeError("You already have a profile!")
 
         profile = await self.bot.add_profile(ctx.author.id)
