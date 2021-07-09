@@ -90,13 +90,13 @@ class Highlight:
 
         return True
 
-    async def to_send_kwargs(self, message):
+    async def to_send_kwargs(self, message, later_triggers: set[discord.Message]):
         content = ""
+        triggers: set[discord.Message] = {message, *later_triggers}
         for m in await message.channel.history(limit=6, around=message).flatten():
             if len(content + m.content) > 1500:  # Don't exceed embed limits
                 m.content = "*[Omitted due to length]*"
-            formatted = format_hl_context(
-                m, self.matches(m.content) and m.id >= message.id)
+            formatted = format_hl_context(m, m in triggers)
             content = f"{formatted}\n{content}"
 
         embed = neo.Embed(
@@ -161,18 +161,21 @@ class Highlights(neo.Addon):
                 continue
             if not await hl.predicate(message):
                 continue
-            if not self.queued_highlights[message.channel.id] \
-                    .get(hl.user_id):
-                self.queued_highlights[message.channel.id][hl.user_id] = \
-                    (hl, message)
+            channel_queue = self.queued_highlights[message.channel.id]
+            if hl.user_id not in self.queued_highlights[message.channel.id]:
+                channel_queue[hl.user_id] = (hl, message, set())
+            else:
+                channel_queue[hl.user_id][2].add(message)
 
     @periodic(5)
     async def send_queued_highlights(self):
         queue = self.queued_highlights.copy()
         self.queued_highlights.clear()
-        for hl, message in [pair for nested in queue.values() for pair in nested.values()]:
+        for hl, message, later_triggers in [
+            pair for nested in queue.values() for pair in nested.values()
+        ]:
             await self.bot.get_user(hl.user_id, as_partial=True).send(
-                **await hl.to_send_kwargs(message)
+                **await hl.to_send_kwargs(message, later_triggers)
             )
 
     @commands.Cog.listener("on_user_settings_update")
