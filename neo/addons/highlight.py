@@ -92,7 +92,7 @@ class Highlight:
 
     async def to_send_kwargs(self, message):
         content = ""
-        for m in await message.channel.history(limit=5).flatten():
+        for m in await message.channel.history(limit=6, around=message).flatten():
             if len(content + m.content) > 1500:  # Don't exceed embed limits
                 m.content = "*[Omitted due to length]*"
             formatted = format_hl_context(
