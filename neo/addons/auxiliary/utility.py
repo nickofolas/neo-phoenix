@@ -41,7 +41,7 @@ class InviteDropdown(discord.ui.Select):
             permissions=discord.Permissions(int(self.values[0]))
         )
         await interaction.response.send_message(
-            f"**Invite neo phoenix with this URL:**\n{url}",
+            f"[**Click here to invite neo phoenix**]({url})",
             ephemeral=True
         )
 
