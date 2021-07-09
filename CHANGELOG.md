@@ -1,3 +1,40 @@
+# Release v0.8.0
+This release is mostly comprised of polish for existing features.
+
+## Legal
+* Updated privacy policy (made public in repository, rewrote for better clarity)
+* Licensed project under the GNU Affero General Public License v3.0 (AGPLv3)
+
+## Improvements
+* Reworked menus for several commands (`help`, `google`, `define`) to supply dropdown menus, making it easier to quickly access a page
+* Tweaked the buttons for and added an `invite` alias to the `info` command
+* Command aliases are now displayed in that command's help embed
+* Shortened the `star_format` starboard option to `format`
+
+## Fixes
+* Fixed an issue with unicode starboard emojis that caused incorrect validation, and prevented stars from registering
+* Fixed the behavior of index chaining in the `remind cancel` command
+* Fixed the help command behaving incorrectly because of the global cooldown
+
+## Other
+* Optimization:
+    * Remove `bot.get_server` and `bot.get_profile` in favor of accessing the attribute directly or using `__contains__` for membership checks (sidesteps lookup overhead)
+    * Where it is known that a value will always exist, direct `__getitem__` access is used instead of `dict.get`, which shaves off further attribute lookup
+    * Restricted gateway intents to only the required ones, rather than using the defaults
+    * Optimize starboard with `__getitem__` rather than `dict.get` (where appropriate)
+    * Implement `__slots__` in far more locations, significantly reducing memory footprint
+* Implement maximum number of todos (100)
+* Revised internal terminology for server configs:
+    * Dropped use of "`server`" in backend
+    * Anything that was previously referred to as a "`server`" has been labelled as a "`config`"/"`guild config`"
+    * Note that these changes are internal only, and that frontend interfaces all still refer to `config`s as `server`s
+* Rework `modules.paginator`:
+    * Rename module to `modules.menus`
+    * Rework `Paginator` object to function as a subclass of `discord.ui.View`
+    * Implement a `DropdownMenu` for creating menus that can be paged via both buttons or a dropdown menu (support up to 25 items)
+    * `Pages` now supports a `template_embed` keyword-only argument, for defining a static template embed that is merged with the `Pages` object's content
+
+
 # Release v0.7.0
 In large part, this release extends and improves existing features.
 

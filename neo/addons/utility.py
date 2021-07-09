@@ -159,18 +159,20 @@ class Utility(neo.Addon):
                 user = await self.bot.fetch_user(user or ctx.author.id)
 
         embed = neo.Embed().set_thumbnail(url=user.avatar)
-        flags = [BADGE_MAPPING[f.name] for f in user.public_flags.all() if BADGE_MAPPING.get(f.name)]
+        flags = [BADGE_MAPPING[f.name] for f in user.public_flags
+                 .all() if BADGE_MAPPING.get(f.name)]
         title = str(user)
         description = " ".join(flags) + ("\n" if flags else "")
-        description += f"**Created** <t:{int(user.created_at.timestamp())}:D>"
+        description += f"**Created Account** <t:{int(user.created_at.timestamp())}:D>"
 
         if user.bot:
             title = "{0} {1}".format(
-                ICON_MAPPING["verified_bot"] if user.public_flags.verified_bot else ICON_MAPPING["bot"],
+                ICON_MAPPING["verified_bot"] if user.public_flags
+                .verified_bot else ICON_MAPPING["bot"],
                 title)
 
         if isinstance(user, discord.Member):
-            description += f"\n**Joined** <t:{int(user.joined_at.timestamp())}:D>"
+            description += f"\n**Joined Server** <t:{int(user.joined_at.timestamp())}:D>"
             if user.id == ctx.guild.owner_id:
                 title = "{0} {1}".format(ICON_MAPPING["owner"], title)
 

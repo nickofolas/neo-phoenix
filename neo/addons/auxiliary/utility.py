@@ -18,7 +18,7 @@ def result_to_embed(result):
 
 
 def definitions_to_embed(word):
-    for meaning in word.meanings:
+    for meaning in word.meanings[:25]:  # Slice at 25 to fit within dropdown limits
         for definition in meaning.definitions:
             embed = neo.Embed(
                 description=definition.definition,
