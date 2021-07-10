@@ -15,21 +15,22 @@ from .auxiliary.utility import (InfoButtons, InviteMenu, definitions_to_embed,
 
 DELTA_FORMAT = "{0.months} months and {0.days} days ago"
 BADGE_MAPPING = {
-    "staff": "<:staff:743223905812086865>",
-    "partner": "<:partner:743223905820606588>",
-    "hypesquad": "<:events:743223907271573595>",
-    "hypesquad_balance": "<:balance:743223907301064704>",
-    "hypesquad_bravery": "<:bravery:743223907519299694>",
-    "hypesquad_brilliance": "<:brilliance:743223907372499046>",
-    "bug_hunter": "<:bug1:743223907380756591>",
-    "bug_hunter_level_2": "<:bug2:743223907129098311>",
-    "verified_bot_developer": "<:dev:743223907246407761>",
-    "early_supporter": "<:early:743223907338944522>"
+    "staff": "<:_:863197443386900541>",
+    "discord_certified_moderator": "<:_:863197442996305960>",
+    "partner": "<:_:863197443311403008>",
+    "hypesquad": "<:_:863197443281911808>",
+    "hypesquad_balance": "<:_:863197443244294164>",
+    "hypesquad_bravery": "<:_:863197443238920242>",
+    "hypesquad_brilliance": "<:_:863197443268673567>",
+    "bug_hunter": "<:_:863197442983067678>",
+    "bug_hunter_level_2": "<:_:863197443083730955>",
+    "early_verified_bot_developer": "<:_:863197443083730958>",
+    "early_supporter": "<:_:863197442840068117>",
 }
 ICON_MAPPING = {
-    "owner": "<:serverowner:743224805855330304>",
-    "bot": "<:bot:743223907238281217>",
-    "verified_bot": "<:verified1:743228362339909665><:verified2:743228362251829339>"
+    "guild_owner": "<:_:863197442996305941>",
+    "bot_tag": "<:_:863197442937061416>",
+    "verified_bot_tag": "<:_:863197443083730959><:_:863197443565813780>"
 }
 
 
@@ -141,11 +142,14 @@ class Utility(neo.Addon):
         """Retrieves the avatar of yourself, or a specified user"""
         if isinstance(user, (int, type(None))):
             user = await self.bot.fetch_user(user) if user else ctx.author
-        url = user.avatar
 
+        formats = ["PNG", "JPG", "WEBP"]  # I want it to be known that I *wanted* to
+        if user.avatar.is_animated():     # do some weird walrus operator stuff here,
+            formats.append("GIF")         # but it would be less performant
         embed = neo.Embed(
-            description=f"[View in browser]({url})"
-        ).set_image(url=url).set_footer(text=str(user))
+            description="**View in Browser**\n" + " • "
+            .join(f"[{fmt}]({user.avatar.with_format(fmt.lower())})" for fmt in formats)
+        ).set_image(url=user.avatar).set_author(name=user)
 
         await ctx.send(embed=embed)
 
@@ -159,22 +163,20 @@ class Utility(neo.Addon):
                 user = await self.bot.fetch_user(user or ctx.author.id)
 
         embed = neo.Embed().set_thumbnail(url=user.avatar)
-        flags = [BADGE_MAPPING[f.name] for f in user.public_flags
-                 .all() if BADGE_MAPPING.get(f.name)]
+        flags = [v for k, v in BADGE_MAPPING.items() if k in
+                 {flag.name for flag in user.public_flags.all()}]
         title = str(user)
         description = " ".join(flags) + ("\n" if flags else "")
         description += f"**Created Account** <t:{int(user.created_at.timestamp())}:D>"
 
         if user.bot:
-            title = "{0} {1}".format(
-                ICON_MAPPING["verified_bot"] if user.public_flags
-                .verified_bot else ICON_MAPPING["bot"],
-                title)
+            title = ICON_MAPPING["verified_bot_tag"] if user.public_flags \
+                .verified_bot else ICON_MAPPING["bot_tag"] + " " + title
 
         if isinstance(user, discord.Member):
             description += f"\n**Joined Server** <t:{int(user.joined_at.timestamp())}:D>"
             if user.id == ctx.guild.owner_id:
-                title = "{0} {1}".format(ICON_MAPPING["owner"], title)
+                title = "{0} {1}".format(ICON_MAPPING["guild_owner"], title)
 
         embed.title = title
         embed.description = description

@@ -406,6 +406,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         return True
 
     @commands.group(invoke_without_command=True)
+    @commands.has_permissions(manage_channels=True)
     async def starboard(self, ctx):
         """
         Displays an overview of your server's starboard settings
