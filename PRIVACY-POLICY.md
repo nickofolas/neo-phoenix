@@ -1,26 +1,42 @@
 # neo phoenix Privacy Policy
-*Last update and effective date: 04 July, 2021*
+*Last revision and effective date: 10 July, 2021*
 
-**Data that's collected:**
-> Note that user data is not collected until you explicitly allow it to be. That is, until you consciously create your own profile, no data pertaining to your user is stored.
-- Your Discord user ID
-- Information you provide (user settings, reminders, etc.)
-- (**Optionally**) Your timezone
+**Data Collected**  
+Data You Provide (For Individuals)
+- Your Discord user ID  
+*In profile creation, neo phoenix links your Discord user ID to your profile attributes.*
+- User Settings  
+*Any settings you change will be stored for the purpose of persistence.*
+- Profile  
+*Upon creating a profile, the current time will be saved as your profile creation timestamp. Also note that you can customize a timezone on your profile, which is completely optional, and serves only to enrich usage.*  
 
-**What's done with your data:**
-> Data is used solely for the purpose of enhancing neo phoenix's features through customization options.
-- Your user ID is used to identify you whenever data-based commands are used
-- Provided information is used to set options for servers and users, and for enriching user experience (via todos, highlights, etc.)
-- Your timezone is used to localize and enrich usage of neo phoenix's reminders feature
+Data You Provide (For Server Managers)  
+- Your server ID  
+*In server configuration creation, neo phoenix links your server ID to your server's attributes.*
+- Server Settings  
+*Any settings you change will be stored for the purpose of persistence.*
+- Starboard Data  
+*The message, channel, and server IDs of messages that are sent to a server's "Starboard" will be stored for the purpose of persistence.*
 
-**How your data is disclosed:**
-- Your timezone, should you choose to customize it, will be displayed publicly on your user profile page
+Ephemeral Data  
+*The "Highlight" feature of neo phoenix works by notifying users when certain phrases/words are used in a message. In order to notify a user, the content and author of a few (7 maximum) surrounding messages. The lifespan of this data is in the realm of seconds, and none of it is stored.*
 
-**Your data choices and data retention:**
-> Your data belongs to you, and neo phoenix's access to your data may be altered at your will. Data is only retained so long as you allow it to be.
-- Individual settings may be reset to their default at any point, via the `settings reset` command
-- At any point, users are free to purge all of their collected data via the `profile delete` command, which thoroughly deletes any stored data associated with them
+**How Data Is Collected**  
+Data collection is done on an as-requested basis. Any user or server who has not explicitly created a profile/configuration ("opted in") will have none of their data stored. Until opting in, certain functionality may be unavailable.
 
-By choosing to provide neo phoenix with your data, you agree to the above policy, and accept that your data will be used in the ways listed, and only the ways listed.
+Note that by creating a server configuration, a server manager implicitly opts all members of that server into the collection of starboard data.
 
-Any changes to this policy will be disclosed in advance of the effective date.
+**Usage of Data**
+- Enable you to customize neo phoenix's functionality
+- Allow your options to persist for extended periods of time
+- Certain data may be displayed publicly  
+*Your profile creation timestamp will always be available publicly. Circumstantially (depending on if you have customized the feature), your timezone will be displayed publicly on your profile as well. If you have not set, or have reset your timezone, it will **not** be displayed.*
+
+**Communication with You**  
+neo phoenix will not contact you directly without explicitly being permitted to do so. By making use of the "Highlight" feature, you allow neo phoenix to send you Direct Messages containing the content of the "trigger message" and its surrounding context.
+
+**Your Data Retention**  
+Your data belongs to you, and will be treated as such. Both individual profiles, and server configurations ("the entity"), may be deleted at any time. This deletes the entity, as well as **all** data associated with that entity.
+
+**Future Changes to this Policy**  
+This Privacy Policy may be revised or updated in the future. Any such changes will be announced in advance of their effective date.
