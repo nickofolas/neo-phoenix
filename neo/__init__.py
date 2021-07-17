@@ -14,7 +14,7 @@ from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import Embed, containers, context, formatters, help_command
 
-__version__ = "0.9.0"
+__version__ = "0.9.1a"
 
 log = logging.getLogger(__name__)
 intents = discord.Intents(
@@ -158,7 +158,7 @@ class Neo(commands.Bot):
 
         return commands.when_mentioned_or(self.cfg["bot"]["prefix"])(self, message)
 
-    async def on_error(self, error):
+    async def on_error(self, *args, **kwargs):
         log.error("\n" + formatters.format_exception(sys.exc_info()))
 
     async def on_command_error(self, ctx, error):
