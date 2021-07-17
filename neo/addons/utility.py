@@ -43,7 +43,7 @@ class Utility(neo.Addon):
             header, body = policy.read().split("\n", 1)
             header = header.lstrip("# ")
         self.privacy_embed = neo.Embed(title=header, description=body)
-        self.bot.loop.create_task(self.__ainit__())
+        bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
         await self.bot.wait_until_ready()

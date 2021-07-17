@@ -123,7 +123,6 @@ class Reminders(neo.Addon):
     def __init__(self, bot: neo.Neo):
         self.bot = bot
         self.reminders: dict[int, list[Reminder]] = defaultdict(list)
-
         bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):

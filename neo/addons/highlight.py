@@ -122,7 +122,7 @@ class Highlights(neo.Addon):
         self.highlights: defaultdict[str, list[Highlight]] = defaultdict(list)
         self.grace_periods: dict[int, TimedSet] = {}
         self.queued_highlights: defaultdict[int, dict] = defaultdict(dict)
-        self.bot.loop.create_task(self.__ainit__())
+        bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
         await self.bot.wait_until_ready()

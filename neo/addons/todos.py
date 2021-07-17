@@ -48,11 +48,10 @@ class TodoItem:
 class Todos(neo.Addon):
     """Commands for managing a todo list"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: neo.Neo):
         self.bot = bot
-        self.todos = defaultdict(list)
-
-        self.bot.loop.create_task(self.__ainit__())
+        self.todos: defaultdict[int, list[TodoItem]] = defaultdict(list)
+        bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
         await self.bot.wait_until_ready()
@@ -158,7 +157,7 @@ class Todos(neo.Addon):
     async def todo_view(self, ctx, index: int):
         """View a todo by its listed index"""
         try:
-            todo: TodoItem = self.todos[ctx.author.id][index - 1]
+            todo = self.todos[ctx.author.id][index - 1]
         except IndexError:
             raise IndexError("Couldn't find that todo.")
 

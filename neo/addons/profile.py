@@ -31,8 +31,7 @@ class Profile(neo.Addon):
 
     def __init__(self, bot: neo.Neo):
         self.bot = bot
-
-        self.bot.loop.create_task(self.__ainit__())
+        bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
         await self.bot.wait_until_ready()
