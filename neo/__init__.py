@@ -166,7 +166,10 @@ class Neo(commands.Bot):
         if real_error.__class__.__name__ in self.cfg["bot"]["ignored_exceptions"]:
             return  # Ignore exceptions specified in config
 
-        await ctx.send(real_error)
+        try:
+            await ctx.send(real_error)
+        except discord.Forbidden:
+            pass  # Maybe we can't send messages in the channel
         log.error(f"In command invocation: {ctx.message.content}\n" + formatters
                   .format_exception(real_error))
 
