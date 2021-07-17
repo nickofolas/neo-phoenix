@@ -1,3 +1,20 @@
+# Release v0.9.0
+Release v0.9.0 cleans up and slightly enhances neo phoenix.
+
+## Legal
+* Revised privacy policy
+
+## Improvements
+* Highlight context now displays *around* the trigger message. This means that up to 3 earlier and up to 3 later messages will be displayed
+* The collection mechanism for highlight has been improved
+* The invite URL is now displayed as an inline hyperlink
+* All icons have been refreshed
+* Pass for documentation, improving clarity where it may have been lacking
+
+## Other
+* Optimizations for profile code
+
+
 # Release v0.8.0
 This release is mostly comprised of polish for existing features.
 
