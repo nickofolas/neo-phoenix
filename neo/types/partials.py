@@ -22,18 +22,6 @@ class PartialUser(abc.Messageable, Object):
         data = await self._state.http.get_user(self.id)
         return User(state=self._state, data=data)
 
-    async def _get_channel(self):
-        return await self.create_dm()
-
-    @property
-    def dm_channel(self):
-        return self._state._get_private_channel_by_user(self.id)
-
-    async def create_dm(self):
-        found = self.dm_channel
-        if found is not None:
-            return found
-
-        state = self._state
-        data = await state.http.start_private_message(self.id)
-        return state.add_dm_channel(data)
+    _get_channel = User._get_channel
+    dm_channel = User.dm_channel
+    create_dm = User.create_dm

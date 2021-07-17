@@ -11,9 +11,7 @@ Default Value: `True`
 ';
 
 COMMENT ON COLUMN profiles.hl_timeout IS
-'Sets the amount of time (in minutes) that you must
-be inactive (send no messages) in a channel for
-highlights from that channel to be sent to you.
+'Sets the amount of time (in minutes) that you must be inactive (send no messages) in a channel for highlights from that channel to be sent to you.
 
 Expected Value Type: An integer (from 1 to 5)
 Default Value: `1`
@@ -24,18 +22,12 @@ Default Value: `1`
 COMMENT ON COLUMN profiles.timezone IS
 'Sets your local timezone.
 
-Disclosure: This information is to be used
-for several purposes:
+Disclosure: This information is used for several purposes:
 - Localization of various features
 - Public display
-By setting your timezone, you acknowledge and
-accept that this information will be displayed
-publicly on your profile, along with your local
-time (which is calculated from the timezone).
+By setting your timezone, you acknowledge and accept that this information will be displayed publicly on your profile, along with your local time (which is calculated from the timezone).
 
-If at any point you want to remove this setting,
-it can be reset like any other setting with
-`settings reset`, and will remove your timezone.
+If at any point you want to remove this setting, it can be reset like any other setting with `settings reset`, and will remove your timezone.
 
 Expected Value Type: A valid IANA timezone [[list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)]
 Default Value: `None`
@@ -55,7 +47,7 @@ Default Value: `n!`
 ';
 
 COMMENT ON COLUMN guild_configs.starboard IS
-'Dictates whether the server''s starboard is enabled.
+'Controls whether the server''s starboard is enabled.
 
 Expected Value Type: A boolean-like (`yes`/`no`) value
 Default Value: `False`
@@ -65,10 +57,9 @@ Default Value: `False`
 
 -- Table: starboards | Documentation for settings --
 COMMENT ON COLUMN starboards.channel IS
-'Sets the channel that starred messages will be sent to
-when they exceed the configured star threshold.
+'Sets the channel that starred messages will be sent to when they exceed the configured star threshold.
 
-**WARNING:** Changing this will invalidate __all__ current stars.
+**WARNING:** Changing this will delete __all__ current stars.
 
 Expected Value Type: A channel mention
 
@@ -76,8 +67,7 @@ Expected Value Type: A channel mention
 ';
 
 COMMENT ON COLUMN starboards.threshold IS
-'The threshold which must be exceeded for a message to
-be sent to the starboard.
+'The threshold which must be exceeded for a message to be sent to the starboard.
 
 Expected Value Type: An integer
 Default Value: `5`
@@ -86,7 +76,7 @@ Default Value: `5`
 ';
 
 COMMENT ON COLUMN starboards.format IS
-'The format that starred messages will follow.
+'The format for starred messages.
 
 Expected Value Type: A string of text
 Format Variables:
@@ -97,8 +87,7 @@ Default Value: `⭐ **{{stars}}**`
 ';
 
 COMMENT ON COLUMN starboards.max_days IS
-'The maximum age (in days) that a message can be before 
-it can no longer be sent to starboard.
+'The maximum age (in days) that a message can be before it can no longer be sent to starboard.
 
 Expected Value Type: An integer
 Default Value: `7`
@@ -108,10 +97,9 @@ Default Value: `7`
 
 COMMENT ON COLUMN starboards.emoji IS
 'The emoji that will be used to star messages.
-If this is set to an invalid emoji, starboard will
-cease to function.
+If this is set to an invalid emoji, starboard will cease to function.
 
-**WARNING:** Changing this will invalidate __all__ current stars.
+**WARNING:** Changing this will delete __all__ current stars.
 
 Expected Value Type: An emoji
 Default Value: `⭐`

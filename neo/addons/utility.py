@@ -10,8 +10,8 @@ from discord.ext import commands
 from neo.modules import DropdownMenu, EmbedPages, args, cse, dictionary
 from neo.types.converters import mention_converter
 
-from .auxiliary.utility import (InfoButtons, InviteMenu, definitions_to_embed,
-                                result_to_embed)
+from .auxiliary.utility import (LANGUAGE_CODES, InfoButtons, InviteMenu,
+                                definitions_to_embed, result_to_embed)
 
 DELTA_FORMAT = "{0.months} months and {0.days} days ago"
 BADGE_MAPPING = {
@@ -115,22 +115,24 @@ class Utility(neo.Addon):
     )
     @args.add_arg(
         "-lc", "--lang_code",
-        default="en",
-        help="The language code of the dictionary to search"
+        default="en_US",
+        help="The language code of the dictionary to search\n```\n"
+        + LANGUAGE_CODES + "\n```Defaults to `en_US`"
     )
     @args.command(name="define")
     async def dictionary_command(self, ctx, *, query):
         """Search the dictionary for a word's definition"""
-        resp = await self.dictionary.define(
-            " ".join(query.word),
-            lang_code=query.lang_code
-        )
+        try:
+            resp = await self.dictionary.define(
+                " ".join(query.word),
+                lang_code=query.lang_code
+            )
+        except dictionary.DefinitionError:
+            raise RuntimeError("No definition found")
 
         embeds = []
         for word in resp.words:
             embeds.extend(definitions_to_embed(word))
-        if not embeds:
-            raise RuntimeError("No definition found")
 
         pages = EmbedPages(embeds)
         menu = DropdownMenu.from_pages(

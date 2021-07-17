@@ -7,6 +7,27 @@ import discord
 import neo
 
 
+_language_codes = neo.formatters.Table()
+_language_codes.init_columns("Lang Code", "Lang")
+for code, lang in [
+    ("en_US", "US English"),
+    ("hi", "Hindi"),
+    ("es", "Spanish"),
+    ("fr", "French"),
+    ("ja", "Japanese"),
+    ("ru", "Russian"),
+    ("en_GB", "UK English"),
+    ("de", "German"),
+    ("it", "Italian"),
+    ("ko", "Korean"),
+    ("pt-BR", "Portuguese"),
+    ("ar", "Arabic"),
+    ("tr", "Turkish")
+]:
+    _language_codes.add_row(code, lang)
+LANGUAGE_CODES = _language_codes.display()
+
+
 def result_to_embed(result):
     embed = neo.Embed(
         title=result.title,

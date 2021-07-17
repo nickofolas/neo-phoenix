@@ -18,7 +18,11 @@ SETTINGS_MAPPING = {
 
 
 class ServerSettings(neo.Addon):
-    """Contains everything needed for managing your server's settings"""
+    """
+    neo phoenix's server config management module
+
+    Create a server config to use features such as starboards and custom prefixes!
+    """
 
     def __init__(self, bot: neo.Neo):
         self.bot = bot

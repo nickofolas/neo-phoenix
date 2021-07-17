@@ -185,3 +185,10 @@ class DropdownMenu(ButtonsMenu, BaseMenu):
         instance.add_item(select)
 
         return instance
+
+    @classmethod
+    def from_embeds(cls, *args, **kwargs):
+        # This might be something to consider eventually
+        raise NotImplementedError
+
+    from_iterable = from_embeds

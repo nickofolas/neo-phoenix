@@ -223,8 +223,10 @@ class Highlights(neo.Addon):
 
         Highlights will notify you when the word/phrase you add is mentioned
 
-        **Note**
-        Highlights will __never__ be triggered from private threads.
+        **Notes**
+        - Highlights will __never__ be triggered from private threads
+        - Highlights will __never__ be triggered by bots
+        - You must be a member of a channel to be highlighted in it
         """
         if len(content) <= 1:
             raise ValueError("Highlights must contain more than 1 character.")
@@ -305,7 +307,7 @@ class Highlights(neo.Addon):
 
         Servers, users, and channels can all be blocked via ID
 
-        A variable number of IDs can be provided to this command
+        One *or more* IDs can be provided to this command
         """
         profile = self.bot.profiles[ctx.author.id]
 
@@ -335,7 +337,7 @@ class Highlights(neo.Addon):
 
         Servers, users, and channels can all be unblocked via ID
 
-        A variable number of IDs can be provided to this command
+        One *or more* IDs can be provided to this command
         """
         profile = self.bot.profiles[ctx.author.id]
 

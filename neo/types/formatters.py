@@ -24,11 +24,11 @@ class Table:
         self.rows: list[list[str]] = []
         self.widths: list[int] = []
 
-    def init_columns(self, columns: list[str]):
+    def init_columns(self, *columns: str):
         self.columns = columns
         self.widths = [len(col) + 4 for col in columns]
 
-    def add_row(self, row: list[str]):
+    def add_row(self, *row: str):
         if len(row) > len(self.columns):
             raise ValueError("Row has too many columns")
         self.rows.append(row)

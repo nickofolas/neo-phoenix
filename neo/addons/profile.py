@@ -27,7 +27,14 @@ SETTINGS_MAPPING = {
 
 
 class Profile(neo.Addon):
-    """Contains everything needed for managing your neo profile"""
+    """
+    neo phoenix's profile management module
+
+    Create a profile to gain access to features such as:
+    - Todos
+    - Highlights
+    ...and more!
+    """
 
     def __init__(self, bot: neo.Neo):
         self.bot = bot

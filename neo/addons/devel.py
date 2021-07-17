@@ -83,9 +83,9 @@ class Devel(neo.Addon):
             return await ctx.send("Query executed successfully")
 
         table = Table()
-        table.init_columns([*data[0].keys()])
+        table.init_columns(*data[0].keys())
         for row in data:
-            table.add_row([*map(str, row.values())])
+            table.add_row(*map(str, row.values()))
 
         pages = Pages(
             table.display(),
