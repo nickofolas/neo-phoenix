@@ -42,6 +42,7 @@ class Utility(neo.Addon):
         with open(bot.cfg["privacy_policy_path"]) as policy:
             header, body = policy.read().split("\n", 1)
             header = header.lstrip("# ")
+            body = body.replace("  \n", "\n")  # Ensure proper formatting on mobile
         self.privacy_embed = neo.Embed(title=header, description=body)
         bot.loop.create_task(self.__ainit__())
 
