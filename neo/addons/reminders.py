@@ -50,7 +50,7 @@ class Reminder:
     def channel(self) -> Union[discord.TextChannel, discord.DMChannel]:
         if (channel := self.bot.get_channel(self.channel_id)) is not None:
             return channel
-        return None
+        return discord.DMChannel._from_message(self.bot._connection, self.channel_id)
 
     @property
     def message(self) -> discord.PartialMessage:
@@ -63,16 +63,12 @@ class Reminder:
     async def deliver(self):
         """Deliver a reminder, falling back to a primitive format if necessary"""
         try:
-            sent = None
-            if self.channel is not None:
-                try:
-                    sent = await self.message.reply(
-                        f"**Reminder**:\n{self.content}",
-                        allowed_mentions=discord.AllowedMentions(replied_user=True)
-                    )
-                except discord.HTTPException:
-                    pass
-            if sent is None:
+            try:
+                await self.message.reply(
+                    f"**Reminder**:\n{self.content}",
+                    allowed_mentions=discord.AllowedMentions(replied_user=True)
+                )
+            except discord.HTTPException:
                 await self.fallback_deliver()
 
         finally:  # Ensure that the database entry is always deleted
@@ -81,9 +77,9 @@ class Reminder:
     async def fallback_deliver(self) -> None:
         """Fallback to a primitive delivery format if normal deliver is impossible"""
         try:
-            dest = self.channel or self.bot.get_user(self.user_id, as_partial=True)
+            dest = self.bot.get_user(self.user_id, as_partial=True)
             await dest.send(
-                "<@{0}> **Reminder** [source deleted]:\n> {1}".format(
+                "<@{0}> **Reminder** [source unavailable]:\n> {1}".format(
                     self.user_id,
                     self.content
                 ),
