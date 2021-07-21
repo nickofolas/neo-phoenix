@@ -1,3 +1,8 @@
+# Release v0.9.2
+## Fixes
+* Fixed an issue with reminders occasionally wrongly displaying "[source deleted]" when delivered in direct messages
+
+
 # Release v0.9.1
 0.9.1 fixes issues found in 0.9.0 and earlier.
 
