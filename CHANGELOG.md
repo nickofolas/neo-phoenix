@@ -1,3 +1,15 @@
+# Release v0.9.1
+0.9.1 fixes issues found in 0.9.0 and earlier.
+
+## Improvements
+* Removed an extraneous attribute from starboard objects
+
+## Fixes
+* When sending messages in a channel is impossible, the error is logged and ignored silently
+* Fixed parameter issues in `on_error`
+* Fixed mobile formatting regression with ephemeral privacy policy
+
+
 # Release v0.9.0
 Release v0.9.0 cleans up and slightly enhances neo phoenix.
 
