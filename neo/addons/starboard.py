@@ -62,7 +62,6 @@ class Star:
 class Starboard:
     __slots__ = (
         "channel",
-        "stars",
         "threshold",
         "format",
         "max_days",
@@ -85,7 +84,6 @@ class Starboard:
         ignored: list[str]
     ):
         self.channel = channel
-        self.stars = stars
         self.threshold = threshold
         self.format = format
         self.max_days = max_days
@@ -96,7 +94,7 @@ class Starboard:
         self.lock = asyncio.Lock()
         self.ready = False
 
-        for star in self.stars:
+        for star in stars:
             message = self.channel.get_partial_message(star["starboard_message_id"])
             self.cached_stars[star["message_id"]] = Star(
                 message_id=star["message_id"],
