@@ -1,3 +1,10 @@
+# Release v0.9.3
+## Improvements
+* Rename `eval` command to `exec`
+* Remove extraneous `Starboard` attributes
+* Change type of `Starboard.ignored`
+
+
 # Release v0.9.2
 ## Fixes
 * Fixed an issue with reminders occasionally wrongly displaying "[source deleted]" when delivered in direct messages
