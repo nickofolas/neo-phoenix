@@ -68,8 +68,7 @@ class Starboard:
         "emoji",
         "ignored",
         "cached_stars",
-        "lock",
-        "ready"
+        "lock"
     )
 
     def __init__(
@@ -81,7 +80,7 @@ class Starboard:
         format: str,
         max_days: int,
         emoji: discord.PartialEmoji,
-        ignored: list[str]
+        ignored: set[int]
     ):
         self.channel = channel
         self.threshold = threshold
@@ -92,7 +91,6 @@ class Starboard:
 
         self.cached_stars = {}
         self.lock = asyncio.Lock()
-        self.ready = False
 
         for star in stars:
             message = self.channel.get_partial_message(star["starboard_message_id"])
@@ -102,11 +100,8 @@ class Starboard:
                 stars=star["stars"]
             )
 
-        self.ready = True
-
     async def create_star(self, message: discord.Message, stars: int):
         if any([
-            not self.ready,
             message.id in self.cached_stars,
             self.lock.locked()
         ]):
@@ -142,9 +137,6 @@ class Starboard:
             return star
 
     async def delete_star(self, id: int):
-        if not self.ready:
-            return
-
         star = self.cached_stars.pop(id)
         try:
             await star.starboard_message.delete()
@@ -152,9 +144,6 @@ class Starboard:
             return star
 
     async def edit_star(self, id: int, stars: int):
-        if not self.ready:
-            return
-
         star = self.cached_stars.get(id)
         star.stars = stars
 
@@ -227,7 +216,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             "format": starboard_settings["format"],
             "max_days": starboard_settings["max_days"],
             "emoji": discord.PartialEmoji.from_str(starboard_settings["emoji"]),
-            "ignored": starboard_settings["ignored"]
+            "ignored": set(starboard_settings["ignored"])
         }
         return Starboard(**kwargs)
 
@@ -245,7 +234,6 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         if starboard is None or starboard.channel is None:
             return False
         checks = [
-            not getattr(starboard, "ready", False),
             not self.bot.configs[starboard.channel.guild.id].starboard,
             payload.channel_id == starboard.channel.id,
             (datetime.now(timezone.utc) - discord.Object(payload.message_id)
