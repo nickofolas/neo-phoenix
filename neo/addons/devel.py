@@ -43,8 +43,8 @@ class Devel(neo.Addon):
         )
         await ctx.send(f"Cleaned {len(purged)} message(s).", delete_after=5)
 
-    @commands.command(name="eval", aliases=["e"])
-    async def dev_eval(self, ctx, *, code: codeblock_converter):
+    @commands.command(name="exec", aliases=["e"])
+    async def dev_exec(self, ctx, *, code: codeblock_converter):
         """Executes some code, retaining the result"""
         (environment := env_from_context(ctx)).update(**(self._eval_scope | globals()))
         pages = Pages(
