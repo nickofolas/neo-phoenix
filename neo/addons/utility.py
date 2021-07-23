@@ -32,6 +32,12 @@ ICON_MAPPING = {
     "bot_tag": "<:_:863197442937061416>",
     "verified_bot_tag": "<:_:863197443083730959><:_:863197443565813780>"
 }
+PREMIUM_ICON_MAPPING = {
+    0: "",
+    1: "<:_:868138562690875452>",
+    2: "<:_:868138562737041458>",
+    3: "<:_:868138562913173564>"
+}
 
 
 class Utility(neo.Addon):
@@ -169,7 +175,7 @@ class Utility(neo.Addon):
         flags = [v for k, v in BADGE_MAPPING.items() if k in
                  {flag.name for flag in user.public_flags.all()}]
         title = str(user)
-        description = " ".join(flags) + ("\n" if flags else "")
+        description = " ".join(flags) + ("\n" * bool(flags))
         description += f"**Created Account** <t:{int(user.created_at.timestamp())}:D>"
 
         if user.bot:
@@ -186,33 +192,54 @@ class Utility(neo.Addon):
 
         await ctx.send(embed=embed)
 
-    @commands.command(
-        name="info",
-        aliases=["about", "invite", "support", "source", "privacy"]
-    )
-    async def neo_info_command(self, ctx):
-        """Show information about neo phoenix"""
+    @commands.guild_only()
+    @commands.command(name="serverinfo", aliases=["si"])
+    async def guild_info_command(self, ctx):
+        """Retrieves information about the current server"""
+        animated_emotes = len([e for e in ctx.guild.emojis if e.animated])
+        static_emotes = len(ctx.guild.emojis) - animated_emotes
+
         embed = neo.Embed(
-            description=(
-                "**neo Version** {0}"
-                "\n**Server Count** {1}"
-                "\n**Startup Time** <t:{2}>"
-                "\n\n**Python Version** {3}"
-                "\n**discord.py Version** {4}"
-            ).format(
-                neo.__version__,
-                len(self.bot.guilds),
-                self.bot.boot_time,
-                py_version.split(" ", 1)[0],
-                discord.__version__
-            )
+            title=f"{PREMIUM_ICON_MAPPING[ctx.guild.premium_tier]} {ctx.guild}",
+            description=f"**Description** {ctx.guild.description}\n\n" * bool(ctx.guild.description)
+            + f"**Created** <t:{int(ctx.guild.created_at.timestamp())}:D>"
+            f"\n**Owner** <@{ctx.guild.owner_id}>"
+            f"\n\n**Emotes** {static_emotes}/{ctx.guild.emoji_limit} static"
+            f" | {animated_emotes}/{ctx.guild.emoji_limit} animated"
+            f"\n**Filesize Limit** {round(ctx.guild.filesize_limit / 1_000_000)} MB"
+            f"\n**Bitrate Limit** {round(ctx.guild.bitrate_limit / 1_000)} KB/s"
+        ).set_thumbnail(url=ctx.guild.icon)
+
+        await ctx.send(embed=embed)
+
+
+@commands.command(
+    name="info",
+    aliases=["about", "invite", "support", "source", "privacy"]
+)
+async def neo_info_command(self, ctx):
+    """Show information about neo phoenix"""
+    embed = neo.Embed(
+        description=(
+            "**neo Version** {0}"
+            "\n**Server Count** {1}"
+            "\n**Startup Time** <t:{2}>"
+            "\n\n**Python Version** {3}"
+            "\n**discord.py Version** {4}"
+        ).format(
+            neo.__version__,
+            len(self.bot.guilds),
+            self.bot.boot_time,
+            py_version.split(" ", 1)[0],
+            discord.__version__
         )
-        embed.set_thumbnail(url=self.bot.user.avatar)
-        embed.set_author(
-            name=f"Developed by {self.appinfo.owner}",
-            icon_url=self.appinfo.owner.avatar
-        )
-        await ctx.send(embed=embed, view=self.info_buttons)
+    )
+    embed.set_thumbnail(url=self.bot.user.avatar)
+    embed.set_author(
+        name=f"Developed by {self.appinfo.owner}",
+        icon_url=self.appinfo.owner.avatar
+    )
+    await ctx.send(embed=embed, view=self.info_buttons)
 
 
 def setup(bot):
