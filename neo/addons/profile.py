@@ -7,8 +7,11 @@ import neo
 from discord.ext import commands
 from neo.modules import ButtonsMenu
 from neo.tools import convert_setting, is_registered_profile
-from neo.types.converters import (mention_converter, timeout_converter,
-                                  timezone_converter)
+from neo.types.converters import (
+    mention_converter,
+    timeout_converter,
+    timezone_converter
+)
 
 SETTINGS_MAPPING = {
     "receive_highlights": {

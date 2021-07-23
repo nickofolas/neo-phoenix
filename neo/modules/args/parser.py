@@ -2,8 +2,11 @@
 # Copyright (C) 2021 nickofolas
 from argparse import ArgumentError, ArgumentParser
 
-from discord.ext.commands import (CommandError, Converter,
-                                  MissingRequiredArgument)
+from discord.ext.commands import (
+    CommandError,
+    Converter,
+    MissingRequiredArgument
+)
 
 
 class MockParam(str):
