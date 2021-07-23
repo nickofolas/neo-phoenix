@@ -186,7 +186,10 @@ class Utility(neo.Addon):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="info", aliases=["about", "invite"])
+    @commands.command(
+        name="info",
+        aliases=["about", "invite", "support", "source", "privacy"]
+    )
     async def neo_info_command(self, ctx):
         """Show information about neo phoenix"""
         embed = neo.Embed(
