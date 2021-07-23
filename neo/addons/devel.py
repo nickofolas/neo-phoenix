@@ -2,8 +2,8 @@
 # Copyright (C) 2021 nickofolas
 import neo
 from discord.ext import commands
-from neo.modules import Pages, ButtonsMenu, args
-from neo.modules.eval import Eval, env_from_context
+from neo.modules import ButtonsMenu, Pages, args
+from neo.modules.exec import ExecWrapper, env_from_context
 from neo.types.converters import codeblock_converter
 from neo.types.formatters import Table, format_exception
 
@@ -13,8 +13,8 @@ class Devel(neo.Addon):
 
     def __init__(self, bot: neo.Neo):
         self.bot = bot
-        self._eval_scope = {}
-        self._last_eval_result = None
+        self._exec_scope = {}
+        self._last_exec_result = None
 
     async def cog_check(self, ctx):
         if not await self.bot.is_owner(ctx.author):
@@ -46,7 +46,7 @@ class Devel(neo.Addon):
     @commands.command(name="exec", aliases=["e"])
     async def dev_exec(self, ctx, *, code: codeblock_converter):
         """Executes some code, retaining the result"""
-        (environment := env_from_context(ctx)).update(**(self._eval_scope | globals()))
+        (globals_ := env_from_context(ctx)).update(**(self._exec_scope | globals()))
         pages = Pages(
             "\r",
             1500,
@@ -58,17 +58,16 @@ class Devel(neo.Addon):
         menu = ButtonsMenu(pages)
 
         try:
-            async for res in Eval(code, environment, self._eval_scope):
+            async for res in ExecWrapper(code, globals_, self._exec_scope):
                 if res is None:
                     continue
 
-                self._last_eval_result = res
+                self._last_exec_result = res
                 res = repr(res) if not isinstance(res, str) else res
                 menu.pages.append("\n{}".format(res))
 
                 if not menu.running:
                     await menu.start(ctx, as_reply=True)
-
             await ctx.message.add_reaction("\U00002611")
 
         except BaseException as e:  # Safely handle all errors

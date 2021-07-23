@@ -2,14 +2,12 @@
 # Copyright (C) 2021 nickofolas
 import ast
 
-import import_expression
-
 code_base = (
     "async def __aexec__(scope):"
     "\n    try:"
     "\n        pass"
     "\n    finally:"
-    "\n        scope.update(locals())"
+    "\n        scope |= locals()"
 )
 
 
@@ -26,8 +24,8 @@ def insert_yield(body):
 
 
 def compile_all(code_input):
-    code_in = import_expression.parse(code_input)
-    base = import_expression.parse(code_base)
+    code_in = ast.parse(code_input)
+    base = ast.parse(code_base)
 
     try_block = base.body[-1].body[-1].body
     try_block.extend(code_in.body)
