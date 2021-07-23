@@ -170,8 +170,8 @@ class Neo(commands.Bot):
             await ctx.send(real_error)
         except discord.Forbidden:
             pass  # Maybe we can't send messages in the channel
-        log.error(f"In command invocation: {ctx.message.content}\n" + formatters
-                  .format_exception(real_error))
+        log.warn(f"In command invocation: {ctx.message.content}\n" + formatters
+                 .format_exception(real_error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)
