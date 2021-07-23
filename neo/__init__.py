@@ -14,7 +14,7 @@ from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import Embed, containers, context, formatters, help_command
 
-__version__ = "0.10.0a"
+__version__ = "0.10.0"
 
 log = logging.getLogger(__name__)
 intents = discord.Intents(

@@ -1,3 +1,21 @@
+# Release v0.10.0
+Release v0.10.0 implements a couple of utility commands.
+
+## Additions
+* `serverinfo`/`si` command
+    * Displays relevant information pertaining to the current guild
+* `translate`/`tr` command
+    * Translates text across languages via the Google Translate API
+    * Supports a directive-based specification for controlling source and destination languages
+
+## Improvements
+* Demote `command_error` errors to `warn` logging level
+* Added `support`, `source`, and `privacy` aliases to the `info` command
+* Reworked functionality of `exec` command and backend
+    * Notably, solved the recursion that was previously present in the `scope`
+* Logically partitioned `requirements.txt`
+
+
 # Release v0.9.3
 ## Improvements
 * Rename `eval` command to `exec`
