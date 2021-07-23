@@ -7,13 +7,21 @@ from typing import Union
 import discord
 import neo
 from discord.ext import commands
+from googletrans import LANGUAGES, Translator
 from neo.modules import DropdownMenu, EmbedPages, args, cse, dictionary
+from neo.tools import shorten
 from neo.types.converters import mention_converter
 
-from .auxiliary.utility import (LANGUAGE_CODES, InfoButtons, InviteMenu,
-                                definitions_to_embed, result_to_embed)
+from .auxiliary.utility import (
+    LANGUAGE_CODES,
+    InfoButtons,
+    InviteMenu,
+    definitions_to_embed,
+    get_translation_kwargs,
+    result_to_embed,
+    translate
+)
 
-DELTA_FORMAT = "{0.months} months and {0.days} days ago"
 BADGE_MAPPING = {
     "staff": "<:_:863197443386900541>",
     "discord_certified_moderator": "<:_:863197442996305960>",
@@ -50,6 +58,7 @@ class Utility(neo.Addon):
             header = header.lstrip("# ")
             body = body.replace("  \n", "\n")  # Ensure proper formatting on mobile
         self.privacy_embed = neo.Embed(title=header, description=body)
+        self.translator = Translator(raise_exception=True)
         bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
@@ -145,6 +154,36 @@ class Utility(neo.Addon):
         menu = DropdownMenu.from_pages(
             pages, embed_auto_label=True, embed_auto_desc=True)
         await menu.start(ctx)
+
+    @commands.command(
+        name="translate",
+        aliases=["tr"],
+        usage="[directive] <content>"
+    )
+    async def translation_command(self, ctx, *, input):
+        """
+        Translate a string of text
+
+        If just a string of text is supplied, the source language will be
+        auto-detected and translated to English.
+        Ex: `translate amigo`
+
+        To translate between particular languages, use the `->` operator.
+        Ex: `translate en->ja Hello` *Translates "hello" to Japanese*
+        Ex: `translate *->ja Hello` *Same as above, but auto-detects source language*
+        """
+        content, kwargs = get_translation_kwargs(input)
+        translated = await translate(self.translator, content, **kwargs)
+        embed = neo.Embed(
+            description=f"**Source Language** `{kwargs['src']}` "
+            f"[{LANGUAGES.get(translated.src, 'Auto-Detected').title()}]"
+            f"\n**Destination Language** {LANGUAGES.get(translated.dest, 'Unknown').title()}"
+        ).add_field(
+            name="Translated Content",
+            value=shorten(translated.text, 1024),
+            inline=False
+        )
+        await ctx.send(embed=embed)
 
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
     async def avatar_command(self, ctx, *, user: Union[int, mention_converter, discord.Member] = None):

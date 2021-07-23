@@ -3,6 +3,9 @@ discord.py
 toml
 asyncpg
 
+### Extension Requirements ###
+googletrans==4.0.0rc1
+
 ### Circumstantial Requirements ###
 tzdata; sys_platform == "win32"  # Windows doesn't provide a native IANA database
 uvloop; sys_platform == "linux"  # Windows doesn't support uvloop

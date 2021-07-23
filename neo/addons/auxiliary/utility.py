@@ -3,9 +3,12 @@
 """
 An auxiliary module for the `Utility` addon
 """
+import asyncio
+import re
+from functools import cache
+
 import discord
 import neo
-
 
 _language_codes = neo.formatters.Table()
 _language_codes.init_columns("Lang Code", "Lang")
@@ -26,6 +29,9 @@ for code, lang in [
 ]:
     _language_codes.add_row(code, lang)
 LANGUAGE_CODES = _language_codes.display()
+TRANSLATION_DIRECTIVE = re.compile(
+    r"((?P<src>[a-zA-Z\*\_]+|auto)->(?P<dest>[a-zA-Z]+))?"
+)
 
 
 def result_to_embed(result):
@@ -49,6 +55,33 @@ def definitions_to_embed(word):
                 value=", ".join((definition.synonyms or ["No synonyms"])[:5])
             )
             yield embed
+
+
+def get_translation_kwargs(content: str) -> tuple[str, dict[str, str]]:
+    kwargs = {"dest": "en", "src": "auto"}
+    if (match := TRANSLATION_DIRECTIVE.match(content))[0]:
+        content = content.replace(match[0], "")
+        kwargs = match.groupdict()
+        if kwargs["src"] in {"*", "_"}:
+            kwargs["src"] = "auto"
+
+    return content.casefold().strip(), kwargs
+
+
+@cache  # Prevent repeated requests when possible
+def do_translate(translator, content: str, *, dest: str, src: str):
+    try:
+        translation = translator.translate(content, dest=dest, src=src)
+    except ValueError as e:
+        e.args = (f"An {e.args[0]} was provided",)
+        raise
+    except Exception:
+        raise RuntimeError("Something went wrong with translation. Maybe try again later?")
+    return translation
+
+
+async def translate(translator, *args, **kwargs):  # Lazy async wrapper
+    return await asyncio.to_thread(do_translate, translator, *args, **kwargs)
 
 
 class InviteDropdown(discord.ui.Select):
