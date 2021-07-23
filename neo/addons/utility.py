@@ -251,34 +251,33 @@ class Utility(neo.Addon):
 
         await ctx.send(embed=embed)
 
-
-@commands.command(
-    name="info",
-    aliases=["about", "invite", "support", "source", "privacy"]
-)
-async def neo_info_command(self, ctx):
-    """Show information about neo phoenix"""
-    embed = neo.Embed(
-        description=(
-            "**neo Version** {0}"
-            "\n**Server Count** {1}"
-            "\n**Startup Time** <t:{2}>"
-            "\n\n**Python Version** {3}"
-            "\n**discord.py Version** {4}"
-        ).format(
-            neo.__version__,
-            len(self.bot.guilds),
-            self.bot.boot_time,
-            py_version.split(" ", 1)[0],
-            discord.__version__
+    @commands.command(
+        name="info",
+        aliases=["about", "invite", "support", "source", "privacy"]
+    )
+    async def neo_info_command(self, ctx):
+        """Show information about neo phoenix"""
+        embed = neo.Embed(
+            description=(
+                "**neo Version** {0}"
+                "\n**Server Count** {1}"
+                "\n**Startup Time** <t:{2}>"
+                "\n\n**Python Version** {3}"
+                "\n**discord.py Version** {4}"
+            ).format(
+                neo.__version__,
+                len(self.bot.guilds),
+                self.bot.boot_time,
+                py_version.split(" ", 1)[0],
+                discord.__version__
+            )
         )
-    )
-    embed.set_thumbnail(url=self.bot.user.avatar)
-    embed.set_author(
-        name=f"Developed by {self.appinfo.owner}",
-        icon_url=self.appinfo.owner.avatar
-    )
-    await ctx.send(embed=embed, view=self.info_buttons)
+        embed.set_thumbnail(url=self.bot.user.avatar)
+        embed.set_author(
+            name=f"Developed by {self.appinfo.owner}",
+            icon_url=self.appinfo.owner.avatar
+        )
+        await ctx.send(embed=embed, view=self.info_buttons)
 
 
 def setup(bot):
