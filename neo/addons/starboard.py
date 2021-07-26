@@ -465,7 +465,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         starboard = self.starboards[ctx.guild.id]
         id = to_ignore.id
 
-        starboard.ignored.append(id)
+        starboard.ignored.add(id)
         await self.bot.db.execute(
             """
             UPDATE starboards
