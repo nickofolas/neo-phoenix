@@ -1,3 +1,8 @@
+# Release v0.10.2
+## Fixes
+* Fix an AttributeError when setting a starboard channel (was caused due to residual code)
+
+
 # Release v0.10.1
 ## Fixes
 * Fix an unintentionally public IndexError

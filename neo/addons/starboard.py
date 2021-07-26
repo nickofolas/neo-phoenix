@@ -47,7 +47,7 @@ class Star:
     ):
         self.message_id = message_id
         self.starboard_message = starboard_message
-        self.stars = stars
+        self = stars
 
     def __repr__(self):
         return (
@@ -447,7 +447,6 @@ class StarboardAddon(neo.Addon, name="Starboard"):
         if setting in ["channel", "emoji"]:
             await self.bot.db.execute("DELETE FROM stars WHERE guild_id=$1", ctx.guild.id)
             starboard.cached_stars.clear()
-            starboard.stars.clear()
 
         await ctx.send(f"Setting `{setting}` has been changed!")
 
