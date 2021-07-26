@@ -149,6 +149,8 @@ class Utility(neo.Addon):
         embeds = []
         for word in resp.words:
             embeds.extend(definitions_to_embed(word))
+        if not embeds:
+            raise RuntimeError("No definition found")
 
         pages = EmbedPages(embeds)
         menu = DropdownMenu.from_pages(

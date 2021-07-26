@@ -14,7 +14,7 @@ from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import Embed, containers, context, formatters, help_command
 
-__version__ = "0.10.0"
+__version__ = "0.10.1"
 
 log = logging.getLogger(__name__)
 intents = discord.Intents(
@@ -170,8 +170,8 @@ class Neo(commands.Bot):
             await ctx.send(real_error)
         except discord.Forbidden:
             pass  # Maybe we can't send messages in the channel
-        log.warn(f"In command invocation: {ctx.message.content}\n" + formatters
-                 .format_exception(real_error))
+        log.error(f"In command invocation: {ctx.message.content}\n" + formatters
+                  .format_exception(real_error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)

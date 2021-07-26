@@ -1,3 +1,8 @@
+# Release v0.10.1
+## Fixes
+* Fix an unintentionally public IndexError
+
+
 # Release v0.10.0
 Release v0.10.0 implements a couple of utility commands.
 
