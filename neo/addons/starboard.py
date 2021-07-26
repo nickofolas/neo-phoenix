@@ -493,7 +493,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
     async def starboard_unignore(self, ctx, to_ignore: Union[discord.TextChannel, discord.PartialMessage, int]):
         """Unignores a channel or message"""
         starboard = self.starboards[ctx.guild.id]
-        id = to_ignore.id
+        id = getattr(to_ignore, "id", to_ignore)
 
         starboard.ignored.remove(id)
         await self.bot.db.execute(
