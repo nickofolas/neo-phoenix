@@ -47,7 +47,7 @@ class Star:
     ):
         self.message_id = message_id
         self.starboard_message = starboard_message
-        self = stars
+        self.stars = stars
 
     def __repr__(self):
         return (
