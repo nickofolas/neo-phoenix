@@ -51,7 +51,7 @@ class Highlight:
         self.bot = bot
         self.content = content
         self.user_id = user_id
-        self.pattern = re.compile(fr"\b{self.content}\b")
+        self.pattern = re.compile(fr"\b{self.content}\b", re.I)
 
     def __repr__(self):
         return ("<{0.__class__.__name__} user_id={0.user_id!r} "
