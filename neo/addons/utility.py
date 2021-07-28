@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2021 nickofolas
+from functools import partial
 from sys import version as py_version
 from types import SimpleNamespace
 from typing import Union
@@ -72,23 +73,27 @@ class Utility(neo.Addon):
         )
         self.dictionary = dictionary.Define(self.bot.session)
         self.appinfo = await self.bot.application_info()
-        invite_menu = InviteMenu(self.bot.cfg["invite_presets"], self.bot.user.id)
-        self.info_buttons = InfoButtons(
+        buttons = [
+            discord.ui.Button(
+                url=self.bot.cfg["support"]["url"],
+                label="Support Server",
+                disabled=self.bot.cfg["support"]["disabled"],
+            ),
+            discord.ui.Button(
+                url=self.bot.cfg["upstream_url"],
+                label="Source Code",
+                row=1
+            )
+        ]
+        self.info_buttons = partial(
+            InfoButtons,
             self.privacy_embed,
-            not self.appinfo.bot_public,
-            invite_menu
+            False,  # not self.appinfo.bot_public,
+            buttons=buttons,
+            presets=self.bot.cfg["invite_presets"],
+            application_id=self.bot.user.id
         )
-        self.info_buttons.add_item(discord.ui.Button(
-            url=self.bot.cfg["support"]["url"],
-            label="Support Server",
-            disabled=self.bot.cfg["support"]["disabled"],
-        ))
-        self.info_buttons.add_item(discord.ui.Button(
-            url=self.bot.cfg["upstream_url"],
-            label="Source Code",
-            row=1
-        ))
-        self.bot.add_view(self.info_buttons)
+        self.bot.add_view(self.info_buttons())
 
     @args.add_arg(
         "query",
@@ -279,7 +284,7 @@ class Utility(neo.Addon):
             name=f"Developed by {self.appinfo.owner}",
             icon_url=self.appinfo.owner.avatar
         )
-        await ctx.send(embed=embed, view=self.info_buttons)
+        await ctx.send(embed=embed, view=self.info_buttons())
 
 
 def setup(bot):

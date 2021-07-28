@@ -115,10 +115,11 @@ class InviteMenu(discord.ui.View):
 
 
 class InviteButton(discord.ui.Button):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, view_kwargs: dict, **kwargs):
         kwargs["style"] = discord.ButtonStyle.primary
         kwargs["label"] = "Invite neo phoenix"
         kwargs["custom_id"] = "neo phoenix:invite button"
+        self.view_kwargs = view_kwargs
         super().__init__(*args, **kwargs)
 
     async def callback(self, interaction: discord.Interaction):
@@ -133,7 +134,7 @@ class InviteButton(discord.ui.Button):
         await interaction.response.send_message(
             embed=embed,
             ephemeral=True,
-            view=self.view.invite_menu
+            view=InviteMenu(**self.view_kwargs)
         )
 
 
@@ -142,12 +143,16 @@ class InfoButtons(discord.ui.View):
         self,
         privacy_embed: neo.Embed,
         invite_disabled: bool,
-        invite_menu: InviteMenu
+        *,
+        buttons: list[discord.ui.Button],
+        **invite_menu_kwargs
     ):
         self.privacy_embed = privacy_embed
-        self.invite_menu = invite_menu
         super().__init__(timeout=None)
-        self.add_item(InviteButton(disabled=invite_disabled))
+        self.add_item(InviteButton(
+            view_kwargs=invite_menu_kwargs, disabled=invite_disabled))
+        for button in buttons:
+            self.add_item(button)
 
     @discord.ui.button(
         custom_id="neo phoenix:privacy policy",
