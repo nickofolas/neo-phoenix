@@ -16,7 +16,6 @@ from neo.types.converters import mention_converter
 from .auxiliary.utility import (
     LANGUAGE_CODES,
     InfoButtons,
-    InviteMenu,
     definitions_to_embed,
     get_translation_kwargs,
     result_to_embed,

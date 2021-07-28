@@ -17,7 +17,7 @@ except ImportError:
 from neo import Neo
 from neo.modules.args.commands import ArgCommand, ArgGroup
 from neo.tools import Patcher
-from neo.types.formatters import NeoLoggingFormatter
+from neo.types.formatters import NeoLoggingFormatter, format_exception
 from neo.types.partials import PartialUser
 
 # Sect: Logging
@@ -45,6 +45,7 @@ client = Patcher(discord.Client)
 message = Patcher(discord.Message)
 missing_required = Patcher(commands.MissingRequiredArgument)
 argument_error = Patcher(argparse.ArgumentError)
+view = Patcher(discord.ui.View)
 
 
 @guild.attribute()
@@ -113,6 +114,14 @@ def __str__(self):
     return format.format(self)
 
 
+@view.attribute()
+async def on_error(self, error, item, interaction):
+    if isinstance(error, discord.Forbidden):
+        if error.code == 50083:  # Tried to perform action in archived thread
+            return
+    loggers[1].error(format_exception(error))
+
+
 guild.patch()
 gateway.patch()
 group.patch()
@@ -120,6 +129,7 @@ client.patch()
 message.patch()
 missing_required.patch()
 argument_error.patch()
+view.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot
