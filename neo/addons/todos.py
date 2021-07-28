@@ -60,7 +60,7 @@ class Todos(neo.Addon):
             self.todos[record["user_id"]].append(TodoItem(**record))
 
     # Need to dynamically account for deleted profiles
-    @commands.Cog.listener("on_profile_delete")
+    @neo.Addon.recv("profile_delete")
     async def handle_deleted_profile(self, user_id: int):
         self.todos.pop(user_id, None)
 

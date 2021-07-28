@@ -176,7 +176,7 @@ class Highlights(neo.Addon):
                 **await hl.to_send_kwargs(message, later_triggers)
             )
 
-    @commands.Cog.listener("on_user_settings_update")
+    @neo.Addon.recv("user_settings_update")
     async def handle_update_profile(self, user, profile):
         if self.grace_periods.get(user.id):
             current_timeout = self.grace_periods[user.id].decay_time
@@ -190,7 +190,7 @@ class Highlights(neo.Addon):
         )
 
     # Need to dynamically account for deleted profiles
-    @commands.Cog.listener("on_profile_delete")
+    @neo.Addon.recv("profile_delete")
     async def handle_deleted_profile(self, user_id: int):
         self.grace_periods.pop(user_id, None)
         self.highlights.pop(user_id, None)

@@ -96,7 +96,7 @@ class Profile(neo.Addon):
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         profile = self.bot.profiles[ctx.author.id]
         setattr(profile, setting, value)
-        self.bot.dispatch("user_settings_update", ctx.author, profile)
+        self.bot.broadcast("user_settings_update", ctx.author, profile)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
     @settings.command(name="reset")
@@ -114,7 +114,7 @@ class Profile(neo.Addon):
             )
         profile = self.bot.profiles[ctx.author.id]
         await profile.reset_attribute(setting)
-        self.bot.dispatch("user_settings_update", ctx.author, profile)
+        self.bot.broadcast("user_settings_update", ctx.author, profile)
         await ctx.send(f"Setting `{setting}` has been reset!")
 
     @commands.group(invoke_without_command=True)
@@ -153,7 +153,7 @@ class Profile(neo.Addon):
             raise RuntimeError("You already have a profile!")
 
         profile = await self.bot.add_profile(ctx.author.id)
-        self.bot.dispatch("user_settings_update", ctx.author, profile)
+        self.bot.broadcast("user_settings_update", ctx.author, profile)
         await ctx.send("Successfully initialized your profile!")
 
     @profile.command(name="delete")

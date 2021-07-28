@@ -1,11 +1,28 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2021 nickofolas
-from types import MethodType
+from inspect import iscoroutinefunction
+from types import FunctionType, MethodType
 
 from discord.ext import commands
 
 
-class Addon(commands.Cog):
+class AddonMeta(commands.CogMeta):
+    def __new__(cls, *args, **kwargs):
+        _cls = commands.CogMeta.__new__(cls, *args, **kwargs)
+        receivers = {}
+
+        for base in _cls.__mro__:
+            for attr in vars(base).values():
+                if not isinstance(attr, FunctionType) or \
+                        not getattr(attr, "__receiver__", False):
+                    continue
+                receivers[attr.__event_name__] = attr
+
+        _cls.__receivers__ = receivers
+        return _cls
+
+
+class Addon(commands.Cog, metaclass=AddonMeta):
     def __init__(self, bot):
         """
         This just removes the mandatory __init__ for every single addon
@@ -80,3 +97,14 @@ class Addon(commands.Cog):
         """
         self._merge_addon(other)
         return self
+
+    @classmethod
+    def recv(cls, event: str):
+        def inner(func):
+            if not iscoroutinefunction(func):
+                raise ValueError("Addon receiver must be a coroutine.")
+            receiver = func
+            receiver.__receiver__ = True
+            receiver.__event_name__ = event
+            return receiver
+        return inner

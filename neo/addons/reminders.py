@@ -110,7 +110,7 @@ class Reminder:
         try:  # Need to cancel the task
             self.wait_task.cancel()
         finally:  # ...but need to ensure that dispatch is after cancel
-            self.bot.dispatch("reminder_removed", self.user_id)
+            self.bot.broadcast("reminder_removed", self.user_id)
 
 
 class Reminders(neo.Addon):
@@ -128,12 +128,12 @@ class Reminders(neo.Addon):
             reminder = Reminder(bot=self.bot, **record)
             self.reminders[record["user_id"]].append(reminder)
 
-    @commands.Cog.listener("on_profile_delete")
+    @neo.Addon.recv("profile_delete")
     async def handle_deleted_profile(self, user_id: int):
         for reminder in self.reminders.pop(user_id, []):
             await reminder.delete()
 
-    @commands.Cog.listener("on_reminder_removed")
+    @neo.Addon.recv("reminder_removed")
     async def handle_removed_reminder(self, user_id: int):
         self.reminders[user_id] = [*filter(
             lambda r: not r.wait_task.done(),

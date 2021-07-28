@@ -93,7 +93,7 @@ class ServerSettings(neo.Addon):
         value = await convert_setting(ctx, SETTINGS_MAPPING, setting, new_value)
         config = self.bot.configs[ctx.guild.id]
         setattr(config, setting, value)
-        self.bot.dispatch("config_update", ctx.guild, config)
+        self.bot.broadcast("config_update", ctx.guild, config)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
     @server.command(name="reset")
@@ -111,7 +111,7 @@ class ServerSettings(neo.Addon):
             )
         config = self.bot.configs[ctx.guild.id]
         await config.reset_attribute(setting)
-        self.bot.dispatch("config_update", ctx.guild, config)
+        self.bot.broadcast("config_update", ctx.guild, config)
         await ctx.send(f"Setting `{setting}` has been reset!")
 
     @server.command(name="create")
@@ -127,7 +127,7 @@ class ServerSettings(neo.Addon):
             raise RuntimeError("Your server already has a config entry!")
 
         config = await self.bot.add_config(ctx.guild.id)
-        self.bot.dispatch("config_update", ctx.guild, config)
+        self.bot.broadcast("config_update", ctx.guild, config)
         await ctx.send("Successfully initialized your server's config!")
 
     @server.command(name="delete")

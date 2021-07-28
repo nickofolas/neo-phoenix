@@ -100,7 +100,7 @@ class Neo(commands.Bot):
             """,
             user_id
         )
-        self.dispatch("profile_delete", user_id)
+        self.broadcast("profile_delete", user_id)
 
     async def add_config(self, guild_id: int, *, record=None):
         if not record:
@@ -129,7 +129,7 @@ class Neo(commands.Bot):
             """,
             guild_id
         )
-        self.dispatch("config_delete", guild_id)
+        self.broadcast("config_delete", guild_id)
 
     def run(self):
         for addon in self.cfg["addons"]:
@@ -188,3 +188,15 @@ class Neo(commands.Bot):
             raise commands.CommandOnCooldown(
                 self.cooldown, retry_after, commands.BucketType.user)
         return True
+
+    # discord.py's `Client.dispatch` API is both private and *volatile*.
+    # This serves as a similar implementation that will not change in the future.
+    def broadcast(self, event: str, *args, **kwargs):
+        coros = []
+        for addon in self.cogs.values():
+            if event in addon.__receivers__:
+                coros.append(addon.__receivers__[event](addon, *args, **kwargs))
+
+        async def run_coros():
+            await asyncio.gather(*coros)
+        self.loop.create_task(run_coros())

@@ -351,7 +351,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
             star.message_id
         )
 
-    @commands.Cog.listener("on_config_update")
+    @neo.Addon.recv("config_update")
     async def handle_starboard_setting(self, guild, settings):
         if settings.starboard is True:
             if guild.id in self.starboards:
@@ -373,7 +373,7 @@ class StarboardAddon(neo.Addon, name="Starboard"):
                 starboard_data
             )
 
-    @commands.Cog.listener("on_config_delete")
+    @neo.Addon.recv("config_delete")
     async def handle_deleted_config(self, guild_id: int):
         self.starboards.pop(guild_id, None)
 
