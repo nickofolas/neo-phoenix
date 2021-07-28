@@ -1,3 +1,13 @@
+# Release v0.10.3
+## Fixes
+* Fix issues with ignoring entities from a starboard
+* Fix highlights not being compiled as case-insensitive
+* Implement potential fix for issues with invite dropdown failing to respond
+
+## Other
+* Implement event system separate from `discord.Client.dispatch` due to volatility of that API
+
+
 # Release v0.10.2
 ## Fixes
 * Fix an AttributeError when setting a starboard channel (was caused due to residual code)
