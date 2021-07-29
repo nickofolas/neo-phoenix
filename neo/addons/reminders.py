@@ -286,7 +286,7 @@ class Reminders(neo.Addon):
         )
         await ctx.send(embed=embed)
 
-    @remind.command(name="cancel")
+    @remind.command(name="cancel", aliases=["remove", "rm"])
     async def remind_cancel(self, ctx, *indices: Union[int, str]):
         """
         Cancel 1 or more reminder by index
