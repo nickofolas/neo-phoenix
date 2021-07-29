@@ -51,7 +51,7 @@ class TimedeltaWithYears(timedelta):
         )
 
 
-def parse_absolute(string: str) -> Optional[tuple[datetime, str]]:
+def parse_absolute(string: str, *, tz) -> Optional[tuple[datetime, str]]:
     split = string.split(" ")
     endpoint = len(split)
 
@@ -60,7 +60,7 @@ def parse_absolute(string: str) -> Optional[tuple[datetime, str]]:
 
         for format in ABSOLUTE_FORMATS:
             if (dt := try_or_none(datetime.strptime, " ".join(to_parse), format)):
-                if dt < (date := datetime.now()):
+                if dt.replace(tzinfo=tz) < (date := datetime.now(tz)):
                     dt = date.replace(hour=dt.hour, minute=dt.minute, second=dt.second)
                 break
 

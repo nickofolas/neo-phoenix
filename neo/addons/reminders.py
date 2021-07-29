@@ -224,14 +224,14 @@ class Reminders(neo.Addon):
         profile, it will be used to localize date/time.
         Otherwise, date/times will be in UTC.
         """
+        profile = self.bot.profiles[ctx.author.id]
         if len(self.reminders[ctx.author.id]) >= MAX_REMINDERS:
             raise ValueError("You've used up all of your reminder slots!")
 
-        (future_time, remainder) = parse_absolute(input)
+        (future_time, remainder) = parse_absolute(input, tz=profile.timezone or timezone.utc)
         if len(remainder) > MAX_REMINDER_LEN:
             raise ValueError(f"Reminders cannot be longer than {MAX_REMINDER_LEN:,} characters!")
 
-        profile = self.bot.profiles[ctx.author.id]
         future_time = future_time.replace(
             tzinfo=profile.timezone or timezone.utc
         )
