@@ -12,7 +12,14 @@ from discord.ext import commands
 
 from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
-from .types import Embed, containers, context, formatters, help_command
+from .types import (
+    Embed,
+    containers,
+    context,
+    formatters,
+    help_command,
+    partials
+)
 
 __version__ = "0.10.4a"
 
@@ -175,6 +182,12 @@ class Neo(commands.Bot):
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)
+
+    def get_user(self, id, *, as_partial=False):
+        user = self._connection.get_user(id)
+        if as_partial or not user:
+            user = partials.PartialUser(state=self._connection, id=id)
+        return user
 
     async def on_guild_remove(self, guild: discord.Guild):
         await self.delete_config(guild.id)

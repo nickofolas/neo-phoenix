@@ -41,7 +41,6 @@ handler.setFormatter(formatter)
 guild = Patcher(discord.Guild)
 gateway = Patcher(discord.gateway.DiscordWebSocket)
 group = Patcher(commands.Group)
-client = Patcher(discord.Client)
 message = Patcher(discord.Message)
 missing_required = Patcher(commands.MissingRequiredArgument)
 argument_error = Patcher(argparse.ArgumentError)
@@ -77,14 +76,6 @@ def arg_group(self, **kwargs):
         self.add_command(result)
         return result
     return inner
-
-
-@client.attribute()
-def get_user(self, id, *, as_partial=False):
-    user = self._connection.get_user(id)
-    if as_partial or not user:
-        user = PartialUser(state=self._connection, id=id)
-    return user
 
 
 @message.attribute()
@@ -125,7 +116,6 @@ async def on_error(self, error, item, interaction):
 guild.patch()
 gateway.patch()
 group.patch()
-client.patch()
 message.patch()
 missing_required.patch()
 argument_error.patch()
