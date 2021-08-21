@@ -167,9 +167,9 @@ class DropdownMenu(ButtonsMenu, BaseMenu):
             description = None
             if isinstance(page, discord.Embed):
                 if embed_auto_label:
-                    label = shorten(page.title or f"Page {index}", 25)
+                    label = shorten(page.title or f"Page {index}", 100)
                 if embed_auto_desc:
-                    description = shorten(page.description or "", 50)
+                    description = shorten(page.description or "", 100)
             options.append(discord.SelectOption(
                 label=label, value=index - 1, description=description))
 
