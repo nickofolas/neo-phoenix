@@ -45,6 +45,7 @@ message = Patcher(discord.Message)
 missing_required = Patcher(commands.MissingRequiredArgument)
 argument_error = Patcher(argparse.ArgumentError)
 view = Patcher(discord.ui.View)
+asset = Patcher(discord.Asset)
 
 
 @guild.attribute()
@@ -112,6 +113,7 @@ async def on_error(self, error, item, interaction):
             return
     loggers[1].error(format_exception(error))
 
+asset.attribute("https://images.discordapp.net", name="BASE")
 
 guild.patch()
 gateway.patch()
@@ -120,6 +122,7 @@ message.patch()
 missing_required.patch()
 argument_error.patch()
 view.patch()
+asset.patch()
 
 # /Sect: Monkeypatches
 # Sect: Running bot
