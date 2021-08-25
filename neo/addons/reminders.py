@@ -175,7 +175,7 @@ class Reminders(neo.Addon):
         """Group command for managing reminders"""
 
     @remind.command(name="in", usage="<offset> <content>")
-    async def remind_in(self, ctx, *, input: str):
+    async def remind_relative(self, ctx, *, input: str):
         """
         Schedule a reminder for a relative offset
 
