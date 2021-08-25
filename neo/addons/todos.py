@@ -67,8 +67,12 @@ class Todos(neo.Addon):
     async def cog_check(self, ctx):
         return await is_registered_profile().predicate(ctx)
 
-    @commands.group(invoke_without_command=True)
+    @commands.group()
     async def todo(self, ctx):
+        """Group command for managing todos"""
+
+    @todo.command(name="list")
+    async def todo_list(self, ctx):
         """List your todos"""
         formatted_todos = []
 

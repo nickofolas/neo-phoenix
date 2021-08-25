@@ -170,8 +170,12 @@ class Reminders(neo.Addon):
         reminder = Reminder(bot=self.bot, **data)
         self.reminders[user_id].append(reminder)
 
-    @commands.group(invoke_without_command=True, usage="<offset> <content>")
-    async def remind(self, ctx, *, input: str):
+    @commands.group()
+    async def remind(self, ctx):
+        """Group command for managing reminders"""
+
+    @remind.command(name="in", usage="<offset> <content>")
+    async def remind_in(self, ctx, *, input: str):
         """
         Schedule a reminder for a relative offset
 

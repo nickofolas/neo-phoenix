@@ -59,9 +59,14 @@ class Profile(neo.Addon):
 
             SETTINGS_MAPPING[col_name]["description"] = col_desc
 
-    @commands.group(invoke_without_command=True, ignore_extra=False)
+    @commands.group(name="profilesettings", aliases=["settings"])
     @is_registered_profile()
-    async def settings(self, ctx):
+    async def profile_settings(self, ctx):
+        """Group command for managing profile settings"""
+
+    @profile_settings.command(name="list")
+    @is_registered_profile()
+    async def profile_settings_list(self, ctx):
         """
         Displays an overview of your profile settings
 
@@ -85,9 +90,9 @@ class Profile(neo.Addon):
         menu = ButtonsMenu.from_embeds(embeds)
         await menu.start(ctx)
 
-    @settings.command(name="set")
+    @profile_settings.command(name="set")
     @is_registered_profile()
-    async def settings_set(self, ctx, setting, *, new_value):
+    async def profile_settings_set(self, ctx, setting, *, new_value):
         """
         Updates the value of a profile setting
 
@@ -99,9 +104,9 @@ class Profile(neo.Addon):
         self.bot.broadcast("user_settings_update", ctx.author, profile)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
-    @settings.command(name="reset")
+    @profile_settings.command(name="reset")
     @is_registered_profile()
-    async def settings_reset(self, ctx, setting):
+    async def profile_settings_reset(self, ctx, setting):
         """
         Resets the value of a profile setting to its default
 

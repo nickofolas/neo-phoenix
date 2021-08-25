@@ -56,8 +56,12 @@ class ServerSettings(neo.Addon):
 
         return True
 
-    @commands.group(invoke_without_command=True, ignore_extra=False)
-    async def server(self, ctx):
+    @commands.group(name="serversettings", aliases=["server"])
+    async def server_settings(self, ctx):
+        """Group command for managing server settings"""
+
+    @server_settings.command(name="list")
+    async def server_settings_list(self, ctx):
         """
         Displays an overview of your server's settings
 
@@ -82,9 +86,9 @@ class ServerSettings(neo.Addon):
         menu = ButtonsMenu.from_embeds(embeds)
         await menu.start(ctx)
 
-    @server.command(name="set")
+    @server_settings.command(name="set")
     @is_registered_guild()
-    async def server_set(self, ctx, setting, *, new_value):
+    async def server_settings_set(self, ctx, setting, *, new_value):
         """
         Updates the value of a server setting
 
@@ -96,9 +100,9 @@ class ServerSettings(neo.Addon):
         self.bot.broadcast("config_update", ctx.guild, config)
         await ctx.send(f"Setting `{setting}` has been changed!")
 
-    @server.command(name="reset")
+    @server_settings.command(name="reset")
     @is_registered_guild()
-    async def server_reset(self, ctx, setting):
+    async def server_settings_reset(self, ctx, setting):
         """
         Resets the value of a server setting to its default
 
@@ -114,8 +118,8 @@ class ServerSettings(neo.Addon):
         self.bot.broadcast("config_update", ctx.guild, config)
         await ctx.send(f"Setting `{setting}` has been reset!")
 
-    @server.command(name="create")
-    async def server_create(self, ctx):
+    @server_settings.command(name="create")
+    async def server_settings_create(self, ctx):
         """
         Creates a config entry for the server
 
@@ -130,9 +134,9 @@ class ServerSettings(neo.Addon):
         self.bot.broadcast("config_update", ctx.guild, config)
         await ctx.send("Successfully initialized your server's config!")
 
-    @server.command(name="delete")
+    @server_settings.command(name="delete")
     @is_registered_guild()
-    async def server_delete(self, ctx):
+    async def server_settings_delete(self, ctx):
         """__Permanently__ deletes this server's config"""
         if await ctx.prompt_user(
             "Are you sure you want to delete the config?"

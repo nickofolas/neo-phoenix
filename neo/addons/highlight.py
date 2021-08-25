@@ -199,8 +199,12 @@ class Highlights(neo.Addon):
     async def cog_check(self, ctx):
         return await is_registered_profile().predicate(ctx)
 
-    @commands.group(aliases=["hl"], invoke_without_command=True)
+    @commands.group(aliases=["hl"])
     async def highlight(self, ctx):
+        """Group command for managing highlights"""
+
+    @highlight.command(name="list")
+    async def highlight_list(self, ctx):
         """List your highlights"""
         description = ""
         user_highlights = self.highlights.get(ctx.author.id, [])
