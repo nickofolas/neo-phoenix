@@ -78,7 +78,7 @@ class Profile(neo.Addon):
                 title=f"Settings for {ctx.author}",
                 description=f"**Setting: `{setting}`**\n\n" + description
             ).set_thumbnail(
-                url=ctx.author.avatar
+                url=ctx.author.display_avatar
             )
             embeds.append(embed)
 
@@ -133,7 +133,7 @@ class Profile(neo.Addon):
                 f"**Created** <t:{int(profile.created_at.timestamp())}>"
             )
         ).set_thumbnail(
-            url=ctx.me.avatar if user else ctx.author.avatar
+            url=ctx.me.display_avatar if user else ctx.author.display_avatar
         )
         if getattr(profile, "timezone", None):
             embed.add_field(

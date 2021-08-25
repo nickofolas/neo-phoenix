@@ -112,7 +112,7 @@ class Starboard:
             embed = neo.Embed(description="") \
                 .set_author(
                     name=message.author,
-                    icon_url=message.author.avatar
+                    icon_url=message.author.display_avatar
             )
 
             if message.content:

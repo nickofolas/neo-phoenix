@@ -262,7 +262,7 @@ class Reminders(neo.Addon):
             use_embed=True,
             template_embed=neo.Embed().set_author(
                 name=f"{ctx.author}'s reminders",
-                icon_url=ctx.author.avatar
+                icon_url=ctx.author.display_avatar
             )
         )
         await menu.start(ctx)
@@ -282,7 +282,7 @@ class Reminders(neo.Addon):
             value=f"Triggers on <t:{int(reminder.end_time.timestamp())}>"
         ).set_author(
             name="Viewing a reminder",
-            icon_url=ctx.author.avatar
+            icon_url=ctx.author.display_avatar
         )
         await ctx.send(embed=embed)
 

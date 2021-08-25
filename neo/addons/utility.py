@@ -194,16 +194,18 @@ class Utility(neo.Addon):
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
     async def avatar_command(self, ctx, *, user: Union[int, mention_converter, discord.Member] = None):
         """Retrieves the avatar of yourself, or a specified user"""
+        embed = neo.Embed()
         if isinstance(user, (int, type(None))):
             user = await self.bot.fetch_user(user) if user else ctx.author
 
+        avatar = user.avatar or user.default_avatar
         formats = ["PNG", "JPG", "WEBP"]  # I want it to be known that I *wanted* to
-        if user.avatar.is_animated():     # do some weird walrus operator stuff here,
+        if avatar.is_animated():     # do some weird walrus operator stuff here,
             formats.append("GIF")         # but it would be less performant
-        embed = neo.Embed(
-            description="**View in Browser**\n" + " • "
-            .join(f"[{fmt}]({user.avatar.with_format(fmt.lower())})" for fmt in formats)
-        ).set_image(url=user.avatar).set_author(name=user)
+
+        embed.description = "**View in Browser**\n" + " • " \
+            .join(f"[{fmt}]({avatar.with_format(fmt.lower())})" for fmt in formats)
+        embed = embed.set_image(url=avatar).set_author(name=user)
 
         await ctx.send(embed=embed)
 
