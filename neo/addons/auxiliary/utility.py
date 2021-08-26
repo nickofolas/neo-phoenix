@@ -163,3 +163,15 @@ class InfoButtons(discord.ui.View):
         await interaction.response.send_message(
             embed=self.privacy_embed, ephemeral=True
         )
+
+
+class SwappableEmbedButton(discord.ui.Button):
+    def __init__(self, *args, **kwargs):
+        kwargs["label"] = "Swap image sizes"
+        super().__init__(*args, **kwargs)
+
+    async def callback(self, interaction: discord.Interaction):
+        embed = interaction.message.embeds[0]
+        image, thumbnail = embed.image, embed.thumbnail
+        embed = embed.set_image(url=thumbnail.url).set_thumbnail(url=image.url)
+        await interaction.message.edit(embed=embed)

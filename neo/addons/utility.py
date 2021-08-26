@@ -16,6 +16,7 @@ from neo.types.converters import mention_converter
 from .auxiliary.utility import (
     LANGUAGE_CODES,
     InfoButtons,
+    SwappableEmbedButton,
     definitions_to_embed,
     get_translation_kwargs,
     result_to_embed,
@@ -46,6 +47,15 @@ PREMIUM_ICON_MAPPING = {
     2: "<:_:868138562737041458>",
     3: "<:_:868138562913173564>"
 }
+
+
+def get_browser_links(avatar: discord.Asset):
+    formats = ["PNG", "JPG", "WEBP"]
+    if avatar.is_animated():
+        formats.append("GIF")
+
+    return " • " .join(
+        f"[{fmt}]({avatar.with_format(fmt.lower())})" for fmt in formats)
 
 
 class Utility(neo.Addon):
@@ -194,20 +204,27 @@ class Utility(neo.Addon):
     @commands.command(name="avatar", aliases=["av", "avy", "pfp"])
     async def avatar_command(self, ctx, *, user: Union[int, mention_converter, discord.Member] = None):
         """Retrieves the avatar of yourself, or a specified user"""
-        embed = neo.Embed()
+        kwargs = {}
+        embed = neo.Embed(description="")
+
         if isinstance(user, (int, type(None))):
             user = await self.bot.fetch_user(user) if user else ctx.author
 
-        avatar = user.avatar or user.default_avatar
-        formats = ["PNG", "JPG", "WEBP"]  # I want it to be known that I *wanted* to
-        if avatar.is_animated():     # do some weird walrus operator stuff here,
-            formats.append("GIF")         # but it would be less performant
+        if getattr(user, "guild_avatar", None) is not None:
+            embed.set_thumbnail(url=user.guild_avatar.url)
+            embed.description += "**View server avatar in browser**\n" \
+                + get_browser_links(user.guild_avatar) + "\n\n"
+            view = discord.ui.View()
+            view.add_item(SwappableEmbedButton())
+            kwargs["view"] = view
 
-        embed.description = "**View in Browser**\n" + " • " \
-            .join(f"[{fmt}]({avatar.with_format(fmt.lower())})" for fmt in formats)
+        avatar = user.avatar or user.default_avatar
+
+        embed.description += "**View user avatar in browser**\n" \
+            + get_browser_links(avatar)
         embed = embed.set_image(url=avatar).set_author(name=user)
 
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, **kwargs)
 
     @commands.command(name="userinfo", aliases=["ui"])
     async def user_info_command(self, ctx, *, user: Union[mention_converter, int, discord.Member] = None):
@@ -218,7 +235,7 @@ class Utility(neo.Addon):
             except (discord.HTTPException, AttributeError):
                 user = await self.bot.fetch_user(user or ctx.author.id)
 
-        embed = neo.Embed().set_thumbnail(url=user.avatar)
+        embed = neo.Embed().set_thumbnail(url=user.display_avatar)
         flags = [v for k, v in BADGE_MAPPING.items() if k in
                  {flag.name for flag in user.public_flags.all()}]
         title = str(user)
@@ -280,10 +297,10 @@ class Utility(neo.Addon):
                 discord.__version__
             )
         )
-        embed.set_thumbnail(url=self.bot.user.avatar)
+        embed.set_thumbnail(url=self.bot.user.display_avatar)
         embed.set_author(
             name=f"Developed by {self.appinfo.owner}",
-            icon_url=self.appinfo.owner.avatar
+            icon_url=self.appinfo.owner.display_avatar
         )
         await ctx.send(embed=embed, view=self.info_buttons())
 
