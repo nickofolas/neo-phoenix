@@ -1,3 +1,31 @@
+# Release v0.11.0
+Release v0.11.0 standardizes certain interfaces, adds some new feature support, plus some various other changes.
+
+## Improvements
+* `avatar` command now supports per-guild avatars where applicable
+    * In cases where one is found, the embed sent will have both the global and guild avatars as the image and thumbnail, respectively
+    * Embeds also feature a button to swap the image and the embed
+* Renamed `settings` and `server` commands to `profilesettings` and `serversettings`, respectively
+    * Previous names are currently present as aliases for backwards-compatability
+* Standardize subcommand interfaces for `highlight`, `todo`, `profilesettings`, `serversettings`, `starboard`, and `remind` command groups
+    * Previous behavior: calling any of these parent commands with no arguments or subcommands would:
+        * Display a list of associated items
+        * Allow the scheduling of a relative reminder (`remind` group only)
+    * New behavior: calling any parent command by itself will do **nothing**
+        * Previous behavior has been moved to an appropriate subcommand:
+            * Associated items may be accessed via the `<command> *list*` invocation
+            * Relative reminders are scheduled via the `remind in` subcommand
+* Add `remove`, `rm` aliases to `remind cancel` for consistency purposes
+* Dropdown menus now make full use of the extended character limits of select menus
+
+## Fixes
+* Absolute reminders now properly detect if the scheduled time is within the current day or not, based on timezone
+
+## Other
+* Runtime patches have been relocated to `runtime.py`
+* Unnecessary runtime patches have been removed
+
+
 # Release v0.10.3
 ## Fixes
 * Fix issues with ignoring entities from a starboard
