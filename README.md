@@ -1,3 +1,5 @@
+## This project is no longer maintained. See the [gist](https://gist.github.com/nickofolas/9520b4d7d033f397cdc421222d87b10b) for details.
+
 # neo phoenix
 
 neo phoenix is an in-development rewrite of the `neo` Discord bot.
