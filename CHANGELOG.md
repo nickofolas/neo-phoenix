@@ -1,3 +1,9 @@
+# Release v0.11.1
+## Fixes
+* `avatar` now properly fetches guild members when applicable
+* Updated the description for the `remind in` command
+
+
 # Release v0.11.0
 Release v0.11.0 standardizes certain interfaces, adds some new feature support, plus some various other changes.
 

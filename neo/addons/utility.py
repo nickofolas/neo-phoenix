@@ -208,7 +208,10 @@ class Utility(neo.Addon):
         embed = neo.Embed(description="")
 
         if isinstance(user, (int, type(None))):
-            user = await self.bot.fetch_user(user) if user else ctx.author
+            try:
+                user = await ctx.guild.fetch_member(user or ctx.author.id)
+            except (discord.HTTPException, AttributeError):
+                user = await self.bot.fetch_user(user or ctx.author.id)
 
         if getattr(user, "guild_avatar", None) is not None:
             embed.set_thumbnail(url=user.guild_avatar.url)

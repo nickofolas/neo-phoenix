@@ -21,7 +21,7 @@ from .types import (
     partials
 )
 
-__version__ = "0.11.0"
+__version__ = "0.11.1"
 
 log = logging.getLogger(__name__)
 intents = discord.Intents(

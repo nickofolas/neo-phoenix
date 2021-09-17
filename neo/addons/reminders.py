@@ -186,9 +186,9 @@ class Reminders(neo.Addon):
         - Time units have to be ordered by magnitude
 
         **Examples**
-        `remind 5 years Hey, hello!`
-        `remind 4h30m Check what time it is`
-        `remind 3 weeks, 2 days Do something funny`
+        `remind in 5 years Hey, hello!`
+        `remind in 4h30m Check what time it is`
+        `remind in 3 weeks, 2 days Do something funny`
         """
         if len(self.reminders[ctx.author.id]) >= MAX_REMINDERS:
             raise ValueError("You've used up all of your reminder slots!")
