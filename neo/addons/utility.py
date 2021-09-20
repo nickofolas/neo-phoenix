@@ -47,6 +47,12 @@ PREMIUM_ICON_MAPPING = {
     2: "<:_:868138562737041458>",
     3: "<:_:868138562913173564>"
 }
+ASSOCIATION_FILTER = [
+    ("Server Default Role", discord.Role.is_default),
+    ("Managed by Bot", discord.Role.is_bot_managed),
+    ("Booster-Exclusive Role", discord.Role.is_premium_subscriber),
+    ("Managed by Integration", discord.Role.is_integration)
+]
 
 
 def get_browser_links(avatar: discord.Asset):
@@ -276,6 +282,28 @@ class Utility(neo.Addon):
             f"\n**Filesize Limit** {round(ctx.guild.filesize_limit / 1_000_000)} MB"
             f"\n**Bitrate Limit** {round(ctx.guild.bitrate_limit / 1_000)} KB/s"
         ).set_thumbnail(url=ctx.guild.icon)
+
+        await ctx.send(embed=embed)
+
+    @commands.guild_only()
+    @commands.command(name="roleinfo", aliases=["ri"])
+    async def role_info_command(self, ctx, *, role: discord.Role):
+        """
+        Retrives information about the given role
+
+        The role can be specified by name, ID, or mention
+        """
+        associations = [desc for desc, _ in filter(
+            lambda p: p[1](role), ASSOCIATION_FILTER)]
+        embed = neo.Embed(
+            title=role.name,
+            description=f"**Created** <t:{int(role.created_at.timestamp())}:D>"
+            + f"\n**Associations** {', '.join(associations)}" * bool(associations)
+            + f"\n\n**Color** {str(role.colour).upper()}"
+            f"\n**Mentionable** {role.mentionable}"
+            f"\n**Hoisted** {role.hoist}"
+            + f"\n**Icon** [View]({role.icon})" * bool(role.icon)
+        ).set_thumbnail(url=role.icon or "")
 
         await ctx.send(embed=embed)
 
