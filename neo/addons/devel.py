@@ -70,7 +70,7 @@ class Devel(neo.Addon):
                     await menu.start(ctx, as_reply=True)
             await ctx.message.add_reaction("\U00002611")
 
-        except BaseException as e:  # Safely handle all errors
+        except BaseException as e:  # Ensure that all errors in exec are handled here
             menu.pages.append("\n{}".format(format_exception(e)))
             await menu.start(ctx, as_reply=True)
 
@@ -82,7 +82,7 @@ class Devel(neo.Addon):
             return await ctx.send("Query executed successfully")
 
         table = Table()
-        table.init_columns(*data[0].keys())
+        table.init_columns(*data[0].keys())  # Infer headers from column names
         for row in data:
             table.add_row(*map(str, row.values()))
 

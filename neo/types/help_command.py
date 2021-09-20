@@ -62,12 +62,10 @@ class NeoHelpCommand(commands.HelpCommand):
         embeds = []
 
         for cog, _commands in mapping.items():
-
             if not (cog_commands := await self.filter_commands(_commands)):
                 continue
 
             cog_name = getattr(cog, "qualified_name", "Uncategorized")
-
             embeds.append(
                 neo.Embed(
                     title=cog_name,

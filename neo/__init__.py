@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import sys
-from time import time
+import time
 
 import discord
 from aiohttp import ClientSession
@@ -13,7 +13,7 @@ from discord.ext import commands
 from .modules import *  # noqa: F403
 from .tools import *  # noqa: F403
 from .types import (
-    Embed,
+    Embed,  # Re-export
     containers,
     context,
     formatters,
@@ -21,7 +21,7 @@ from .types import (
     partials
 )
 
-__version__ = "0.12.0"
+__version__ = "0.12.0a"
 
 log = logging.getLogger(__name__)
 intents = discord.Intents(
@@ -31,7 +31,7 @@ intents = discord.Intents(
 class Neo(commands.Bot):
     def __init__(self, config, **kwargs):
         self.cfg = config
-        self.boot_time = int(time())
+        self.boot_time = int(time.time())
         self.session = None
         self.profiles: dict[int, containers.NeoUser] = {}
         self.configs: dict[int, containers.NeoGuildConfig] = {}
@@ -60,9 +60,11 @@ class Neo(commands.Bot):
         self.session = ClientSession()
         self.db = await create_pool(**self.cfg["database"])
 
+        # Load initial profiles from database
         for record in await self.db.fetch("SELECT * FROM profiles"):
             await self.add_profile(record["user_id"], record=record)
 
+        # Load initial guild configurations from database
         for record in await self.db.fetch("SELECT * FROM guild_configs"):
             await self.add_config(record["guild_id"], record=record)
 
@@ -74,6 +76,7 @@ class Neo(commands.Bot):
         await self._ready.wait()
 
     async def verify_configs(self) -> None:
+        """Purges configs where the bot is no longer in the corresponding guild"""
         await self.wait_until_ready()
 
         for guild_id in self.configs.copy():
@@ -169,16 +172,16 @@ class Neo(commands.Bot):
         log.error("\n" + formatters.format_exception(sys.exc_info()))
 
     async def on_command_error(self, ctx, error):
-        real_error = getattr(error, "original", error)
-        if real_error.__class__.__name__ in self.cfg["bot"]["ignored_exceptions"]:
+        original_error = getattr(error, "original", error)
+        if original_error.__class__.__name__ in self.cfg["bot"]["ignored_exceptions"]:
             return  # Ignore exceptions specified in config
 
         try:
-            await ctx.send(real_error)
+            await ctx.send(original_error)
         except discord.Forbidden:
             pass  # Maybe we can't send messages in the channel
         log.error(f"In command invocation: {ctx.message.content}\n" + formatters
-                  .format_exception(real_error))
+                  .format_exception(original_error))
 
     async def get_context(self, message: discord.Message, *, cls=context.NeoContext):
         return await super().get_context(message, cls=cls)
