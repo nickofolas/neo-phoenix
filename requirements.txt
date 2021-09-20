@@ -1,5 +1,5 @@
 ###  Core Requirements ###
-discord.py
+git+https://github.com/nickofolas/discord.py.git
 toml
 asyncpg
 
